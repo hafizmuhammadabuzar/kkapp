@@ -161,20 +161,26 @@ if (isset($event)) {
 						<div class="field-wrap clearfix">
 							<div class="left">
 								<label for="facebook">Facebook URL</label>
-<?php $facebook = (isset($event))?$event->facebook:old('facebook');?>
+<?php
+$facebook                        = (isset($event))?$event->facebook:old('facebook');
+if (empty($facebook)) {$facebook = 'https://facebook.com/';}
+?>
 <input type="text" id="facebook" name="facebook" value="{{$facebook}}">
 							</div>
 							<div class="right left-right">
 								<label for="twitter">Twitter URL</label>
-<?php $twitter = (isset($event))?$event->twitter:old('twitter');?>
+<?php $twitter                 = (isset($event))?$event->twitter:old('twitter');
+if (empty($twitter)) {$twitter = 'https://twitter.com/';}
+?>
 <input type="text" id="twitter" name="twitter" value="{{$twitter}}">
 							</div>
 						</div>
 						<div class="field-wrap clearfix">
 							<div class="left">
 								<label for="instagram">Instagram URL</label>
-<?php $instagram = (isset($event))?$event->instagram:old('instagram');?>
-								<input type="text" id="instagram" name="instagram" value="{{$instagram}}">
+<?php $instagram                   = (isset($event))?$event->instagram:old('instagram');
+if (empty($instagram)) {$instagram = 'https://instagram.com/';}?>
+<input type="text" id="instagram" name="instagram" value="{{$instagram}}">
 							</div>
 						</div>
 						{{-- @if($uri_segment != 'event-detail') --}}
@@ -184,9 +190,7 @@ if (isset($event)) {
 										<h4>Add Pictures - <span class="small">Max 4</span></h4>
 										<a href="#" style="display: block; margin: 0 0 10px;"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add more</a>
 										<div id="pictures">
-											<input type="file" name="picture[]" id="picture" <?php if ($uri_segment == 'add-event') {echo 'required="required"';
-}
-?>/>
+											<input type="file" name="picture[]" id="picture" />
 											<i class="fa fa-times pic-remove" aria-hidden="true"></i>
 										</div>
 									</div>
@@ -491,7 +495,7 @@ $latlng .= '~'.$loc->latitude.','.$loc->longitude;
 
 			$('.add-location').click(function(){
 				$('#event-latlngs').val('');
-				initMap(24.4539, 54.3773);
+				initMap();
 			});
 
 			$('#form-event').submit(function(){
@@ -521,18 +525,15 @@ $latlng .= '~'.$loc->latitude.','.$loc->longitude;
 			});
 
 			$('.form-location').submit(function(){
-				// $('#city').val($('#city').val()+'~'+$('#event-city').val());
-				// $('#location').val($('#location').val()+'~'+$('#event-location').val());
-				// $('#latlng').val($('#latlng').val()+'~'+$('#event-latlngs').val());
 				$('.location-list').append('<li><a href="#" class="add-location location-data">'+$('#event-location').val()+', '+$('#event-city').val()+'</a><a href="javascript:" class="link-remove fa fa-remove location-remove"></a></li>');
 				$('.form-location')[0].reset();
-				initMap(24.4539, 54.3773);
+				$('.jquery-modal').css('display','none');
 			});
-			$('#event-city').change(function(){
+			/*$('#event-city').change(function(){
 				var city = $(this).val();
 				var latlng = city.split(',');
 				initMap(latlng[1], latlng[2]);
-			});
+			});*/
 			$(document).on("click", ".location-remove", function() {
 				$(this).closest('li').remove();
 			});

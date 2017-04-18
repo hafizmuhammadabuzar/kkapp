@@ -312,7 +312,11 @@ class ApiController extends Controller {
 						$likes[$key]->user_picture = '';
 					}
 
-					$likes[$key]->is_favourite     = 1;
+					if (isset($user_favs)) {
+						$likes[$key]->is_favourite = (in_array($event->id, $user_favs))?1:0;
+					} else {
+						$likes[$key]->is_favourite = 0;
+					}
 					$likes[$key]->type_english     = $type->english;
 					$likes[$key]->type_arabic      = $type->arabic;
 					$likes[$key]->category_english = $category->english;
@@ -340,6 +344,12 @@ class ApiController extends Controller {
 						$shared[$key]->user_email   = '';
 						$shared[$key]->is_verfied   = '';
 						$shared[$key]->user_picture = '';
+					}
+
+					if (isset($user_favs)) {
+						$shared[$key]->is_favourite = (in_array($event->id, $user_favs))?1:0;
+					} else {
+						$shared[$key]->is_favourite = 0;
 					}
 
 					$shared[$key]->type_english     = $type->english;

@@ -72,7 +72,7 @@ if (strpos($_SERVER['REQUEST_URI'], "view-categories") > 0 || strpos($_SERVER['R
 			<div class="form-group">
 				<label for="event-location">Event Location</label>
 
-				<input id="event-location" class="form-control" type="text" placeholder="Search Box">
+				<input id="event-location" class="form-control col-6" type="text" placeholder="Event Location" required="required">
 
 				{{-- <input type="text" id="event-location" class="form-control" required="required"> --}}
 				<input type="hidden" id="event-latlngs" class="form-control" required="required">
@@ -110,6 +110,8 @@ if (strpos($_SERVER['REQUEST_URI'], "view-categories") > 0 || strpos($_SERVER['R
 		<script>
 
 		function initMap(lat, lng) {
+
+
         var map = new google.maps.Map(document.getElementById('map'), {
           center: {lat: 24.4539, lng: 54.3773},
           zoom: 12,
