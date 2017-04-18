@@ -282,7 +282,10 @@
 .field-wrap label {
     display: block;
 }
-.field-wrap input[type=text], .field-wrap textarea, .field-wrap select {
+.add-event .all-day.right {
+    width: 100%;
+}
+.field-wrap input[type=text], .field-wrap textarea {
     display: block;
     width: 100%;
     height: 40px;
@@ -333,7 +336,7 @@
     margin: 0 10px 0 0;
     padding: 0;
 }
-.field-wrap .start-date {
+.field-wrap .start-date, .field-wrap .end-date {
     float: left;
     width: 50%;
 }
@@ -347,13 +350,14 @@
     margin: 0 0 10px 20px;
 }
 .field-wrap .start-date span, .field-wrap .end-date span { display: block;}
-.field-wrap .right.cal .start-input, .field-wrap .right.cal .end-input, .field-wrap .right.cal .start-time, .field-wrap .right.cal .start-time, .field-wrap .right.cal .time_pick{
+.field-wrap .start-date input, .field-wrap .end-date input {
     float: left;
     width: 115px;
     text-align: left;
-    margin: 0 10px 0 0;
     direction: ltr;
+    margin: 0 0 0 15px;
 }
+.field-wrap .start-date .start-time, .field-wrap .end-date .end-time { margin: 0;}
 .field-wrap .location-list li {
     margin: 0 0 15px;
     overflow: hidden;

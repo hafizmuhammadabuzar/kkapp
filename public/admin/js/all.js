@@ -1,5 +1,5 @@
 $(document).ready(function(){
-    $('.timepicker').timepicki();
+    //$('.timepicker').timepicki();
 
     var currentTime = new Date()
     var month = currentTime.getMonth() + 1;
