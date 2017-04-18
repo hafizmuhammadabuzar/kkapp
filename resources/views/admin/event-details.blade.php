@@ -159,7 +159,7 @@
 						</div>
 						<div class="field-wrap clearfix">
 							<div class="left">
-								<label for="facebook">Facebook URL</label>
+								<h4>Facebook URL</h4>
 								<?php $facebook = (isset($event)) ? $event->facebook : old('facebook');?>
 								<div class="social-wrap">
 									<span class="social-text">http://www.facebook.com/</span>
@@ -167,7 +167,7 @@
 								</div>
 							</div>
 							<div class="right left-right">
-								<label for="twitter">Twitter URL</label>
+								<h4>Twitter URL</h4>
 								<?php $twitter = (isset($event)) ? $event->twitter : old('twitter');?>
 								<div class="social-wrap">
 									<span class="social-text">http://www.twitter.com/</span>
@@ -177,7 +177,7 @@
 						</div>
 						<div class="field-wrap clearfix">
 							<div class="left">
-								<label for="instagram">Instagram URL</label>
+								<h4>Instagram URL</h4>
 								<?php $instagram = (isset($event)) ? $event->instagram : old('instagram');?>
 								<div class="social-wrap">
 									<span class="social-text">http://www.instagram.com/</span>
@@ -274,6 +274,19 @@
 									</div>
 								@endforeach
 							</div>
+							<div class="right left-right">
+								<h4>Kids/Disabled  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    الاطفال / تعطيل</h4>
+								<?php $kids = (isset($event)) ? $event->is_kids : old('kids');?>
+								<div class="radio-wrap">
+									<input type="checkbox" id="kids" name="kids" value="1" <?php if($kids == '1') echo 'checked="checked"' ?>>
+									<label for="kids">Kids أطفال</label>
+								</div>
+								<?php $disable = (isset($event)) ? $event->is_disabled : old('disable');?>
+								<div class="radio-wrap">
+									<input type="checkbox" id="disable" name="disable" value="1" <?php if($disable == '1') echo 'checked="checked"' ?>>
+									<label for="disable">Disable تعطيل</label>
+								</div>
+							</div>
 						</div>
 						@if($uri_segment != 'add-event')
 						<div class="field-wrap clearfix">
@@ -309,30 +322,17 @@
 								</div>
 							</div>
 							<div class="right left-right">
-								<h4>Kids/Disabled  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    الاطفال / تعطيل</h4>
-								<?php $kids = (isset($event)) ? $event->is_kids : old('kids');?>
+								<h4>Paid/Free event  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    دفع / الحدث مجانا</h4>
 								<div class="radio-wrap">
-									<input type="checkbox" id="kids" name="kids" value="1" <?php if($kids == '1') echo 'checked="checked"' ?>>
-									<label for="kids">Kids أطفال</label>
+									<?php $fee = (isset($event)) ? $event->free_event : old('fee');?>
+									<input type="radio" id="paid" name="fee" value="0" <?php if($fee == '0') echo 'checked="checked"' ?> requried="required">
+									<label for="paid">Paid   &nbsp;&nbsp;&nbsp;  دفع </label>
 								</div>
-								<?php $disable = (isset($event)) ? $event->is_disabled : old('disable');?>
 								<div class="radio-wrap">
-									<input type="checkbox" id="disable" name="disable" value="1" <?php if($disable == '1') echo 'checked="checked"' ?>>
-									<label for="disable">Disable تعطيل</label>
+									<?php $fee = (isset($event)) ? $event->free_event : old('fee');?>
+									<input type="radio" id="free" name="fee" value="1" <?php if($fee == '1' || $fee!='0') echo 'checked="checked"' ?> >
+									<label for="free">Free   &nbsp;&nbsp;&nbsp;  حر </label>
 								</div>
-							</div>
-						</div>
-						<div class="field-wrap clearfix">
-							<h4>Paid/Free event  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    دفع / الحدث مجانا</h4>
-							<div class="radio-wrap">
-								<?php $fee = (isset($event)) ? $event->free_event : old('fee');?>
-								<input type="radio" id="paid" name="fee" value="0" <?php if($fee == '0') echo 'checked="checked"' ?> requried="required">
-								<label for="paid">Paid   &nbsp;&nbsp;&nbsp;  دفع </label>
-							</div>
-							<div class="radio-wrap">
-								<?php $fee = (isset($event)) ? $event->free_event : old('fee');?>
-								<input type="radio" id="free" name="fee" value="1" <?php if($fee == '1' || $fee!='0') echo 'checked="checked"' ?> >
-								<label for="free">Free   &nbsp;&nbsp;&nbsp;  حر </label>
 							</div>
 						</div>
 						@if($uri_segment != 'add-event')

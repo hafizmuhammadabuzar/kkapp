@@ -46,6 +46,17 @@
                                 <input type="file" id="picture" name="picture">
                                 <img src="{{url('public/uploads/'.$user->image)}}" width="50" height="50"/>
                             </div>
+                            <div class="right left-right">
+                                <h4>User Verified</h4>
+                                <div class="radio-wrap">
+                                    <input type="radio" id="yes" name="user" value="yes" required="required">
+                                    <label for="yes">Yes</label>
+                                </div>
+                                <div class="radio-wrap">
+                                    <input type="radio" id="no" name="user" value="no" required="required">
+                                    <label for="no">No</label>
+                                </div>
+                            </div>
                         </div>
                         <div class="field-wrap clearfix">
                             <div class="right">

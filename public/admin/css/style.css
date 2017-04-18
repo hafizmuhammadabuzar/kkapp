@@ -382,9 +382,7 @@
     direction: ltr;
 }
 .field-wrap .right.left-right .radio-wrap {
-    float: none;
     overflow: hidden;
-    margin: 0 0 20px;
     width: 200px;
 }
 .field-wrap .btn-submit {
@@ -398,6 +396,18 @@
     font-weight: bold;
     border-radius: 3px;
     cursor: pointer;
+}
+.field-wrap .social-wrap {
+    overflow: hidden;
+}
+.social-wrap .social-text {
+    display: inline-block;
+    vertical-align: middle;
+}
+.social-wrap input[type=text]{
+    display: inline-block;
+    vertical-align: middle;
+    width: 50%;
 }
 #footer {
     overflow: hidden;
