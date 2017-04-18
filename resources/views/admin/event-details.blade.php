@@ -19,8 +19,7 @@
 							<div class="left">
 								<label for="event-name">Type</label>
 								<?php $type_id = (isset($event)) ? $event->type_id : old('type'); ?>
-								<select class="form-control" name="type" required="required">
-									<option value=""> Select Type</option>
+								<select class="form-control" name="type" required="required" multiple>
 								@foreach($types as $tp)
 									<option value="{{$tp->id}}" <?php if($type_id==$tp->id) echo 'selected="selected"'; ?>>{{$tp->english.' '.$tp->arabic}}</option>
 								@endforeach
@@ -29,8 +28,7 @@
 							<div class="right" style="direction: ltr; text-align: left;">
 								<label for="event-name">Category</label>
 								<?php $cat_id = (isset($event)) ? $event->category_id : old('category'); ?>
-								<select class="form-control" name="category" required="required">
-									<option value=""> Select Category</option>
+								<select class="form-control" name="category" required="required" multiple>
 								@foreach($categories as $cat)
 									<option value="{{$cat->id}}" <?php if($cat_id==$cat->id) echo 'selected="selected"'; ?>>{{$cat->english.' '.$cat->arabic}}</option>
 								@endforeach
@@ -42,11 +40,6 @@
 								<label for="keyword">Keyword</label>
 								<?php $keyword = (isset($event)) ? $event->keyword : old('keyword'); ?>
 								<input type="text" id="keyword" name="keyword" value="{{$keyword}}" required="required">
-							</div>
-							<div class="right">
-								<label for="keyword-ar">الكلمة الرئيسية</label>
-								<?php $ar_name = (isset($event)) ? $event->ar_name : old('event_name_ar'); ?>
-								<input type="text" id="event-name-ar" name="event_name_ar" value="{{$ar_name}}" required="required">
 							</div>
 						</div>
 						<div class="field-wrap clearfix">
@@ -102,6 +95,14 @@
 							</div>
 							<?php $all_day = (isset($event)) ? $event->all_day : ''; ?>
 							<div class="right cal event_dates">
+								<div class="all-day right clearfix left-right">
+									<h4>All day event  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    كل حدث اليوم</h4>
+									<div class="radio-wrap">
+										<?php $all_day = (isset($event)) ? $event->all_day : old('all_day');?>
+										<input type="checkbox" id="all_day" name="all_day" value="1" <?php if($all_day == 1) echo 'checked="checked"' ?>>
+										<label for="yes">Yes   &nbsp;&nbsp;&nbsp;  نعم </label>
+									</div>
+								</div>
 								<div class="start-date">
 									<span>Start Date</span>
 									<?php 
@@ -133,13 +134,13 @@
 										}
 									}
 									?>
-									<input type="text" placeholder="time" id="start_time" name="start_time" value="{{$s_time}}" required="required" class="timepicker start-time" <?php if($all_day){ echo 'disabled="disabled"'; } ?>>
+									<input type="text" placeholder="HH:MM:AM" id="start_time" name="start_time" value="{{$s_time}}" required="required" class="timepicker start-time" <?php if($all_day){ echo 'disabled="disabled"'; } ?>>
 									<input type="text" placeholder="date" id="start_date" name="start_date" value="{{$s_date}}" class="start-input" required="required">
 
 								</div>
 								<div class="end-date">
 									<span>End Date</span>
-									<input type="text" placeholder="time" id="end_time" name="end_time" value="{{$e_time}}" required="required" class="timepicker end-time" <?php if($all_day){ echo 'disabled="disabled"'; } ?>>
+									<input type="text" placeholder="HH:MM:AM" id="end_time" name="end_time" value="{{$e_time}}" required="required" class="timepicker end-time" <?php if($all_day){ echo 'disabled="disabled"'; } ?>>
 									<input type="text" placeholder="date" id="end_date" name="end_date" value="{{$e_date}}" class="end-input" required="required">
 								</div>
 							</div>
@@ -158,27 +159,30 @@
 						</div>
 						<div class="field-wrap clearfix">
 							<div class="left">
-								<label for="facebook">Facebook URL</label>
-								<?php 
-								$facebook = (isset($event)) ? $event->facebook : old('facebook');
-								if(empty($facebook)){ $facebook = 'https://facebook.com/'; }
-								?>
-								<input type="text" id="facebook" name="facebook" value="{{$facebook}}">
+								<h4>Facebook URL</h4>
+								<?php $facebook = (isset($event)) ? $event->facebook : old('facebook');?>
+								<div class="social-wrap">
+									<span class="social-text">http://www.facebook.com/</span>
+									<input type="text" id="facebook" name="facebook" value="{{$facebook}}">
+								</div>
 							</div>
 							<div class="right left-right">
-								<label for="twitter">Twitter URL</label>
-								<?php $twitter = (isset($event)) ? $event->twitter : old('twitter');
-								if(empty($twitter)){ $twitter = 'https://twitter.com/'; }
-								?>
-								<input type="text" id="twitter" name="twitter" value="{{$twitter}}">
+								<h4>Twitter URL</h4>
+								<?php $twitter = (isset($event)) ? $event->twitter : old('twitter');?>
+								<div class="social-wrap">
+									<span class="social-text">http://www.twitter.com/</span>
+									<input type="text" id="twitter" name="twitter" value="{{$twitter}}">
+								</div>
 							</div>
 						</div>
 						<div class="field-wrap clearfix">
 							<div class="left">
-								<label for="instagram">Instagram URL</label>
-								<?php $instagram = (isset($event)) ? $event->instagram : old('instagram');
-								if(empty($instagram)){ $instagram = 'https://instagram.com/'; }?>
-								<input type="text" id="instagram" name="instagram" value="{{$instagram}}">
+								<h4>Instagram URL</h4>
+								<?php $instagram = (isset($event)) ? $event->instagram : old('instagram');?>
+								<div class="social-wrap">
+									<span class="social-text">http://www.instagram.com/</span>
+									<input type="text" id="instagram" name="instagram" value="{{$instagram}}">
+								</div>
 							</div>
 						</div>
 						{{-- @if($uri_segment != 'event-detail') --}}
@@ -271,11 +275,16 @@
 								@endforeach
 							</div>
 							<div class="right left-right">
-								<h4>All day event  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    كل حدث اليوم</h4>
+								<h4>Kids/Disabled  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    الاطفال / تعطيل</h4>
+								<?php $kids = (isset($event)) ? $event->is_kids : old('kids');?>
 								<div class="radio-wrap">
-									<?php $all_day = (isset($event)) ? $event->all_day : old('all_day');?>
-									<input type="checkbox" id="all_day" name="all_day" value="1" <?php if($all_day == 1) echo 'checked="checked"' ?>>
-									<label for="yes">Yes   &nbsp;&nbsp;&nbsp;  نعم </label>
+									<input type="checkbox" id="kids" name="kids" value="1" <?php if($kids == '1') echo 'checked="checked"' ?>>
+									<label for="kids">Kids أطفال</label>
+								</div>
+								<?php $disable = (isset($event)) ? $event->is_disabled : old('disable');?>
+								<div class="radio-wrap">
+									<input type="checkbox" id="disable" name="disable" value="1" <?php if($disable == '1') echo 'checked="checked"' ?>>
+									<label for="disable">Disable تعطيل</label>
 								</div>
 							</div>
 						</div>
@@ -313,30 +322,17 @@
 								</div>
 							</div>
 							<div class="right left-right">
-								<h4>Kids/Disabled  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    الاطفال / تعطيل</h4>
-								<?php $kids = (isset($event)) ? $event->is_kids : old('kids');?>
+								<h4>Paid/Free event  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    دفع / الحدث مجانا</h4>
 								<div class="radio-wrap">
-									<input type="checkbox" id="kids" name="kids" value="1" <?php if($kids == '1') echo 'checked="checked"' ?>>
-									<label for="kids">Kids أطفال</label>
+									<?php $fee = (isset($event)) ? $event->free_event : old('fee');?>
+									<input type="radio" id="paid" name="fee" value="0" <?php if($fee == '0') echo 'checked="checked"' ?> requried="required">
+									<label for="paid">Paid   &nbsp;&nbsp;&nbsp;  دفع </label>
 								</div>
-								<?php $disable = (isset($event)) ? $event->is_disabled : old('disable');?>
 								<div class="radio-wrap">
-									<input type="checkbox" id="disable" name="disable" value="1" <?php if($disable == '1') echo 'checked="checked"' ?>>
-									<label for="disable">Disable تعطيل</label>
+									<?php $fee = (isset($event)) ? $event->free_event : old('fee');?>
+									<input type="radio" id="free" name="fee" value="1" <?php if($fee == '1' || $fee!='0') echo 'checked="checked"' ?> >
+									<label for="free">Free   &nbsp;&nbsp;&nbsp;  حر </label>
 								</div>
-							</div>
-						</div>
-						<div class="field-wrap clearfix">
-							<h4>Paid/Free event  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    دفع / الحدث مجانا</h4>
-							<div class="radio-wrap">
-								<?php $fee = (isset($event)) ? $event->free_event : old('fee');?>
-								<input type="radio" id="paid" name="fee" value="0" <?php if($fee == '0') echo 'checked="checked"' ?> requried="required">
-								<label for="paid">Paid   &nbsp;&nbsp;&nbsp;  دفع </label>
-							</div>
-							<div class="radio-wrap">
-								<?php $fee = (isset($event)) ? $event->free_event : old('fee');?>
-								<input type="radio" id="free" name="fee" value="1" <?php if($fee == '1' || $fee!='0') echo 'checked="checked"' ?> >
-								<label for="free">Free   &nbsp;&nbsp;&nbsp;  حر </label>
 							</div>
 						</div>
 						@if($uri_segment != 'add-event')

@@ -22,13 +22,11 @@ if (strpos($_SERVER['REQUEST_URI'], "view-categories") > 0 || strpos($_SERVER['R
 	<link rel="stylesheet" href="{{ URL::asset('public/admin/css/font-awesome.min.css') }}">
 	<link rel="stylesheet" href="{{ URL::asset('public/admin/css/bootstrap.min.css') }}">
 	<link rel="stylesheet" href="{{ URL::asset('public/admin/css/jquery-ui.min.css') }}">
-	<link rel="stylesheet" href="{{ URL::asset('public/admin/css/timepicki.css') }}">
 	<link rel="stylesheet" href="{{ URL::asset('public/admin/css/animate.min.css') }}">
 	<link rel="stylesheet" href="{{ URL::asset('public/admin/css/modal.css') }}">
 	<link rel="stylesheet" href="{{ URL::asset('public/admin/css/style.css') }}">
 	<script type="text/javascript" src="{{ URL::asset('public/admin/js/jquery-1.11.2.min.js') }}"></script>
 	<script type="text/javascript" src="{{ URL::asset('public/admin/js/jquery-ui.min.js') }}"></script>
-	<script type="text/javascript" src="{{ URL::asset('public/admin/js/timepicki.js') }}"></script>
 	<script type="text/javascript" src="{{ URL::asset('public/admin/js/modal.js') }}"></script>
 	<script type="text/javascript" src="{{ URL::asset('public/admin/js/all.js') }}"></script>
 	<script type="text/javascript">
@@ -91,6 +89,7 @@ if (strpos($_SERVER['REQUEST_URI'], "view-categories") > 0 || strpos($_SERVER['R
 				<ul class="main-menu">
 					<li <?php if (isset($event)) {echo $event;}?>><a href="{{url('admin/view-events')}}">Events</a></li>
 					<li <?php if (isset($user)) {echo $user;}?>><a href="{{url('admin/view-users')}}">Users</a></li>
+					<li><a href="#">Verified Users</a></li>
 					<li <?php if (isset($category)) {echo $category;}?>><a href="{{url('admin/view-categories')}}">Categories</a></li>
 					<li <?php if (isset($type_class)) {echo $type_class;}?>><a href="{{url('admin/view-types')}}">Type</a></li>
 					<li><a href="{{url('/admin/logout')}}">Logout</a></li>
