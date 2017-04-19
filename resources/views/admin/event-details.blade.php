@@ -39,7 +39,7 @@
 							<div class="left">
 								<label for="keyword">Keyword</label>
 								<?php $keyword = (isset($event)) ? $event->keyword : old('keyword'); ?>
-								<input type="text" id="keyword" name="keyword" value="{{$keyword}}" required="required">
+								<input type="text" id="keyword" name="keyword" value="{{$keyword}}" required="required" data-role="tagsinput">
 							</div>
 						</div>
 						<div class="field-wrap clearfix">
