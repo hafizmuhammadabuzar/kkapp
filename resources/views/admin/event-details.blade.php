@@ -18,19 +18,19 @@
 						<div class="field-wrap clearfix">
 							<div class="left">
 								<label for="event-name">Type</label>
-								<?php $type_id = (isset($event)) ? $event->type_id : old('type'); ?>
-								<select class="form-control" name="type" required="required" multiple>
+								<?php $type_id = (isset($event)) ? explode(',', $event->type_id) : old('type'); ?>
+								<select class="form-control" name="type[]" required="required" multiple>
 								@foreach($types as $tp)
-									<option value="{{$tp->id}}" <?php if($type_id==$tp->id) echo 'selected="selected"'; ?>>{{$tp->english.' '.$tp->arabic}}</option>
+									<option value="{{$tp->id}}" <?php if(in_array($tp->id, $type_id)) echo 'selected="selected"'; ?>>{{$tp->english.' '.$tp->arabic}}</option>
 								@endforeach
 								</select>
 							</div>
 							<div class="right" style="direction: ltr; text-align: left;">
 								<label for="event-name">Category</label>
-								<?php $cat_id = (isset($event)) ? $event->category_id : old('category'); ?>
-								<select class="form-control" name="category" required="required" multiple>
+								<?php $cat_id = (isset($event)) ? explode(',', $event->category_id) : old('category'); ?>
+								<select class="form-control" name="category[]" required="required" multiple>
 								@foreach($categories as $cat)
-									<option value="{{$cat->id}}" <?php if($cat_id==$cat->id) echo 'selected="selected"'; ?>>{{$cat->english.' '.$cat->arabic}}</option>
+									<option value="{{$cat->id}}" <?php if(in_array($cat->id, $cat_id)) echo 'selected="selected"'; ?>>{{$cat->english.' '.$cat->arabic}}</option>
 								@endforeach
 								</select>
 							</div>
@@ -134,13 +134,13 @@
 										}
 									}
 									?>
-									<input type="text" placeholder="HH:MM:AM" id="start_time" name="start_time" value="{{$s_time}}" required="required" class="timepicker start-time" <?php if($all_day){ echo 'disabled="disabled"'; } ?>>
+									<input type="text" placeholder="HH:MM AM" id="start_time" name="start_time" value="{{$s_time}}" required="required" class="timepicker start-time" <?php if($all_day){ echo 'disabled="disabled"'; } ?>>
 									<input type="text" placeholder="date" id="start_date" name="start_date" value="{{$s_date}}" class="start-input" required="required">
 
 								</div>
 								<div class="end-date">
 									<span>End Date</span>
-									<input type="text" placeholder="HH:MM:AM" id="end_time" name="end_time" value="{{$e_time}}" required="required" class="timepicker end-time" <?php if($all_day){ echo 'disabled="disabled"'; } ?>>
+									<input type="text" placeholder="HH:MM AM" id="end_time" name="end_time" value="{{$e_time}}" required="required" class="timepicker end-time" <?php if($all_day){ echo 'disabled="disabled"'; } ?>>
 									<input type="text" placeholder="date" id="end_date" name="end_date" value="{{$e_date}}" class="end-input" required="required">
 								</div>
 							</div>
@@ -185,24 +185,27 @@
 								</div>
 							</div>
 						</div>
-						{{-- @if($uri_segment != 'event-detail') --}}
 							<div class="field-wrap clearfix">
 								<div class="left">
 									<div class="field-wrap pic-clone">
 										<h4>Add Pictures - <span class="small">Max 4</span></h4>
+										@if($uri_segment != 'event-detail')
 										<a href="#" style="display: block; margin: 0 0 10px;"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add more</a>
 										<div id="pictures">
 											<input type="file" name="picture[]" id="picture" />
 											<i class="fa fa-times pic-remove" aria-hidden="true"></i>
 										</div>										
+										@endif
 									</div>
 									<div class="field-wrap attach-clone">
 										<h4>Attachments - <span class="small">Max 3</span></h4>
+										@if($uri_segment != 'event-detail')
 										<a href="#" style="display: block; margin: 0 0 10px;"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add more</a>
 										<div id="attachments">
 											<input type="file" name="attachment[]" id="attachment" />
 											<i class="fa fa-times attch-remove" aria-hidden="true"></i>
 										</div>										
+										@endif
 									</div>
 								</div>
 								<div class="right left-right">
@@ -214,6 +217,7 @@
 									if($uri_segment != 'event-detail'){
 										$old_cities    = explode('~', old('city'));
 										$old_locations = explode('~', old('location'));
+										$old_latlngs = explode('~', old('latlng'));
 										$old_event_languages = (!empty(old('event_language'))) ? old('event_language') : array();
 
 										if(isset($event)){
@@ -232,7 +236,7 @@
 										@if(!isset($event))
 											@for ($loc = 1; $loc < count($old_cities); $loc++)
 												<li>
-													<a href="#" class="add-location location-data">{{$old_locations[$loc].', '.$old_cities[$loc]}}</a>
+													<a href="#" class="add-location location-data">{{$old_locations[$loc].' | '.$old_cities[$loc].' | '.$old_latlngs[$loc]}}</a>
 													<a href="#" class="link-remove fa fa-remove location-remove"></a>
 												</li>
 											@endfor
@@ -244,7 +248,7 @@
 												$latlng .= '~'.$loc->latitude.','.$loc->longitude;
 												?>
 												<li>
-													<a href="#" class="add-location location-data">{{$loc->location.', '.$loc->city.', '.$loc->latitude.', '.$loc->longitude}}</a>
+													<a href="#" class="add-location location-data">{{$loc->location.' | '.$loc->city.' | '.$loc->latitude.', '.$loc->longitude}}</a>
 													<a href="#" class="link-remove fa fa-remove location-remove"></a>
 												</li>
 											@endforeach
@@ -252,7 +256,6 @@
 									</ul>
 								</div>
 							</div>
-						{{-- @endif --}}
 
 						@if($uri_segment != 'add-event')
 							<div class="field-wrap clearfix">
@@ -416,8 +419,7 @@
 		});
 
 		$('.add-location').click(function(){
-			$('#event-latlngs').val('');
-			initMap();
+			initMap(24.4539, 54.3773);
 		});
 
 		$('#form-event').submit(function(){	
@@ -432,10 +434,11 @@
 					$('.location-data').each(function () {
 						if(count <= locs){
 							var data = $(this).text();
-							data = data.split(',');
-							$('#city').val($('#city').val()+'~'+data[0]);
-							$('#location').val($('#location').val()+'~'+data[1]);
-							$('#latlng').val($('#latlng').val()+'~'+data[2]+','+data[3]);
+							data = data.split('|');
+							var latlng = data[2].split(',');
+							$('#city').val($('#city').val()+'~'+data[1]);
+							$('#location').val($('#location').val()+'~'+data[0]);
+							$('#latlng').val($('#latlng').val()+'~'+latlng[0].replace('(',' ')+','+latlng[1].replace(')',' '));
 							count = (count + 1);
 						}else{
 							return false;
@@ -447,16 +450,20 @@
 		});
 
 		$('.form-location').submit(function(){
-			$('.location-list').append('<li><a href="#" class="add-location location-data">'+$('#event-location').val()+', '+$('#event-city').val()+'</a><a href="javascript:" class="link-remove fa fa-remove location-remove"></a></li>');
+			var city = $('#event-city').val();
+			var city = city.split(',');
+			$('.location-list').append('<li><a href="#" class="add-location location-data">'+$('#event-location').val()+' | '+city[0]+' | '+$('#event-latlngs').val()+'</a><a href="javascript:" class="link-remove fa fa-remove location-remove"></a></li>');
 			$('.form-location')[0].reset();
-			$('.jquery-modal').css('display','none');
+			// $('.jquery-modal').css('display','none');
 		});
-		/*$('#event-city').change(function(){
+		$('#event-city').change(function(){
+			$('#event-location').val('');
 			var city = $(this).val();
 			var latlng = city.split(',');
 			initMap(latlng[1], latlng[2]);
-		});*/
-		$(document).on("click", ".location-remove", function() {			
+		});
+		$(document).on("click", ".location-remove", function(e) {
+		e.preventDefault();			
 			$(this).closest('li').remove();
 		});
 		$('#all_day').click(function(){

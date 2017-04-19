@@ -461,6 +461,7 @@ class AdminController extends Controller {
 		}
 
 		// dd($request->all());
+
 		$validation_data = [
 			'type'             => 'required',
 			'category'         => 'required',
@@ -476,7 +477,6 @@ class AdminController extends Controller {
 			'city'             => 'required',
 			'location'         => 'required',
 			'venue'            => 'required',
-			'picture'          => 'required',
 		];
 
 		if ($request->all_day != 1) {
@@ -499,8 +499,8 @@ class AdminController extends Controller {
 		$reference_no = uniqid();
 
 		$event_data = [
-			'type_id'          => $request->type,
-			'category_id'      => $request->category,
+			'type_id'          => implode(',', $request->type),
+			'category_id'      => implode(',', $request->category),
 			'keyword'          => $request->keyword,
 			'eng_name'         => $request->event_name,
 			'ar_name'          => $request->event_name_ar,
@@ -513,9 +513,9 @@ class AdminController extends Controller {
 			'end_date'         => date('Y-m-d', strtotime($request->end_date)).' '.date('H:i:s', strtotime($request->end_time)),
 			'all_day'          => $request->all_day,
 			'free_event'       => $request->fee,
-			'facebook'         => $request->facebook,
-			'twitter'          => $request->twitter,
-			'instagram'        => $request->instagram,
+			'facebook'         => 'https://www.facebook.com/'.$request->facebook,
+			'twitter'          => 'https://www.twitter.com/'.$request->twitter,
+			'instagram'        => 'https://www.instagram.com/'.$request->instagram,
 			'event_language'   => implode(',', $request->event_language),
 			'eng_description'  => $request->eng_description,
 			'ar_description'   => $request->ar_description,
@@ -523,7 +523,7 @@ class AdminController extends Controller {
 			'is_kids'          => $request->kids,
 			'is_disabled'      => $request->disable,
 			'is_featured'      => $request->featured,
-			'shared_count'     => 1,
+			'share_count'      => 1,
 			'created_at'       => $this->current_date_time,
 			'updated_at'       => $this->current_date_time,
 		];
@@ -595,7 +595,7 @@ class AdminController extends Controller {
 			}
 			DB::table('locations')->insert($loc_data);
 
-			Session::flash('success', 'Event successfully added');
+			Session::flash('success', 'Event successfully saved');
 
 			return redirect('admin/view-events');
 		}
