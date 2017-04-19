@@ -30,8 +30,7 @@
                             <div class="right left-right">
                                 <h4>Gender</h4>
                                 <div class="radio-wrap">
-                                    <input type="radio" id="male" name="gender" value="Male" <?php if ($user->gender == 'Male') {echo 'checked="checked"';}
-?> required="required">
+                                    <input type="radio" id="male" name="gender" value="Male" <?php if ($user->gender == 'Male') {echo 'checked="checked"';} ?> required="required">
                                     <label for="male">Male</label>
                                 </div>
                                 <div class="radio-wrap">

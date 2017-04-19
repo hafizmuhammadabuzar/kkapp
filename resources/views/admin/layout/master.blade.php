@@ -23,10 +23,12 @@ if (strpos($_SERVER['REQUEST_URI'], "view-categories") > 0 || strpos($_SERVER['R
 	<link rel="stylesheet" href="{{ URL::asset('public/admin/css/bootstrap.min.css') }}">
 	<link rel="stylesheet" href="{{ URL::asset('public/admin/css/jquery-ui.min.css') }}">
 	<link rel="stylesheet" href="{{ URL::asset('public/admin/css/animate.min.css') }}">
+	<link rel="stylesheet" href="{{ URL::asset('public/admin/css/bootstrap-tagsinput.css') }}">
 	<link rel="stylesheet" href="{{ URL::asset('public/admin/css/modal.css') }}">
 	<link rel="stylesheet" href="{{ URL::asset('public/admin/css/style.css') }}">
 	<script type="text/javascript" src="{{ URL::asset('public/admin/js/jquery-1.11.2.min.js') }}"></script>
 	<script type="text/javascript" src="{{ URL::asset('public/admin/js/jquery-ui.min.js') }}"></script>
+	<script type="text/javascript" src="{{ URL::asset('public/admin/js/bootstrap-tagsinput.js') }}"></script>
 	<script type="text/javascript" src="{{ URL::asset('public/admin/js/modal.js') }}"></script>
 	<script type="text/javascript" src="{{ URL::asset('public/admin/js/all.js') }}"></script>
 	<script type="text/javascript">
