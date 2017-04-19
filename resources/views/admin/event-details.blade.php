@@ -359,7 +359,7 @@
 								</div>
 							</div>
 						@endif
-						@if($uri_segment == 'add-event')
+						@if($uri_segment == 'add-event' || $uri_segment == 'duplicate-event')
 						<input type="hidden" id="city" name="city" value="">
 						<input type="hidden" id="location" name="location" value="">
 						<input type="hidden" id="latlng" name="latlng" value="">
@@ -384,6 +384,15 @@
 
 		if($('#uri').val() == 'event-detail'){
 			$(":input").attr("disabled",true);
+		}
+
+		if($('#uri').val() == 'duplicate-event'){
+			$("#all_day").attr('checked', false);
+			$("#start_time").val('');
+			$("#start_date").val('');
+			$("#end_time").val('');
+			$("#end_date").val('');
+			$("#start_time").focus();
 		}
 
 		$('.pic-clone a').click(function(e){
@@ -454,6 +463,7 @@
 			var city = city.split(',');
 			$('.location-list').append('<li><a href="#" class="add-location location-data">'+$('#event-location').val()+' | '+city[0]+' | '+$('#event-latlngs').val()+'</a><a href="javascript:" class="link-remove fa fa-remove location-remove"></a></li>');
 			$('.form-location')[0].reset();
+			initMap(24.4539, 54.3773);
 			// $('.jquery-modal').css('display','none');
 		});
 		$('#event-city').change(function(){

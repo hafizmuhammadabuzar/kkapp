@@ -37,7 +37,7 @@
 							<td>{{$event->phone}}</td>
 							<td><a href="{{url('admin/event-detail/'.Crypt::encrypt($event->id))}}"><i class="fa fa-eye"></i></a></td>
 							<td><a href="{{url('admin/edit-event/'.Crypt::encrypt($event->id))}}"><i class="fa fa-edit"></i></a></td>
-							<td><a href="#"><i class="fa fa-copy"></i></a></td>
+							<td><a href="{{url('admin/duplicate-event/'.Crypt::encrypt($event->id))}}"><i class="fa fa-copy"></i></a></td>
 							<td><a href="{{url('admin/delete-event/'.Crypt::encrypt($event->id))}}"><i class="fa fa-remove" style="color: #880000"></i></a></td>
 						</tr>
 						@endforeach

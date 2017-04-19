@@ -1,8 +1,10 @@
 <?php
 if (strpos($_SERVER['REQUEST_URI'], "view-categories") > 0 || strpos($_SERVER['REQUEST_URI'], "add-category") > 0 || strpos($_SERVER['REQUEST_URI'], "edit-category") > 0) {
 	$category = 'class="active"';
-} else if (strpos($_SERVER['REQUEST_URI'], "view-users") > 0 || strpos($_SERVER['REQUEST_URI'], "add-user") > 0 || strpos($_SERVER['REQUEST_URI'], "edit-user") > 0) {
+} else if (strpos($_SERVER['REQUEST_URI'], "-user") > 0) {
 	$user = 'class="active"';
+} else if (strpos($_SERVER['REQUEST_URI'], "verified-user") > 0) {
+	$v_user = 'class="active"';
 } else if (strpos($_SERVER['REQUEST_URI'], "-event") > 0) {
 	$event = 'class="active"';
 } else if (strpos($_SERVER['REQUEST_URI'], "-type") > 0) {
@@ -30,12 +32,26 @@ if (strpos($_SERVER['REQUEST_URI'], "view-categories") > 0 || strpos($_SERVER['R
 	<script type="text/javascript" src="{{ URL::asset('public/admin/js/jquery-ui.min.js') }}"></script>
 	<script type="text/javascript" src="{{ URL::asset('public/admin/js/bootstrap-tagsinput.js') }}"></script>
 	<script type="text/javascript" src="{{ URL::asset('public/admin/js/modal.js') }}"></script>
-	<script type="text/javascript" src="{{ URL::asset('public/admin/js/all.js') }}"></script>
 	<script type="text/javascript">
 		$(document).ready(function(){
 			$('.msg-success, .msg-error').fadeOut(3000);
+			 var availableTags = new Array();
+
+			 <?php if(isset($keywords)){ ?>
+		    <?php foreach($keywords as $key => $val){ ?>
+		        availableTags.push('<?php echo $val['keyword']; ?>');
+		    <?php } ?>
+
+		    availableTags = availableTags.filter(function(itm, i, a) {
+			    return i == availableTags.indexOf(itm);
+			});
+		    $( ".bootstrap-tagsinput input" ).autocomplete({
+		        source: availableTags
+		    });
+			 <?php } ?>
 		});
 	</script>
+	<script type="text/javascript" src="{{ URL::asset('public/admin/js/all.js') }}"></script>
 	<style type="text/css">
 		.add-btn{
 			float: right;
@@ -48,7 +64,6 @@ if (strpos($_SERVER['REQUEST_URI'], "view-categories") > 0 || strpos($_SERVER['R
 			width: 100%;
 	        height: 100%;
       }
-      /* Optional: Makes the sample page fill the window. */
       html, body {
         height: 60%;
         margin: 0;
@@ -88,12 +103,11 @@ if (strpos($_SERVER['REQUEST_URI'], "view-categories") > 0 || strpos($_SERVER['R
 				<ul class="main-menu">
 					<li <?php if (isset($event)) {echo $event;}?>><a href="{{url('admin/view-events')}}">Events</a></li>
 					<li <?php if (isset($user)) {echo $user;}?>><a href="{{url('admin/view-users')}}">Users</a></li>
-					<li><a href="#">Verified Users</a></li>
+					<li <?php if (isset($v_user)) {echo $v_user;}?>><a href="{{url('admin/view-verified-users')}}"">Verified Users</a></li>
 					<li <?php if (isset($category)) {echo $category;}?>><a href="{{url('admin/view-categories')}}">Categories</a></li>
 					<li <?php if (isset($type_class)) {echo $type_class;}?>><a href="{{url('admin/view-types')}}">Type</a></li>
 					<li><a href="{{url('/admin/logout')}}">Logout</a></li>
 					{{-- <li><a href="push.php">Push Notifications</a></li> --}}
-					{{-- <li><a href="requests.php">Requests</a></li> --}}
 				</ul>
 			</nav>
 		</div>

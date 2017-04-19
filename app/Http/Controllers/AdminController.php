@@ -426,10 +426,19 @@ class AdminController extends Controller {
             CASE
             WHEN status = 0 THEN "Pending"
             WHEN status = 1 THEN "Active"
-            ELSE "Deleted" END) AS status')
-		)->orderBy('id', 'desc')->paginate(15);
+            ELSE "Deleted" END) AS status, TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS age')
+		)->where('is_verified','=',0)->orderBy('id', 'desc')->paginate(15);
 
 		return view('admin.view-users', $result);
+	}
+
+	public function viewVerifiedUsers() {
+
+		$result['users'] = DB::table('users')->select('*',
+			DB::raw('TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS age')
+		)->where('is_verified','=',1)->orderBy('id', 'desc')->paginate(15);
+
+		return view('admin.view-verified-users', $result);
 	}
 
 	public function deleteUser(Request $request) {
@@ -449,6 +458,15 @@ class AdminController extends Controller {
 
 	/* Event module start */
 	public function addEvent(Request $request) {
+
+		$keywords = DB::table('events')->select('keyword')->take(5)->orderBy('id', 'DESC')->get();
+
+		foreach($keywords as $kw){
+			$sub_keyword = explode(',', $kw->keyword);
+			foreach($sub_keyword as $skw){
+				$result['keywords'][]['keyword'] = trim($skw);
+			}
+		}
 
 		if ($request->isMethod('get')) {
 			$result['cities']      = DB::table('cities')->select('city_name', 'latitude', 'longitude')->where('country_id', 11)->orderBy('city_name', 'ASC')->get();
@@ -615,6 +633,15 @@ class AdminController extends Controller {
 
 		$id = Crypt::decrypt($request->segment(3));
 		if ($id) {
+
+			$keywords = DB::table('events')->select('keyword')->take(5)->orderBy('id', 'DESC')->get();
+			foreach($keywords as $kw){
+				$sub_keyword = explode(',', $kw->keyword);
+				foreach($sub_keyword as $skw){
+					$result['keywords'][]['keyword'] = trim($skw);
+				}
+			}
+
 			$result['event'] = Event::with('pictures', 'attachments', 'locations')->where('events.id', '=', $id)->first();
 
 			$result['cities']              = DB::table('cities')->select('city_name', 'latitude', 'longitude')->where('country_id', 11)->orderBy('city_name', 'ASC')->get();
