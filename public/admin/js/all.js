@@ -1,5 +1,14 @@
 $(document).ready(function(){
-    //$('.timepicker').timepicki();
+
+
+
+    $(document).keypress(function(e) {
+        if(e.which == 13) {
+            if($(".bootstrap-tagsinput input").is(":focus")){
+                return false;
+            }
+        }
+    });
 
     var currentTime = new Date()
     var month = currentTime.getMonth() + 1;
