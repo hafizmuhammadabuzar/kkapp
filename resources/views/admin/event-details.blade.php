@@ -18,7 +18,7 @@
 						<div class="field-wrap clearfix">
 							<div class="left">
 								<label for="event-name">Type</label>
-								<?php $type_id = (isset($event)) ? explode(',', $event->type_id) : old('type'); ?>
+								<?php $type_id = (isset($event)) ? explode(',', $event->type_id) : explode(',', old('type')); ?>
 								<select class="form-control" name="type[]" required="required" multiple>
 								@foreach($types as $tp)
 									<option value="{{$tp->id}}" <?php if(in_array($tp->id, $type_id)) echo 'selected="selected"'; ?>>{{$tp->english.' '.$tp->arabic}}</option>
@@ -27,7 +27,7 @@
 							</div>
 							<div class="right" style="direction: ltr; text-align: left;">
 								<label for="event-name">Category</label>
-								<?php $cat_id = (isset($event)) ? explode(',', $event->category_id) : old('category'); ?>
+								<?php $cat_id = (isset($event)) ? explode(',', $event->category_id) : explode(',', old('category')); ?>
 								<select class="form-control" name="category[]" required="required" multiple>
 								@foreach($categories as $cat)
 									<option value="{{$cat->id}}" <?php if(in_array($cat->id, $cat_id)) echo 'selected="selected"'; ?>>{{$cat->english.' '.$cat->arabic}}</option>
@@ -162,7 +162,7 @@
 								<h4>Facebook URL</h4>
 								<?php $facebook = (isset($event)) ? $event->facebook : old('facebook');?>
 								<div class="social-wrap">
-									<span class="social-text">http://www.facebook.com/</span>
+									<span class="social-text">https://www.facebook.com/</span>
 									<input type="text" id="facebook" name="facebook" value="{{$facebook}}">
 								</div>
 							</div>
@@ -170,7 +170,7 @@
 								<h4>Twitter URL</h4>
 								<?php $twitter = (isset($event)) ? $event->twitter : old('twitter');?>
 								<div class="social-wrap">
-									<span class="social-text">http://www.twitter.com/</span>
+									<span class="social-text">https://www.twitter.com/</span>
 									<input type="text" id="twitter" name="twitter" value="{{$twitter}}">
 								</div>
 							</div>
@@ -180,7 +180,7 @@
 								<h4>Instagram URL</h4>
 								<?php $instagram = (isset($event)) ? $event->instagram : old('instagram');?>
 								<div class="social-wrap">
-									<span class="social-text">http://www.instagram.com/</span>
+									<span class="social-text">https://www.instagram.com/</span>
 									<input type="text" id="instagram" name="instagram" value="{{$instagram}}">
 								</div>
 							</div>
