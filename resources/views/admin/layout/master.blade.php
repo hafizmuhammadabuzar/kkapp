@@ -71,10 +71,7 @@ if (strpos($_SERVER['REQUEST_URI'], "view-categories") > 0 || strpos($_SERVER['R
 			</div>
 			<div class="form-group">
 				<label for="event-location">Event Location</label>
-
-				<input id="event-location" class="form-control col-6" type="text" placeholder="Event Location" required="required">
-
-				{{-- <input type="text" id="event-location" class="form-control" required="required"> --}}
+				<input type="text" id="event-location" class="form-control" required="required">
 				<input type="hidden" id="event-latlngs" class="form-control" required="required">
 			</div>
 			<div class="g-map" id="map"></div>
@@ -104,139 +101,75 @@ if (strpos($_SERVER['REQUEST_URI'], "view-categories") > 0 || strpos($_SERVER['R
 	@yield('content')
 	<footer id="footer">
 		<div class="container">
-			<div class="row">NULL
+			<div class="row">
 				<span class="copyright">&copy All Rights Reserved KK App <?php echo date('Y');?></span>
 			</div>
 		</div>
+
 		<script>
 
-		function initMap(lat, lng) {
+		var map;
+      var markers = [];
 
+      function initMap(lat, lng) {
+        var haightAshbury = {lat: parseFloat(lat), lng: parseFloat(lng)};
 
-        var map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: 24.4539, lng: 54.3773},
+        map = new google.maps.Map(document.getElementById('map'), {
           zoom: 12,
-          mapTypeId: 'roadmap'
+          center: haightAshbury,
+          mapTypeId: 'terrain'
         });
 
-        // Create the search box and link it to the UI element.
-        var input = document.getElementById('event-location');
-        var searchBox = new google.maps.places.SearchBox(input);
-        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-
-        // Bias the SearchBox results towards current map's viewport.
-        map.addListener('bounds_changed', function() {
-          searchBox.setBounds(map.getBounds());
-        });
-
-        var markers = [];
-        // Listen for the event fired when the user selects a prediction and retrieve
-        // more details for that place.
-        searchBox.addListener('places_changed', function() {
-          var places = searchBox.getPlaces();
-
-          if (places.length == 0) {
-            return;
-          }
-
-          // Clear out the old markers.
-          markers.forEach(function(marker) {
-            marker.setMap(null);
-          });
-          markers = [];
-
-          // For each place, get the icon, name and location.
-          var bounds = new google.maps.LatLngBounds();
-          places.forEach(function(place) {
-            if (!place.geometry) {
-              console.log("Returned place contains no geometry");
-              return;
-            }
-            var icon = {
-              url: place.icon,
-              size: new google.maps.Size(71, 71),
-              origin: new google.maps.Point(0, 0),
-              anchor: new google.maps.Point(17, 34),
-              scaledSize: new google.maps.Size(25, 25)
-            };
-
-            // Create a marker for each place.
-            markers.push(new google.maps.Marker({
-              map: map,
-              title: place.name,
-              position: place.geometry.location
-            }));
-
-            if (place.geometry.viewport) {
-              // Only geocodes have viewport.
-              bounds.union(place.geometry.viewport);
-            } else {
-              bounds.extend(place.geometry.location);
-            }
-          });
-          map.fitBounds(bounds);
-        });
-
-        // This event listener will call addMarker() when the map is clicked.
         map.addListener('click', function(event) {
         	deleteMarkers();
           addMarker(event.latLng);
         });
 
-        // Adds a marker to the map and push to the array.
-	      function addMarker(location) {
-	        var marker = new google.maps.Marker({
-	          position: location,
-	          map: map
-	        });
-	        markers.push(marker);
-	      }
-
-	        // Sets the map on all markers in the array.
-	      function setMapOnAll(map) {
-	        for (var i = 0; i < markers.length; i++) {
-	          markers[i].setMap(map);
-	        }
-	      }
-
-	      // Removes the markers from the map, but keeps them in the array.
-	      function clearMarkers() {
-	        setMapOnAll(null);
-	      }
-
-	      // Deletes all markers in the array by removing references to them.
-	      function deleteMarkers() {
-	        clearMarkers();
-	        markers = [];
-	      }
+        addMarker(haightAshbury);
+        $('#event-latlngs').val(lat.toFixed(4)+','+lng.toFixed(4));
       }
 
+      function addMarker(location) {
+        var marker = new google.maps.Marker({
+          position: location,
+          map: map
+        });
+        markers.push(marker);
+        $('#event-latlngs').val(location);
+      }
 
-	      /*function initMap(lat, lng) {
-	      	var latitude, longitude;
-	        var map = new google.maps.Map(document.getElementById('map'), {
-	          zoom: 12,
-	          center: {lat: 24.4539, lng: 54.3773 }
-	        });
-      		map.setCenter(new google.maps.LatLng(lat, lng));
+      function setMapOnAll(map) {
+        for (var i = 0; i < markers.length; i++) {
+          markers[i].setMap(map);
+        }
+      }
 
-	        map.addListener('click', function(e) {
-	          placeMarkerAndPanTo(e.latLng, map);
-	        });
-	      }
-
-	      function placeMarkerAndPanTo(latLng, map) {
-	      	// marker.setMap(null);
-	        var latlngs = $('#event-latlngs').val();
-	        var marker = new google.maps.Marker({
-	          position: latLng,
-	          map: map
-	        });
-	        $('#event-latlngs').val(latlngs+latLng);
-	        map.panTo(latLng);
-	      }*/
+      function clearMarkers() {
+        setMapOnAll(null);
+      }
+      function showMarkers() {
+        setMapOnAll(map);
+      }
+      function deleteMarkers() {
+        clearMarkers();
+        markers = [];
+      }
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDvM91-7P1Vm9CvI1jwygRn8budCXu2hP8&libraries=places" async defer></script>
+
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDvM91-7P1Vm9CvI1jwygRn8budCXu2hP8&libraries=places"></script>
+
+    <script type="text/javascript">
+        google.maps.event.addDomListener(window, 'load', function () {
+            var places = new google.maps.places.Autocomplete(document.getElementById('event-location'));
+            google.maps.event.addListener(places, 'place_changed', function () {
+                var place = places.getPlace();
+                var latitude = place.geometry.location.lat();
+                var longitude = place.geometry.location.lng();
+                initMap(latitude, longitude);
+            });
+        });
+    </script>
+
 		@yield('script')
 	</footer>
 </div>
