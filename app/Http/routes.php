@@ -69,6 +69,8 @@ Route::group(['middleware' => 'checkLogin', 'prefix' => 'admin'], function () {
 		Route::get('/delete-verified-user/{id}', 'AdminController@deleteVerifiedUser');
 
 		Route::get('/add-event', 'AdminController@addEvent');
+		Route::post('/save-event', 'AdminController@addEvent');
+		Route::post('/update-event', 'AdminController@addEvent');
 		Route::get('/edit-event/{num}', 'AdminController@eventDetails');
 		Route::get('/duplicate-event/{num}', 'AdminController@eventDetails');
 		Route::get('/view-events', 'AdminController@viewEvents');
@@ -76,6 +78,17 @@ Route::group(['middleware' => 'checkLogin', 'prefix' => 'admin'], function () {
 		Route::get('/delete-event/{num}', 'AdminController@deleteEvent');
 	});
 
-Route::get('corporate', 'AdminController@addEvent');
-Route::post('save-event', 'AdminController@addEvent');
-Route::post('update-event', 'AdminController@addEvent');
+Route::group(['prefix' => 'user'], function () {
+		Route::get('/', 'UserController@index');
+		Route::post('/login', 'UserController@index');
+
+		Route::get('/add-event', 'UserController@addEvent');
+		Route::post('/save-event', 'UserController@addEvent');
+		Route::post('/update-event', 'UserController@addEvent');
+		Route::get('/edit-event/{num}', 'UserController@eventDetails');
+		Route::get('/duplicate-event/{num}', 'UserController@eventDetails');
+		Route::get('/view-events', 'UserController@viewEvents');
+		Route::get('/event-detail/{num}', 'UserController@eventDetails');
+		Route::get('/delete-event/{num}', 'UserController@deleteEvent');
+		Route::get('user', 'UserController@addEvent');
+	});

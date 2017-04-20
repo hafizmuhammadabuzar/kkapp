@@ -139,7 +139,7 @@ class ApiController extends Controller {
 			'venue'            => $request->venue,
 			'is_kids'          => $request->kids_event,
 			'is_disabled'      => $request->disable_event,
-			'shared_count'     => 1,
+			'share_count'      => 0,
 			'user_id'          => $check->id,
 			'created_at'       => $this->current_date_time,
 			'updated_at'       => $this->current_date_time,
@@ -388,6 +388,11 @@ class ApiController extends Controller {
 			$events = Event::getUserEvents($request->user_id);
 
 			if (count($events) > 0) {
+
+				$user_favourites = DB::table('user_favourite_events')->where('user_id', $request->user_id)->get();
+				foreach ($user_favourites as $key => $fav) {
+					$user_favs[] = $fav->event_id;
+				}
 
 				foreach ($events as $key => $event) {
 					$ids      = $event->event_language;

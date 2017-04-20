@@ -479,6 +479,15 @@ class AdminController extends Controller {
 	/*---------- User CRUD End ----------*/
 
 	/* Event module start */
+	public function searchEvents(Request $request) {
+
+		$search           = $request->search;
+		$result['events'] = DB::raw("id, eng_name, eng_company_name, phone, email, start_date, end_date, all_day
+			from events where keyword like %'$search'% or eng_name like %'$search'% or ar_name like %'$search'% or eng_comapany_name like %'$search'% or ar_company_name like %'$search'% or phone like %'$search'% or email like %'$search'%");
+
+		return view('user.view-events', $result);
+	}
+
 	public function addEvent(Request $request) {
 
 		if ($request->isMethod('get')) {

@@ -1,4 +1,4 @@
-@extends('admin.layout.master')
+@extends('user.layout.master')
 
 @section('content')
 
@@ -12,9 +12,9 @@
 				@include('..partials/errors')
 
 					@if($uri_segment == 'add-event' || $uri_segment == 'duplicate-event')
-					<form action="{{url('admin/save-event')}}" method="post" enctype="multipart/form-data" id="form-event">
+					<form action="{{url('user/save-event')}}" method="post" enctype="multipart/form-data" id="form-event">
 					@elseif($uri_segment == 'edit-event')
-					<form action="{{url('admin/update-event')}}" method="post" enctype="multipart/form-data" id="form-event">
+					<form action="{{url('user/update-event')}}" method="post" enctype="multipart/form-data" id="form-event">
 					@endif
 						<div class="field-wrap clearfix">
 							<div class="left">
