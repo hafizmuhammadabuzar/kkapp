@@ -19,12 +19,13 @@ Route::group(['prefix' => 'api'], function () {
 		Route::post('/update-profile', 'ApiController@updateProfile');
 		Route::post('/new-corporate', 'ApiController@corporateRegister');
 		Route::post('/signin', 'ApiController@login');
-		Route::post('/signout', 'ApiController@logout');
+		Route::resource('/signout', 'ApiController@logout');
+		Route::resource('/forgot-password', 'ApiController@forgotPassword');
 		Route::get('/get-countries-cities', 'ApiController@getCountriesCities');
 		Route::get('/change-password', 'ApiController@changePassword');
 		Route::post('/save-password', 'ApiController@changePassword');
 		Route::get('/save-token', 'ApiController@saveToken');
-		Route::post('/save-android-token', 'ApiController@saveAndroidToken');
+		Route::resource('/save-android-token', 'ApiController@saveAndroidToken');
 		Route::post('/save-user-preferred', 'ApiController@saveUserPreferred');
 		Route::get('/get-categories', 'ApiController@getCategories');
 		Route::post('/add-event', 'ApiController@addEvent');
@@ -32,6 +33,7 @@ Route::group(['prefix' => 'api'], function () {
 		Route::resource('/like-event', 'ApiController@saveFavourite');
 		Route::resource('/share-event', 'ApiController@eventShare');
 		Route::resource('/get-favourite-events', 'ApiController@getUserFavouriteEvents');
+		Route::resource('/get-user-events', 'ApiController@getUserEvents');
 	});
 Route::get('/user/verification/{slug}', 'ApiController@userVerify');
 
@@ -60,8 +62,11 @@ Route::group(['middleware' => 'checkLogin', 'prefix' => 'admin'], function () {
 		Route::get('/view-users', 'AdminController@viewUsers');
 		Route::get('/view-verified-users', 'AdminController@viewVerifiedUsers');
 		Route::get('/edit-user/{num}', 'AdminController@updateUser');
+		Route::get('/edit-verified-user/{num}', 'AdminController@updateUser');
 		Route::post('/update-user', 'AdminController@updateUser');
 		Route::get('/delete-user/{id}', 'AdminController@deleteUser');
+		Route::get('/delete-user/{id}', 'AdminController@deleteUser');
+		Route::get('/delete-verified-user/{id}', 'AdminController@deleteVerifiedUser');
 
 		Route::get('/add-event', 'AdminController@addEvent');
 		Route::get('/edit-event/{num}', 'AdminController@eventDetails');

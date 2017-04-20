@@ -398,20 +398,24 @@ class AdminController extends Controller {
 		}
 
 		$user_data = [
-			'username'   => $request->username,
-			'email'      => $request->email,
-			'gender'     => $request->gender,
-			'dob'        => $request->dob,
-			'image'      => $picture,
-			'updated_at' => $this->current_date_time,
+			'username'    => $request->username,
+			'email'       => $request->email,
+			'gender'      => $request->gender,
+			'dob'         => $request->dob,
+			'image'       => $picture,
+			'is_verified' => $request->verified,
+			'updated_at'  => $this->current_date_time,
 		];
 
 		$res = DB::table('users')->where('id', '=', $id)->update($user_data);
 
 		if ($res > 0) {
 			Session::flash('success', 'User successfully updated');
-
-			return redirect('admin/view-users');
+			if ($request->verified == 1) {
+				return redirect('admin/view-verified-users');
+			} else {
+				return redirect('admin/view-users');
+			}
 		}
 
 		Session::flash('error', 'User could not be updated');
@@ -427,7 +431,7 @@ class AdminController extends Controller {
             WHEN status = 0 THEN "Pending"
             WHEN status = 1 THEN "Active"
             ELSE "Deleted" END) AS status, TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS age')
-		)->where('is_verified','=',0)->orderBy('id', 'desc')->paginate(15);
+		)->where('is_verified', '=', 0)->orderBy('username', 'asc')->paginate(15);
 
 		return view('admin.view-users', $result);
 	}
@@ -435,8 +439,12 @@ class AdminController extends Controller {
 	public function viewVerifiedUsers() {
 
 		$result['users'] = DB::table('users')->select('*',
-			DB::raw('TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS age')
-		)->where('is_verified','=',1)->orderBy('id', 'desc')->paginate(15);
+			DB::raw('(
+            CASE
+            WHEN status = 0 THEN "Pending"
+            WHEN status = 1 THEN "Active"
+            ELSE "Deleted" END) AS status, TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS age')
+		)->where('is_verified', '=', 1)->orderBy('username', 'asc')->paginate(15);
 
 		return view('admin.view-verified-users', $result);
 	}
@@ -454,21 +462,34 @@ class AdminController extends Controller {
 
 		return redirect('admin/view-users');
 	}
+
+	public function deleteVerifiedUser(Request $request) {
+
+		$id  = Crypt::decrypt($request->segment(3));
+		$res = DB::table('user')->where('id', '=', $id)->update(['status' => 2]);
+
+		if ($res == 1) {
+			Session::flash('success', 'User successfully deleted');
+		} else {
+			Session::flash('error', 'User could not be deleted');
+		}
+
+		return redirect('admin/view-verified-users');
+	}
 	/*---------- User CRUD End ----------*/
 
 	/* Event module start */
 	public function addEvent(Request $request) {
 
-		$keywords = DB::table('events')->select('keyword')->take(5)->orderBy('id', 'DESC')->get();
-
-		foreach($keywords as $kw){
-			$sub_keyword = explode(',', $kw->keyword);
-			foreach($sub_keyword as $skw){
-				$result['keywords'][]['keyword'] = trim($skw);
-			}
-		}
-
 		if ($request->isMethod('get')) {
+			$keywords = DB::table('events')->select('keyword')->take(5)->orderBy('id', 'DESC')->get();
+
+			foreach ($keywords as $kw) {
+				$sub_keyword = explode(',', $kw->keyword);
+				foreach ($sub_keyword as $skw) {
+					$result['keywords'][]['keyword'] = trim($skw);
+				}
+			}
 			$result['cities']      = DB::table('cities')->select('city_name', 'latitude', 'longitude')->where('country_id', 11)->orderBy('city_name', 'ASC')->get();
 			$result['categories']  = DB::table('categories')->select('id', 'english', 'arabic')->get();
 			$result['types']       = DB::table('types')->select('id', 'english', 'arabic')->get();
@@ -477,8 +498,6 @@ class AdminController extends Controller {
 
 			return view('admin.event-details', $result);
 		}
-
-		// dd($request->all());
 
 		$validation_data = [
 			'type'             => 'required',
@@ -515,6 +534,7 @@ class AdminController extends Controller {
 		}
 
 		$reference_no = uniqid();
+		$event_id     = Crypt::decrypt($request->event_id);
 
 		$event_data = [
 			'type_id'          => implode(',', $request->type),
@@ -531,9 +551,9 @@ class AdminController extends Controller {
 			'end_date'         => date('Y-m-d', strtotime($request->end_date)).' '.date('H:i:s', strtotime($request->end_time)),
 			'all_day'          => $request->all_day,
 			'free_event'       => $request->fee,
-			'facebook'         => 'https://www.facebook.com/'.$request->facebook,
-			'twitter'          => 'https://www.twitter.com/'.$request->twitter,
-			'instagram'        => 'https://www.instagram.com/'.$request->instagram,
+			'facebook'         => $request->facebook,
+			'twitter'          => $request->twitter,
+			'instagram'        => $request->instagram,
 			'event_language'   => implode(',', $request->event_language),
 			'eng_description'  => $request->eng_description,
 			'ar_description'   => $request->ar_description,
@@ -546,9 +566,8 @@ class AdminController extends Controller {
 			'updated_at'       => $this->current_date_time,
 		];
 
-		if (!empty($request->event_id)) {
-			$event_id = Crypt::decrypt($request->event_id);
-			$res      = DB::table('events')->where('id', '=', $event_id)->update($event_data);
+		if (!empty($request->event_id) && $request->uri != 'duplicate-event') {
+			$res = DB::table('events')->where('id', '=', $event_id)->update($event_data);
 
 			if ($res == 1) {
 				$id = $event_id;
@@ -563,6 +582,37 @@ class AdminController extends Controller {
 		if ($id) {
 
 			$destinationPath = base_path().'/public/uploads';
+
+			if ($request->uri == 'duplicate-event') {
+				$pic_res = DB::table('pictures')->where('event_id', $event_id)->get();
+				if ($pic_res) {
+					foreach ($pic_res as $old) {
+						$img1 = $destinationPath.'/'.$old->picture;
+
+						$extension = explode('.', $old->picture);
+						$img2_name = uniqid().'.'.$extension[1];
+						$img2      = $destinationPath.'/'.$img2_name;
+
+						copy($img1, $img2);
+						$pic_data[] = ['event_id' => $id, 'picture' => $img2_name];
+					}
+				}
+
+				$attch_res = DB::table('attachments')->where('event_id', $event_id)->get();
+				if ($attch_res) {
+					foreach ($attch_res as $old) {
+						$img1 = $destinationPath.'/'.$old->picture;
+
+						$extension = explode('.', $old->picture);
+						$img2_name = uniqid().'.'.$extension[1];
+						$img2      = $destinationPath.'/'.$img2_name;
+
+						copy($img1, $img2);
+						$attch_data[] = ['event_id' => $id, 'picture' => $img2_name];
+					}
+				}
+			}
+
 			if ($request->hasFile('picture')) {
 				for ($pic = 1; $pic <= count($request->picture); $pic++) {
 					$file          = $request->file('picture')[$pic-1];
@@ -573,7 +623,9 @@ class AdminController extends Controller {
 					$this->create_watermark($destinationPath.'/'.$picture[$pic], $destinationPath.'/'.$picture[$pic]);
 					$pic_data[] = ['event_id' => $id, 'picture' => $picture[$pic]];
 				}
+			}
 
+			if (isset($pic_data)) {
 				DB::table('pictures')->insert($pic_data);
 			}
 
@@ -587,6 +639,9 @@ class AdminController extends Controller {
 					$this->create_watermark($destinationPath.'/'.$attachment[$attch], $destinationPath.'/'.$attachment[$attch]);
 					$attch_data[] = ['event_id' => $id, 'picture' => $attachment[$attch]];
 				}
+			}
+
+			if (isset($attch_data)) {
 				DB::table('attachments')->insert($attch_data);
 			}
 
@@ -635,9 +690,9 @@ class AdminController extends Controller {
 		if ($id) {
 
 			$keywords = DB::table('events')->select('keyword')->take(5)->orderBy('id', 'DESC')->get();
-			foreach($keywords as $kw){
+			foreach ($keywords as $kw) {
 				$sub_keyword = explode(',', $kw->keyword);
-				foreach($sub_keyword as $skw){
+				foreach ($sub_keyword as $skw) {
 					$result['keywords'][]['keyword'] = trim($skw);
 				}
 			}
@@ -700,7 +755,7 @@ class AdminController extends Controller {
 			default:
 				return false;
 		}
-		$overlay_gd_image = imagecreatefrompng(base_path().'/public/wt.png');
+		$overlay_gd_image = imagecreatefrompng(base_path().'/public/logo.png');
 		$overlay_width    = imagesx($overlay_gd_image);
 		$overlay_height   = imagesy($overlay_gd_image);
 		imagecopymerge(

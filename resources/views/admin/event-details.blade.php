@@ -10,7 +10,8 @@
 				</div>
 				<div class="add-event">
 				@include('..partials/errors')
-					@if($uri_segment == 'add-event')
+
+					@if($uri_segment == 'add-event' || $uri_segment == 'duplicate-event')
 					<form action="{{url('save-event')}}" method="post" enctype="multipart/form-data" id="form-event">
 					@elseif($uri_segment == 'edit-event')
 					<form action="{{url('update-event')}}" method="post" enctype="multipart/form-data" id="form-event">
@@ -348,21 +349,19 @@
 							</div>
 						</div>
 						@endif
-						@if($uri_segment == 'edit-event')
+						@if($uri_segment == 'edit-event' || $uri_segment == 'duplicate-event')
 							<input type="hidden" id="event_id" name="event_id" value="{{Crypt::encrypt($event->id)}}">
 							<input type="hidden" id="city" name="city" value="">
 							<input type="hidden" id="location" name="location" value="">
 							<input type="hidden" id="latlng" name="latlng" value="">
-							<div class="field-wrap clearfix">
-								<div class="right">
-									<input type="submit" value="Update" class="btn-submit">
-								</div>
-							</div>
 						@endif
-						@if($uri_segment == 'add-event' || $uri_segment == 'duplicate-event')
+						@if($uri_segment == 'add-event')
 						<input type="hidden" id="city" name="city" value="">
 						<input type="hidden" id="location" name="location" value="">
 						<input type="hidden" id="latlng" name="latlng" value="">
+						@endif
+
+						@if($uri_segment != 'event-detail')
 						<div class="field-wrap clearfix">
 							<div class="right">
 								<input type="submit" value="Submit" class="btn-submit">

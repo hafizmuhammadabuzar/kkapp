@@ -1,10 +1,8 @@
 <?php
-if (strpos($_SERVER['REQUEST_URI'], "view-categories") > 0 || strpos($_SERVER['REQUEST_URI'], "add-category") > 0 || strpos($_SERVER['REQUEST_URI'], "edit-category") > 0) {
+if (strpos($_SERVER['REQUEST_URI'], "categor") > 0) {
 	$category = 'class="active"';
 } else if (strpos($_SERVER['REQUEST_URI'], "-user") > 0) {
 	$user = 'class="active"';
-} else if (strpos($_SERVER['REQUEST_URI'], "verified-user") > 0) {
-	$v_user = 'class="active"';
 } else if (strpos($_SERVER['REQUEST_URI'], "-event") > 0) {
 	$event = 'class="active"';
 } else if (strpos($_SERVER['REQUEST_URI'], "-type") > 0) {
@@ -37,18 +35,17 @@ if (strpos($_SERVER['REQUEST_URI'], "view-categories") > 0 || strpos($_SERVER['R
 			$('.msg-success, .msg-error').fadeOut(3000);
 			 var availableTags = new Array();
 
-			 <?php if(isset($keywords)){ ?>
-		    <?php foreach($keywords as $key => $val){ ?>
-		        availableTags.push('<?php echo $val['keyword']; ?>');
-		    <?php } ?>
-
-		    availableTags = availableTags.filter(function(itm, i, a) {
-			    return i == availableTags.indexOf(itm);
-			});
-		    $( ".bootstrap-tagsinput input" ).autocomplete({
-		        source: availableTags
-		    });
-			 <?php } ?>
+<?php if (isset($keywords)) {?>
+					    <?php foreach ($keywords as $key => $val) {?>
+									    	availableTags.push('<?php echo $val['keyword'];?>');
+		<?php }?>
+	availableTags = availableTags.filter(function(itm, i, a) {
+						    return i == availableTags.indexOf(itm);
+						});
+					    $( ".bootstrap-tagsinput input" ).autocomplete({
+					        source: availableTags
+					    });
+	<?php }?>
 		});
 	</script>
 	<script type="text/javascript" src="{{ URL::asset('public/admin/js/all.js') }}"></script>
