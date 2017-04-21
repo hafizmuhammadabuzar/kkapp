@@ -638,8 +638,8 @@ class ApiController extends Controller {
 			$social = 0;
 			$status = 1;
 		} else {
-			$email_validate  = ['email' => 'required|email|max:100'];
-			$validation_data = array_merge($email_validate, $validation_data);
+			/*$email_validate  = ['email' => 'required|email|max:100'];
+			$validation_data = array_merge($email_validate, $validation_data);*/
 
 			$social = 1;
 			$status = 0;
@@ -983,7 +983,7 @@ class ApiController extends Controller {
 				'languages'  => 'required',
 				'kids'       => 'required',
 				'disability' => 'required',
-				'email'      => 'required|email|max:100',
+				'user_id'    => 'required',
 			]);
 
 		if ($validator->fails()) {
@@ -994,8 +994,8 @@ class ApiController extends Controller {
 			return response()->json($result);
 		}
 
-		$email = $request->email;
-		$check = $this->checkRecord('users', ['email' => $email]);
+		$user_id = $request->user_id;
+		$check   = $this->checkRecord('users', ['id' => $user_id]);
 		if ($check) {
 			DB::table('user_categories')->where('user_id', $check[0]->id)->delete();
 			DB::table('user_languages')->where('user_id', $check[0]->id)->delete();

@@ -482,10 +482,25 @@ class AdminController extends Controller {
 	public function searchEvents(Request $request) {
 
 		$search           = $request->search;
-		$result['events'] = DB::raw("id, eng_name, eng_company_name, phone, email, start_date, end_date, all_day
-			from events where keyword like %'$search'% or eng_name like %'$search'% or ar_name like %'$search'% or eng_comapany_name like %'$search'% or ar_company_name like %'$search'% or phone like %'$search'% or email like %'$search'%");
+		$result['events'] = DB::select("select events.id, eng_name, eng_company_name, category_id, all_day, start_date, end_date, events.created_at, events.email, phone, username
+			from events
+			left join users on users.id = events.user_id
+			where keyword like '%$search%' or eng_name like '%$search%' or ar_name like '%$search%' or eng_company_name like '%$search%' or ar_company_name like '%$search%' or events.phone like '%$search%' or events.email like '%$search%' order by events.updated_at DESC
+");
+		$result['uri_segment'] = 'search';
 
-		return view('user.view-events', $result);
+		if (count($result['events']) > 0) {
+			foreach ($result['events'] as $event) {
+				$category[] = DB::table('categories')->whereIn('id', explode(',', $event->category_id))->get();
+				$cities[]   = DB::table('locations')->where('id', $event->id)->first();
+			}
+		}
+
+		/*echo '<pre>';
+		print_r($category);
+		die;*/
+
+		return view('admin.view-events', $result);
 	}
 
 	public function addEvent(Request $request) {
@@ -690,6 +705,8 @@ class AdminController extends Controller {
 			->select(DB::raw('id, eng_name, eng_company_name, phone, email, start_date, end_date, all_day'))
 			->orderBy('id', 'DESC')
 			->paginate(15);
+
+		$result['uri_segment'] = 'view';
 
 		return view('admin.view-events', $result);
 	}

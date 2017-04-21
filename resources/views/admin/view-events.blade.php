@@ -9,15 +9,20 @@
                 @include('partials.flash_messages')
 				<div class="add-event-wrap clearfix">
 					<a href="{{url('admin/add-event')}}" class="btn btn-primary col-xs-2 text-center">Add Event</a>
-					<form action="#" class="search-form col-xs-5 no-pad push-xs-1">
-						<input type="text" placeholder="Search" class="col-xs-9">
+					<form action="{{url('admin/search-event')}}" method="post" class="search-form col-xs-5 no-pad push-xs-1">
+						<input type="text" placeholder="Search" class="col-xs-9" name="search">
 						<input type="submit" value="Search" class="btn btn-primary col-xs-2 offset-xs-1">
 					</form>
 					<div class="col-xs-3 no-pad push-xs-2">
 						<select class="form-control">
-							<option>Sort By:</option>
-							<option>Paid/Free</option>
-							<option>Date/Time</option>
+							<option value="">Sort By:</option>
+							<option value="paid">Paid</option>
+							<option value="free">Free</option>
+							<option value="date">Date/Time</option>
+							<option value="name">Name</option>
+							<option value="company">Comapny/Organizer</option>
+							<option value="category">Category</option>
+							<option value="city">City</option>
 						</select>
 					</div>
 				</div>
@@ -58,7 +63,67 @@
 				</div>
 			</div>
 		</div>
+		@if($uri_segment != 'search')
         {{ $events->links() }}
+        @endif
 	</div>
 </div>
+@endsection
+
+@section('script')
+
+<script type="text/javascript">
+	$(document).ready(function(){
+
+		if($('#uri').val() == 'event-detail'){
+			$(":input").attr("disabled",true);
+		}
+
+		if($('#uri').val() == 'duplicate-event'){
+			$("#all_day").attr('checked', false);
+			$("#start_time").val('');
+			$("#start_date").val('');
+			$("#end_time").val('');
+			$("#end_date").val('');
+			$("#start_time").focus();
+		}
+
+		$('.pic-clone a').click(function(e){
+			e.preventDefault();
+			var pic_count = $('div[id^=pictures]').length + $('img[id^=pic]').length;
+			if(pic_count < 4){
+				$("#pictures:last").clone().find("input:file").val("").end().appendTo(".pic-clone");
+			}
+		});
+		$(document).on("click", ".pic-remove", function (e) {
+			if($('div[id^=pictures]').length > 1){
+				$(this).closest('#pictures').remove();
+			}
+			else{
+				$('#picture').val('');
+			}
+		});
+
+		$('.attach-clone a').click(function(e){
+			e.preventDefault();
+			var attch_count = $('div[id^=attachments]').length + $('img[id^=attch_pic]').length;
+			if(attch_count < 3){
+				$("#attachments:last").clone().find("input:file").val("").end().appendTo(".attach-clone");
+			}
+		});
+		$(document).on("click", ".attch-remove", function (e) {
+			if($('div[id^=attachments]').length > 1){
+				$(this).closest('#attachments').remove();
+			}
+			else{
+				$('#attachment').val('');
+			}
+		});
+
+		$('.add-location').click(function(){
+			initMap(24.4539, 54.3773);
+		});
+	});
+</script>
+
 @endsection

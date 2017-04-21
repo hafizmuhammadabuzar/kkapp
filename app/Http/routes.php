@@ -76,6 +76,7 @@ Route::group(['middleware' => 'checkLogin', 'prefix' => 'admin'], function () {
 		Route::get('/view-events', 'AdminController@viewEvents');
 		Route::get('/event-detail/{num}', 'AdminController@eventDetails');
 		Route::get('/delete-event/{num}', 'AdminController@deleteEvent');
+		Route::post('/search-event', 'AdminController@searchEvents');
 	});
 
 Route::group(['prefix' => 'user'], function () {
