@@ -50,11 +50,6 @@ if (strpos($_SERVER['REQUEST_URI'], "categor") > 0) {
 	</script>
 	<script type="text/javascript" src="{{ URL::asset('public/admin/js/all.js') }}"></script>
 	<style type="text/css">
-		.add-btn{
-			float: right;
-			padding: 5px;
-			border: 1px #81807e solid;
-		}
 		#map {
 			padding: 100px;
 			margin-bottom: 5px;

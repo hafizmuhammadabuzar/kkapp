@@ -409,6 +409,15 @@
     vertical-align: middle;
     width: 50%;
 }
+.add-event-wrap {
+    padding: 10px 0;
+}
+.search-form input[type=text]{
+    height: 38px;
+    border-radius: 3px;
+    border: 1px solid #555;
+}
+.no-pad {padding: 0;}
 #footer {
     overflow: hidden;
 }
