@@ -303,6 +303,16 @@
     float: left;
     width: 23%;
     margin: 0 0 0 30px;
+    position: relative;
+}
+.field-wrap .img-list .remove-img {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    font-size: 15px;
+    line-height: 20px;
+    color: #ac2925;
+    cursor: pointer;
 }
 .field-wrap .img-list li:first-child { margin:0; }
 .field-wrap .img-list li img{
