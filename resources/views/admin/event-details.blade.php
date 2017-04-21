@@ -229,6 +229,10 @@
 										$old_event_languages = explode(',', $event->event_language);
 									}
 
+									if(count($old_event_languages) == 0){
+										$old_event_languages = array('2');
+									}
+
 									$city = '';
 									$location = '';
 									$latlng = '';
@@ -273,7 +277,7 @@
 								<h4>Language of Event  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    لغة الحدث</h4>
 								@foreach($languages as $lang)
 									<div class="radio-wrap">
-										<input type="checkbox" id="event_language" name="event_language[]" value="{{$lang->id}}" <?php if(in_array($lang->id, $old_event_languages) || $lang->title == 'Arabic') echo 'checked="checked"' ?>>
+										<input type="checkbox" id="event_language" name="event_language[]" value="{{$lang->id}}" <?php if(in_array($lang->id, $old_event_languages)) echo 'checked="checked"' ?>>
 										<label for="english">{{$lang->title}}</label>
 									</div>
 								@endforeach
@@ -320,7 +324,7 @@
 										<label for="separate">Separate Sitting   &nbsp;&nbsp;&nbsp;  جلوس منفصلة</label>
 									</div>
 									<div class="radio-wrap">
-										<input type="radio" id="public" name="venue" value="Public" <?php if($venue == 'public' || $venue!='men' || $venue!='women' || $venue!='seperate') echo 'checked="checked"' ?>>
+										<input type="radio" id="public" name="venue" value="Public" <?php if($venue == 'public' || $venue=='' && $venue!='men' && $venue!='women' && $venue!='seperate') echo 'checked="checked"' ?>>
 										<label for="public">Public   &nbsp;&nbsp;&nbsp;  جلوس منفصلة</label>
 									</div>
 								</div>
