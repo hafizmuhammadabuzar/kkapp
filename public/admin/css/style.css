@@ -28,7 +28,8 @@
     text-align: center;
     vertical-align: middle;
 }
-.main table tr td a {font-size: 20px;}
+.main table tr td a {font-size: 14px;}
+.main table tr td a:hover {text-decoration: none;}
 .main-nav {overflow: hidden;}
 .main-nav .logo {
     float: left;
@@ -302,6 +303,16 @@
     float: left;
     width: 23%;
     margin: 0 0 0 30px;
+    position: relative;
+}
+.field-wrap .img-list .remove-img {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    font-size: 15px;
+    line-height: 20px;
+    color: #ac2925;
+    cursor: pointer;
 }
 .field-wrap .img-list li:first-child { margin:0; }
 .field-wrap .img-list li img{
@@ -428,6 +439,7 @@
     padding: 25px 0 20px;
     color: #fff;
 }
+select.form-control:not([size]):not([multiple]) {height: 40px;}
 @media screen and (max-width:1200px){
     .popup {
         width: 100%;

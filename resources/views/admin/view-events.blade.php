@@ -30,32 +30,49 @@
 					<table class="table table-striped">
 						<thead class="thead thead-inverse">
 						<tr>
-							<th>#</th>
+							<th>Sr#</th>
+							<th>Ref#</th>
 							<th>Name</th>
-							<th>Company</th>
-							<th>Date/Time</th>
-							<th>Email</th>
-							<th>Phone</th>
-							<th>View</th>
-							<th>Edit</th>
-							<th>Duplicate</th>
-							<th>Del</th>
+							<th>Category</th>
+							<th>City</th>
+							<th>Company / Organizer</th>
+							<th>Date / Time</th>
+							<th>Username</th>
+							<th>Featured</th>
+							<th>Free / Paid</th>
+							<th>Status</th>
+							<th>Action</th>
 						</tr>
 						</thead>
 						<tbody>
 						@foreach($events as $key => $event)
 						<tr>
 							<td>{{$key + 1}}</td>
+							<td>{{$key + 1}}</td>
 							<td>{{$event->eng_name}}</td>
+							<td>Category</td>
+							<td>City</td>
 							<td>{{$event->eng_company_name}}</td>
 <?php $all_day = ($event->all_day == 1)?'All Day':date('d-M-Y h:i A', strtotime($event->start_date));?>
 							<td>{{$all_day}}</td>
-							<td>{{$event->email}}</td>
-							<td>{{$event->phone}}</td>
-							<td><a href="{{url('admin/event-detail/'.Crypt::encrypt($event->id))}}"><i class="fa fa-eye"></i></a></td>
-							<td><a href="{{url('admin/edit-event/'.Crypt::encrypt($event->id))}}"><i class="fa fa-edit"></i></a></td>
-							<td><a href="{{url('admin/duplicate-event/'.Crypt::encrypt($event->id))}}"><i class="fa fa-copy"></i></a></td>
-							<td><a href="{{url('admin/delete-event/'.Crypt::encrypt($event->id))}}"><i class="fa fa-remove" style="color: #880000"></i></a></td>
+							<td>Username</td>
+							<td>Yes / No</td>
+							<td>Free</td>
+							<td>Status</td>
+							<td>
+								<a href="{{url('admin/event-detail/'.Crypt::encrypt($event->id))}}" title="view">
+									<i class="fa fa-eye"></i>
+								</a> |
+								<a href="{{url('admin/edit-event/'.Crypt::encrypt($event->id))}}" title="edit">
+									<i class="fa fa-edit"></i>
+								</a> |
+								<a href="{{url('admin/duplicate-event/'.Crypt::encrypt($event->id))}}" title="duplicate">
+									<i class="fa fa-copy"></i>
+								</a> |
+								<a href="{{url('admin/delete-event/'.Crypt::encrypt($event->id))}}" title="delete">
+									<i class="fa fa-remove" style="color: #880000"></i>
+								</a>
+							</td>
 						</tr>
 						@endforeach
 						</tbody>

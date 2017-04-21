@@ -267,7 +267,10 @@
 								<label>Pictures</label>
 								<ul class="img-list">
 									@foreach($event->pictures as $pic)
-										<li><img src="{{URL::asset('public/uploads/'.$pic->picture)}}" alt="image" id="pic"></li>
+										<li>
+											<img src="{{URL::asset('public/uploads/'.$pic->picture)}}" alt="image" id="pic">
+											<span class="remove-img"><i class="fa fa-remove"></i></span>
+										</li>
 									@endforeach
 								</ul>
 							</div>
@@ -301,7 +304,10 @@
 							<p>Attachment</p>
 							<ul class="img-list">
 							@foreach($event->attachments as $attch)
-								<li><img src="{{URL::asset('public/uploads/'.$attch->picture)}}" alt="image" id="attch_pic"></li>
+								<li>
+									<img src="{{URL::asset('public/uploads/'.$attch->picture)}}" alt="image" id="attch_pic">
+									<span class="remove-img"><i class="fa fa-remove"></i></span>
+								</li>
 							@endforeach
 							</ul>
 						</div>

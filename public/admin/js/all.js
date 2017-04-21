@@ -1,6 +1,4 @@
 $(document).ready(function(){
-
-<<<<<<< HEAD
     var availableTags = [
         "ActionScript",
         "AppleScript",
@@ -29,8 +27,6 @@ $(document).ready(function(){
         source: availableTags
     });
 
-=======
->>>>>>> dc9d7b82fd179895379f2bd7d465a153584eb58f
     $(document).keypress(function(e) {
         if(e.which == 13) {
             if($(".bootstrap-tagsinput input").is(":focus")){
