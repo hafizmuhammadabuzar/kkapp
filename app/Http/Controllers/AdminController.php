@@ -295,7 +295,7 @@ class AdminController extends Controller {
 
 		return redirect('admin/view-types');
 	}
-	/*---------- Category CRUD End ----------*/
+	/*---------- Type CRUD End ----------*/
 
 	/* User CRUD start */
 	public function AddUser(Request $request) {
@@ -466,7 +466,7 @@ class AdminController extends Controller {
 	public function deleteVerifiedUser(Request $request) {
 
 		$id  = Crypt::decrypt($request->segment(3));
-		$res = DB::table('user')->where('id', '=', $id)->update(['status' => 2]);
+		$res = DB::table('users')->where('id', '=', $id)->update(['status' => 2]);
 
 		if ($res == 1) {
 			Session::flash('success', 'User successfully deleted');
@@ -481,24 +481,79 @@ class AdminController extends Controller {
 	/* Event module start */
 	public function searchEvents(Request $request) {
 
-		$search           = $request->search;
-		$result['events'] = DB::select("select events.id, eng_name, eng_company_name, category_id, all_day, start_date, end_date, events.created_at, events.email, phone, username
-			from events
-			left join users on users.id = events.user_id
-			where keyword like '%$search%' or eng_name like '%$search%' or ar_name like '%$search%' or eng_company_name like '%$search%' or ar_company_name like '%$search%' or events.phone like '%$search%' or events.email like '%$search%' order by events.updated_at DESC
-");
+		$search = $request->search;
+
+		if(empty($search)){
+			return redirect('admin/view-events/'.$request->sort);
+		}
+		if (!empty($request->sort)) {
+			$sort = [
+				'paid'     => 'free_event ASC, start_date DESC',
+				'free'     => 'free_event DESC, start_date DESC',
+				'name'     => 'eng_name ASC',
+				'company'  => 'eng_company_name ASC',
+				'date'     => 'start_date DESC'
+			];
+
+			$order = $sort[$request->sort];
+		} else {
+			$order = 'id DESC';
+		}
+
+		$result['events'] = Event::getSearchEvent($search, $order);
 		$result['uri_segment'] = 'search';
+		$result['search'] = $search;
 
 		if (count($result['events']) > 0) {
 			foreach ($result['events'] as $event) {
-				$category[] = DB::table('categories')->whereIn('id', explode(',', $event->category_id))->get();
-				$cities[]   = DB::table('locations')->where('id', $event->id)->first();
+				$result['categories'][] = DB::table('categories')->whereIn('id', explode(',', $event->category_id))->get();
+				$result['locations'][]   = DB::table('locations')->where('event_id', $event->id)->get();
+			}
+		}
+		else{
+			$result['categories'] = array();
+			$result['locations'] = array();
+		}
+
+		return view('admin.view-events', $result);
+	}
+
+	public function viewEvents(Request $request) {
+
+		if (!empty($request->sort)) {
+			$sort = [
+				'paid'     => 'free_event ASC, start_date DESC',
+				'free'     => 'free_event DESC, start_date DESC',
+				'name'     => 'eng_name ASC',
+				'company'  => 'eng_company_name ASC',
+				'date'     => 'start_date DESC'
+			];
+
+			$order = $sort[$request->sort];
+		} else {
+			$order = 'id DESC';
+		}
+
+		$result['events'] = DB::table('events')
+			->select(DB::raw('events.*, username'))
+			->join('users', 'users.id', '=', 'events.user_id', 'left')
+			->join('categories', 'users.id', '=', 'events.user_id', 'left')
+			->orderByRaw($order)
+			->groupBy('events.id')
+			->paginate(15);
+
+		if (count($result['events']) > 0) {
+			foreach ($result['events'] as $event) {
+				$result['categories'][] = DB::table('categories')->whereIn('id', explode(',', $event->category_id))->get();
+				$result['locations'][]   = DB::table('locations')->where('event_id', $event->id)->get();
 			}
 		}
 
-		/*echo '<pre>';
-		print_r($category);
-		die;*/
+
+		// dd($result);
+
+
+		$result['uri_segment'] = 'view';
 
 		return view('admin.view-events', $result);
 	}
@@ -699,18 +754,6 @@ class AdminController extends Controller {
 		}
 	}
 
-	public function viewEvents() {
-
-		$result['events'] = DB::table('events')
-			->select(DB::raw('id, eng_name, eng_company_name, phone, email, start_date, end_date, all_day'))
-			->orderBy('id', 'DESC')
-			->paginate(15);
-
-		$result['uri_segment'] = 'view';
-
-		return view('admin.view-events', $result);
-	}
-
 	public function eventDetails(Request $request) {
 
 		$id = Crypt::decrypt($request->segment(3));
@@ -761,6 +804,20 @@ class AdminController extends Controller {
 
 		Session::flash('success', 'Event successfully deleted');
 		return redirect('admin/view-events');
+	}
+
+	public function eventStatus(Request $request) {
+
+		$id  = Crypt::decrypt($request->segment(3));
+		$res = DB::table('users')->where('id', '=', $id)->update(['status' => 2]);
+
+		if ($res == 1) {
+			Session::flash('success', 'User successfully deleted');
+		} else {
+			Session::flash('error', 'User could not be deleted');
+		}
+
+		return redirect('admin/view-users');
 	}
 
 	// Water mark logo on image
