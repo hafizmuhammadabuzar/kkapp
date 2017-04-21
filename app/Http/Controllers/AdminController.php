@@ -543,7 +543,6 @@ class AdminController extends Controller {
 		}
 
 		$reference_no = uniqid();
-		$event_id     = Crypt::decrypt($request->event_id);
 
 		$event_data = [
 			'type_id'          => implode(',', $request->type),
@@ -576,7 +575,8 @@ class AdminController extends Controller {
 		];
 
 		if (!empty($request->event_id) && $request->uri != 'duplicate-event') {
-			$res = DB::table('events')->where('id', '=', $event_id)->update($event_data);
+			$event_id = Crypt::decrypt($request->event_id);
+			$res      = DB::table('events')->where('id', '=', $event_id)->update($event_data);
 
 			if ($res == 1) {
 				$id = $event_id;
@@ -593,7 +593,8 @@ class AdminController extends Controller {
 			$destinationPath = base_path().'/public/uploads';
 
 			if ($request->uri == 'duplicate-event') {
-				$pic_res = DB::table('pictures')->where('event_id', $event_id)->get();
+				$event_id = Crypt::decrypt($request->event_id);
+				$pic_res  = DB::table('pictures')->where('event_id', $event_id)->get();
 				if ($pic_res) {
 					foreach ($pic_res as $old) {
 						$img1 = $destinationPath.'/'.$old->picture;
