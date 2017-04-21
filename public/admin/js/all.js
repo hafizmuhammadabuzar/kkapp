@@ -28,7 +28,6 @@ $(document).ready(function(){
         source: availableTags
     });
 
-
     $(document).keypress(function(e) {
         if(e.which == 13) {
             if($(".bootstrap-tagsinput input").is(":focus")){
