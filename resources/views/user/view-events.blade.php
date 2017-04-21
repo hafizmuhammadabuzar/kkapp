@@ -1,4 +1,4 @@
-@extends('admin.layout.master')
+@extends('user.layout.master')
 @section('content')
 	<div class="main">
 		<div class="container">
@@ -6,21 +6,9 @@
 				<div class="head head-on">
 					<h4>Events</h4>
 				</div>
+
                 @include('partials.flash_messages')
-				<div class="add-event-wrap clearfix">
-					<a href="{{url('admin/add-event')}}" class="btn btn-primary col-xs-2 text-center">Add Event</a>
-					<form action="#" class="search-form col-xs-5 no-pad push-xs-1">
-						<input type="text" placeholder="Search" class="col-xs-9">
-						<input type="submit" value="Search" class="btn btn-primary col-xs-2 offset-xs-1">
-					</form>
-					<div class="col-xs-3 no-pad push-xs-2">
-						<select class="form-control">
-							<option>Sort By:</option>
-							<option>Paid/Free</option>
-							<option>Date/Time</option>
-						</select>
-					</div>
-				</div>
+                <a href="{{url('user/add-event')}}" class="add-btn">Add Event</a>
 				<div class="table-responsive">
 					<table class="table table-striped">
 						<thead class="thead thead-inverse">

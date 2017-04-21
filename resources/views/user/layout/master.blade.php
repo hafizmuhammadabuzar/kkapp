@@ -36,20 +36,25 @@ if (strpos($_SERVER['REQUEST_URI'], "categor") > 0) {
 			 var availableTags = new Array();
 
 <?php if (isset($keywords)) {?>
-					    <?php foreach ($keywords as $key => $val) {?>
-									    	availableTags.push('<?php echo $val['keyword'];?>');
+											    <?php foreach ($keywords as $key => $val) {?>
+																					    	availableTags.push('<?php echo $val['keyword'];?>');
 		<?php }?>
 	availableTags = availableTags.filter(function(itm, i, a) {
-						    return i == availableTags.indexOf(itm);
-						});
-					    $( ".bootstrap-tagsinput input" ).autocomplete({
-					        source: availableTags
-					    });
+												    return i == availableTags.indexOf(itm);
+												});
+											    $( ".bootstrap-tagsinput input" ).autocomplete({
+											        source: availableTags
+											    });
 	<?php }?>
 		});
 	</script>
 	<script type="text/javascript" src="{{ URL::asset('public/admin/js/all.js') }}"></script>
 	<style type="text/css">
+		.add-btn{
+			float: right;
+			padding: 5px;
+			border: 1px #81807e solid;
+		}
 		#map {
 			padding: 100px;
 			margin-bottom: 5px;
@@ -91,15 +96,10 @@ if (strpos($_SERVER['REQUEST_URI'], "categor") > 0) {
 	<div class="container">
 		<div class="row">
 			<nav class="main-nav">
-				<a href="{{ URL('/admin') }}" class="logo"><img src="{{ URL::asset('public/admin/images/logo.png')}}"></a>
+				<a href="{{ URL('/user') }}" class="logo"><img src="{{ URL::asset('public/admin/images/logo.png')}}"></a>
 				<ul class="main-menu">
-					<li <?php if (isset($event)) {echo $event;}?>><a href="{{url('admin/view-events')}}">Events</a></li>
-					<li <?php if (isset($user)) {echo $user;}?>><a href="{{url('admin/view-users')}}">Users</a></li>
-					<li <?php if (isset($v_user)) {echo $v_user;}?>><a href="{{url('admin/view-verified-users')}}"">Verified Users</a></li>
-					<li <?php if (isset($category)) {echo $category;}?>><a href="{{url('admin/view-categories')}}">Categories</a></li>
-					<li <?php if (isset($type_class)) {echo $type_class;}?>><a href="{{url('admin/view-types')}}">Type</a></li>
-					<li><a href="{{url('/admin/logout')}}">Logout</a></li>
-					{{-- <li><a href="push.php">Push Notifications</a></li> --}}
+					<li><a href="{{url('/user/view-events')}}">Events</a></li>
+					<li><a href="{{url('/user/logout')}}">Logout</a></li>
 				</ul>
 			</nav>
 		</div>

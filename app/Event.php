@@ -96,4 +96,15 @@ class Event extends Model {
 		return $result;
 	}
 
+	public static function getUserEvents($user_id) {
+
+		$query = Event::with('pictures', 'attachments', 'locations');
+		$query->select(DB::raw("events.*"));
+		$query->where('user_id', '=', $user_id);
+		$query->groupBy("id");
+		$result = $query->get();
+
+		return $result;
+	}
+
 }

@@ -139,7 +139,7 @@ class ApiController extends Controller {
 			'venue'            => $request->venue,
 			'is_kids'          => $request->kids_event,
 			'is_disabled'      => $request->disable_event,
-			'shared_count'     => 1,
+			'share_count'      => 0,
 			'user_id'          => $check->id,
 			'created_at'       => $this->current_date_time,
 			'updated_at'       => $this->current_date_time,
@@ -362,6 +362,7 @@ class ApiController extends Controller {
 
 			$result['status']          = 'Success';
 			$result['msg']             = 'Events';
+			$result['offset']          = $offset+50;
 			$result['events']          = $events;
 			$result['featured_events'] = $featured_events;
 			$result['most_liked']      = $likes;
@@ -374,6 +375,61 @@ class ApiController extends Controller {
 				$result['status'] = 'Error';
 				$result['msg']    = 'No event found';
 			}
+		}
+
+		return response()->json($result);
+	}
+
+	public function getUserEvents(Request $request) {
+
+		$user = User::getUserDetails($request->user_id);
+
+		if ($user) {
+			$events = Event::getUserEvents($request->user_id);
+
+			if (count($events) > 0) {
+
+				$user_favourites = DB::table('user_favourite_events')->where('user_id', $request->user_id)->get();
+				foreach ($user_favourites as $key => $fav) {
+					$user_favs[] = $fav->event_id;
+				}
+
+				foreach ($events as $key => $event) {
+					$ids      = $event->event_language;
+					$lang     = DB::table('languages')->select('id', 'title')->whereIn('id', explode(',', $ids))->get();
+					$type     = DB::table('types')->where('id', $event->type_id)->first();
+					$category = DB::table('categories')->where('id', $event->category_id)->first();
+
+					$user = DB::table('users')->select('username', 'email', 'is_verified', 'image')->where('id', $event->user_id)->first();
+
+					$events[$key]->username     = $user->username;
+					$events[$key]->user_email   = $user->email;
+					$events[$key]->is_verified  = $user->is_verified;
+					$events[$key]->user_picture = $user->image;
+
+					if (isset($user_favs)) {
+						$events[$key]->is_favourite = (in_array($event->id, $user_favs))?1:0;
+					} else {
+						$events[$key]->is_favourite = 0;
+					}
+
+					$events[$key]->type_english     = $type->english;
+					$events[$key]->type_arabic      = $type->arabic;
+					$events[$key]->category_english = $category->english;
+					$events[$key]->category_arabic  = $category->arabic;
+					$events[$key]->languages        = $lang;
+				}
+
+				$result['status'] = 'Success';
+				$result['msg']    = 'Events';
+				$result['events'] = $events;
+			} else {
+				$result['status'] = 'Error';
+				$result['msg']    = 'No event found';
+			}
+		} else {
+			$result['status'] = 'Error';
+			$result['msg']    = 'User not found';
 		}
 
 		return response()->json($result);
@@ -543,7 +599,7 @@ class ApiController extends Controller {
 			default:
 				return false;
 		}
-		$overlay_gd_image = imagecreatefrompng(base_path().'/public/wt.png');
+		$overlay_gd_image = imagecreatefrompng(base_path().'/public/logo.png');
 		$overlay_width    = imagesx($overlay_gd_image);
 		$overlay_height   = imagesy($overlay_gd_image);
 		imagecopymerge(
@@ -622,6 +678,10 @@ class ApiController extends Controller {
 				     ->where('user_id', '=', $check->id)
 					->get();
 				$user->image_path = url('public/uploads');
+
+				if (!empty($request ->token)) {
+					DB::table('tokens')->where('token', $request->token)->update(['user_id' => $check->id, 'updated_at' => $this->current_date_time]);
+				}
 
 				$result['status']  = 'Success';
 				$result['msg']     = $this->save_success;
@@ -858,7 +918,7 @@ class ApiController extends Controller {
 				$user->image_path = url('public/uploads');
 
 				if (!empty($request ->token)) {
-					DB::table('tokens')->where('token', $request->token)->update(['user_email' => $email]);
+					DB::table('tokens')->where('token', $request->token)->update(['user_id' => $user->id, 'updated_at' => $this->current_date_time]);
 				}
 
 				$result['status']  = 'Success';
@@ -876,7 +936,7 @@ class ApiController extends Controller {
 	public function logout(Request $request) {
 
 		if (!empty($request ->token)) {
-			DB::table('tokens')->where('token', $request->token)->update(['user_email' => '']);
+			DB::table('tokens')->where('token', $request->token)->update(['user_id' => '', 'updated_at' => $this->current_date_time]);
 		}
 
 		$result['status'] = 'Success';
@@ -902,8 +962,11 @@ class ApiController extends Controller {
 				$result['msg']    = 'Social Account';
 			} else {
 				$msg = "Dear ".ucwords($check->username).",<br/><br/>Please click the given link to reset your password<br/>
-                <a href='".url('/password/reset/'.$remember_token)."'>Click Here</a>";
+				<a href='".url('/password/reset/'.$check->remember_token)."'>Click Here</a>";
 				$send = $this->send_email($email, 'KK Events', 'Reset Password', $msg);
+
+				$result['status'] = 'Success';
+				$result['msg']    = 'Email sent';
 			}
 		} else {
 			$result['status'] = 'Error';
@@ -1036,8 +1099,8 @@ class ApiController extends Controller {
 
 	public function saveAndroidToken($token = null, $device_id = null) {
 
-		$token     = ($token)?$token:$_REQUEST['token'];
-		$device_id = ($device_id)?$device_id:$_REQUEST['device_id'];
+		$token     = (!empty($token))?$token:$_REQUEST['token'];
+		$device_id = (!empty($device_id))?$device_id:$_REQUEST['device_id'];
 
 		if (empty($token) || empty($device_id)) {
 			$result['status'] = 'Error';
@@ -1059,7 +1122,7 @@ class ApiController extends Controller {
 			$result['status'] = 'Success';
 			$result['msg']    = $this->update_success;
 		} else {
-			$res = DB::table('tokens')->insersatGetId($token_data);
+			$res = DB::table('tokens')->insertGetId($token_data);
 			if ($res) {
 				$result['status'] = 'Success';
 				$result['msg']    = $this->save_success;
