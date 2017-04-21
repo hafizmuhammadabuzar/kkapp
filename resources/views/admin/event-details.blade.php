@@ -18,7 +18,7 @@
 					@endif
 						<div class="field-wrap clearfix">
 							<div class="left">
-								<label for="event-name">Type</label>
+								<label for="event-name">Type <br><span class="small">Hold down the Ctrl (windows) / Command (Mac) button to select multiple options.</span> </label>
 								<?php $type_id = (isset($event)) ? explode(',', $event->type_id) : explode(',', old('type')); ?>
 								<select class="form-control" name="type[]" required="required" multiple>
 								@foreach($types as $tp)
@@ -27,7 +27,7 @@
 								</select>
 							</div>
 							<div class="right" style="direction: ltr; text-align: left;">
-								<label for="event-name">Category</label>
+								<label for="event-name">Category <br><span class="small">Hold down the Ctrl (windows) / Command (Mac) button to select multiple options.</span></label>
 								<?php $cat_id = (isset($event)) ? explode(',', $event->category_id) : explode(',', old('category')); ?>
 								<select class="form-control" name="category[]" required="required" multiple>
 								@foreach($categories as $cat)
@@ -379,6 +379,7 @@
 						</div>
 						@endif
 						<input type="hidden" id="uri" name="uri" value="{{$uri_segment}}">
+					</form>
 					</form>
 				</div>
 			</div>
