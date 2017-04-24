@@ -16,24 +16,26 @@
                     @elseif($uri_segment == 'edit-event')
                     <form action="{{url('admin/update-event')}}" method="post" enctype="multipart/form-data" id="form-event">
                         @endif
-                        <div class="field-wrap clearfix">
+                        <div class="field-wrap type clearfix">
                             <div class="left">
-                                <label for="event-name">Type <br><span class="small">Hold down the Ctrl (windows) / Command (Mac) button to select multiple options.</span> </label>
+                                <h4>Type  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    لغة الحدث</h4>
                                 <?php $type_id = (isset($event)) ? explode(',', $event->type_id) : explode(',', old('type')); ?>
-                                <select class="form-control" name="type[]" required="required" multiple>
-                                    @foreach($types as $tp)
-                                    <option value="{{$tp->id}}" <?php if (in_array($tp->id, $type_id)) echo 'selected="selected"'; ?>>{{$tp->english.' '.$tp->arabic}}</option>
-                                    @endforeach
-                                </select>
+                                @foreach($types as $tp)
+                                <div class="radio-wrap">
+                                    <input type="checkbox" id="event_type_1" name="" value="{{$tp->id}}"<?php if (in_array($tp->id, $type_id)) echo 'checked="checked"'; ?>>
+                                    <label for="event_type_1">{{$tp->english.'&nbsp;&nbsp;&nbsp;&nbsp; '.$tp->arabic}}</label>
+                                </div>
+                                @endforeach
                             </div>
-                            <div class="right" style="direction: ltr; text-align: left;">
-                                <label for="event-name">Category <br><span class="small">Hold down the Ctrl (windows) / Command (Mac) button to select multiple options.</span></label>
+                            <div class="right left-right">
+                                <h4>Category &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    لغة الحدث</h4>
                                 <?php $cat_id = (isset($event)) ? explode(',', $event->category_id) : explode(',', old('category')); ?>
-                                <select class="form-control" name="category[]" required="required" multiple>
-                                    @foreach($categories as $cat)
-                                    <option value="{{$cat->id}}" <?php if (in_array($cat->id, $cat_id)) echo 'selected="selected"'; ?>>{{$cat->english.' '.$cat->arabic}}</option>
-                                    @endforeach
-                                </select>
+                                @foreach($categories as $cat)
+                                    <div class="radio-wrap">
+                                        <input type="checkbox" id="event_cat_1" name="category[]" value="{{$cat->id}}" <?php if (in_array($cat->id, $cat_id)) echo 'checked="checked"'; ?>>
+                                        <label for="event_cat_1">{{$cat->english.'&nbsp;&nbsp;&nbsp;&nbsp; '.$cat->arabic}}</label>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
                         <div class="field-wrap clearfix">
@@ -41,6 +43,14 @@
                                 <label for="keyword">Keyword</label>
                                 <?php $keyword = (isset($event)) ? $event->keyword : old('keyword'); ?>
                                 <input type="text" id="keyword" name="keyword" value="{{$keyword}}" required="required" data-role="tagsinput">
+                            </div>
+                            <div class="right left-right">
+                                <div class="label-wrap">
+                                    <label for="url">Web link</label>
+                                    <label for="url">رابط موقع</label>
+                                    <?php $url = (isset($event)) ? $event->weblink : old('url'); ?>
+                                </div>
+                                <input type="text" id="url" name="url" value="{{$url}}" required="required">
                             </div>
                         </div>
                         <div class="field-wrap clearfix">
@@ -86,16 +96,8 @@
                             </div>
                         </div>
                         <div class="field-wrap clearfix">
-                            <div class="left">
-                                <div class="label-wrap">
-                                    <label for="url">Web link</label>
-                                    <label for="url">رابط موقع</label>
-                                    <?php $url = (isset($event)) ? $event->weblink : old('url'); ?>
-                                </div>
-                                <input type="text" id="url" name="url" value="{{$url}}" required="required">
-                            </div>
                             <?php $all_day = (isset($event)) ? $event->all_day : ''; ?>
-                            <div class="right cal event_dates">
+                            <div class="left">
                                 <div class="all-day right clearfix left-right">
                                     <h4>All day event  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    كل حدث اليوم</h4>
                                     <div class="radio-wrap">
@@ -104,6 +106,8 @@
                                         <label for="yes">Yes   &nbsp;&nbsp;&nbsp;  نعم </label>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="right cal event_dates">
                                 <div class="start-date">
                                     <span>Start Date</span>
                                     <?php
@@ -280,7 +284,7 @@
                             </ul>
                         </div>
                         @endif
-                        <div class="field-wrap clearfix">
+                        <div class="field-wrap languages clearfix">
                             <div class="left">
                                 <h4>Language of Event  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    لغة الحدث</h4>
                                 @foreach($languages as $lang)
