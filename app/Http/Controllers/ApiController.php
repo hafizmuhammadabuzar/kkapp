@@ -230,8 +230,8 @@ class ApiController extends Controller {
 			foreach ($events as $key => $event) {
 				$ids      = $event->event_language;
 				$lang     = DB::table('languages')->select('id', 'title')->whereIn('id', explode(',', $ids))->get();
-				$type     = DB::table('types')->where('id', $event->type_id)->first();
-				$category = DB::table('categories')->where('id', $event->category_id)->first();
+				$type     = DB::table('types')->where('id', $event->type_id)->get();
+				$category = DB::table('categories')->where('id', $event->category_id)->get();
 				if ($event->user_id != 0) {
 					$user                       = DB::table('users')->select('username', 'email', 'is_verified', 'image')->where('id', $event->user_id)->first();
 					$events[$key]->username     = $user->username;

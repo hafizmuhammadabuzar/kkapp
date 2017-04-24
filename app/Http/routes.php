@@ -73,10 +73,11 @@ Route::group(['middleware' => 'checkLogin', 'prefix' => 'admin'], function () {
 		Route::post('/update-event', 'AdminController@addEvent');
 		Route::get('/edit-event/{num}', 'AdminController@eventDetails');
 		Route::get('/duplicate-event/{num}', 'AdminController@eventDetails');
-		Route::get('/view-events', 'AdminController@viewEvents');
+		Route::resource('/view-events', 'AdminController@viewEvents');
 		Route::get('/event-detail/{num}', 'AdminController@eventDetails');
 		Route::get('/delete-event/{num}', 'AdminController@deleteEvent');
-		Route::post('/search-event', 'AdminController@searchEvents');
+		Route::post('/search-events', 'AdminController@searchEvents');
+		Route::get('/event-status/{num}', 'AdminController@EventStatus');
 	});
 
 Route::group(['prefix' => 'user'], function () {

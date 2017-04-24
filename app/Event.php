@@ -107,4 +107,16 @@ class Event extends Model {
 		return $result;
 	}
 
+	public static function getSearchEvent($search, $sort = '') {
+
+		// $query = Event::with('locations');
+		$query = Event::select(DB::raw("events.*, username"));
+		$query->join('users', 'users.id', '=', 'events.user_id', 'left');
+		$query->where(DB::raw("keyword like '%$search%' or eng_name like '%$search%' or ar_name like '%$search%' or eng_company_name like '%$search%' or ar_company_name like '%$search%' or events.phone like '%$search%' or events.email like '%$search%' or events.start_date like '%$search%' or events.end_date like '%$search%'"));
+		$query->orderByRaw($sort);
+		$result = $query->get();
+
+		return $result;
+	}
+
 }

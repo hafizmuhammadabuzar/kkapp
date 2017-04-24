@@ -1,9 +1,11 @@
 <?php
 if (strpos($_SERVER['REQUEST_URI'], "categor") > 0) {
 	$category = 'class="active"';
-} else if (strpos($_SERVER['REQUEST_URI'], "-user") > 0) {
+} 
+/*else if (strpos($_SERVER['REQUEST_URI'], "-user") > 0) {
 	$user = 'class="active"';
-} else if (strpos($_SERVER['REQUEST_URI'], "-event") > 0) {
+}*/ 
+else if (strpos($_SERVER['REQUEST_URI'], "-event") > 0) {
 	$event = 'class="active"';
 } else if (strpos($_SERVER['REQUEST_URI'], "-type") > 0) {
 	$type_class = 'class="active"';
@@ -94,8 +96,8 @@ if (strpos($_SERVER['REQUEST_URI'], "categor") > 0) {
 				<a href="{{ URL('/admin') }}" class="logo"><img src="{{ URL::asset('public/admin/images/logo.png')}}"></a>
 				<ul class="main-menu">
 					<li <?php if (isset($event)) {echo $event;}?>><a href="{{url('admin/view-events')}}">Events</a></li>
-					<li <?php if (isset($user)) {echo $user;}?>><a href="{{url('admin/view-users')}}">Users</a></li>
-					<li <?php if (isset($v_user)) {echo $v_user;}?>><a href="{{url('admin/view-verified-users')}}"">Verified Users</a></li>
+					<li><a href="{{url('admin/view-users')}}">Users</a></li>
+					<li><a href="{{url('admin/view-verified-users')}}"">Verified Users</a></li>
 					<li <?php if (isset($category)) {echo $category;}?>><a href="{{url('admin/view-categories')}}">Categories</a></li>
 					<li <?php if (isset($type_class)) {echo $type_class;}?>><a href="{{url('admin/view-types')}}">Type</a></li>
 					<li><a href="{{url('/admin/logout')}}">Logout</a></li>
