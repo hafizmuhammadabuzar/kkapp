@@ -230,8 +230,8 @@ class ApiController extends Controller {
 			foreach ($events as $key => $event) {
 				$ids      = $event->event_language;
 				$lang     = DB::table('languages')->select('id', 'title')->whereIn('id', explode(',', $ids))->get();
-				$type     = DB::table('types')->where('id', $event->type_id)->get();
-				$category = DB::table('categories')->where('id', $event->category_id)->get();
+				$type     = DB::table('types')->whereIn('id', explode(',', $event->type_id))->get();
+				$category = DB::table('categories')->whereIn('id', explode(',', $event->category_id))->get();
 				if ($event->user_id != 0) {
 					$user                       = DB::table('users')->select('username', 'email', 'is_verified', 'image')->where('id', $event->user_id)->first();
 					$events[$key]->username     = $user->username;
@@ -251,18 +251,16 @@ class ApiController extends Controller {
 					$events[$key]->is_favourite = 0;
 				}
 
-				$events[$key]->type_english     = $type->english;
-				$events[$key]->type_arabic      = $type->arabic;
-				$events[$key]->category_english = $category->english;
-				$events[$key]->category_arabic  = $category->arabic;
-				$events[$key]->languages        = $lang;
+				$events[$key]->types      = $type;
+				$events[$key]->categories = $category;
+				$events[$key]->languages  = $lang;
 			}
 
 			foreach ($featured_events as $key => $event) {
 				$ids      = $event->event_language;
 				$lang     = DB::table('languages')->select('id', 'title')->whereIn('id', explode(',', $ids))->get();
-				$type     = DB::table('types')->where('id', $event->type_id)->first();
-				$category = DB::table('categories')->where('id', $event->category_id)->first();
+				$type     = DB::table('types')->whereIn('id', explode(',', $event->type_id))->get();
+				$category = DB::table('categories')->whereIn('id', explode(',', $event->category_id))->get();
 
 				if ($event->user_id != 0) {
 					$user                                = DB::table('users')->select('username', 'email', 'is_verified', 'image')->where('id', $event->user_id)->first();
@@ -284,11 +282,9 @@ class ApiController extends Controller {
 					$featured_events[$key]->is_favourite = 0;
 				}
 
-				$featured_events[$key]->type_english     = $type->english;
-				$featured_events[$key]->type_arabic      = $type->arabic;
-				$featured_events[$key]->category_english = $category->english;
-				$featured_events[$key]->category_arabic  = $category->arabic;
-				$featured_events[$key]->languages        = $lang;
+				$featured_events[$key]->types      = $type;
+				$featured_events[$key]->categories = $category;
+				$featured_events[$key]->languages  = $lang;
 			}
 
 			if (count($likes) > 0) {
@@ -296,8 +292,8 @@ class ApiController extends Controller {
 				foreach ($likes as $key => $event) {
 					$ids      = $event->event_language;
 					$lang     = DB::table('languages')->select('id', 'title')->whereIn('id', explode(',', $ids))->get();
-					$type     = DB::table('types')->where('id', $event->type_id)->first();
-					$category = DB::table('categories')->where('id', $event->category_id)->first();
+					$type     = DB::table('types')->whereIn('id', explode(',', $event->type_id))->get();
+					$category = DB::table('categories')->whereIn('id', explode(',', $event->category_id))->get();
 
 					if ($event->user_id != 0) {
 						$user                      = DB::table('users')->select('username', 'email', 'is_verified', 'image')->where('id', $event->user_id)->first();
@@ -317,11 +313,10 @@ class ApiController extends Controller {
 					} else {
 						$likes[$key]->is_favourite = 0;
 					}
-					$likes[$key]->type_english     = $type->english;
-					$likes[$key]->type_arabic      = $type->arabic;
-					$likes[$key]->category_english = $category->english;
-					$likes[$key]->category_arabic  = $category->arabic;
-					$likes[$key]->languages        = $lang;
+
+					$likes[$key]->types      = $type;
+					$likes[$key]->categories = $category;
+					$likes[$key]->languages  = $lang;
 				}
 			}
 
@@ -329,8 +324,8 @@ class ApiController extends Controller {
 				foreach ($shared as $key => $event) {
 					$ids      = $event->event_language;
 					$lang     = DB::table('languages')->select('id', 'title')->whereIn('id', explode(',', $ids))->get();
-					$type     = DB::table('types')->where('id', $event->type_id)->first();
-					$category = DB::table('categories')->where('id', $event->category_id)->first();
+					$type     = DB::table('types')->whereIn('id', explode(',', $event->type_id))->get();
+					$category = DB::table('categories')->whereIn('id', explode(',', $event->category_id))->get();
 					if ($event->user_id != 0) {
 						$user = DB::table('users')->select('username', 'email', 'is_verified', 'image')->where('id', $event->user_id)->first();
 
@@ -352,11 +347,9 @@ class ApiController extends Controller {
 						$shared[$key]->is_favourite = 0;
 					}
 
-					$shared[$key]->type_english     = $type->english;
-					$shared[$key]->type_arabic      = $type->arabic;
-					$shared[$key]->category_english = $category->english;
-					$shared[$key]->category_arabic  = $category->arabic;
-					$shared[$key]->languages        = $lang;
+					$shared[$key]->types      = $type;
+					$shared[$key]->categories = $category;
+					$shared[$key]->languages  = $lang;
 				}
 			}
 
@@ -983,7 +976,7 @@ class ApiController extends Controller {
 				'languages'  => 'required',
 				'kids'       => 'required',
 				'disability' => 'required',
-				'user_id'    => 'required',
+				'email'      => 'required',
 			]);
 
 		if ($validator->fails()) {
@@ -994,8 +987,9 @@ class ApiController extends Controller {
 			return response()->json($result);
 		}
 
-		$user_id = $request->user_id;
-		$check   = $this->checkRecord('users', ['id' => $user_id]);
+		// $user_id = $request->user_id;
+		$email = $request->email;
+		$check = $this->checkRecord('users', ['email' => $email]);
 		if ($check) {
 			DB::table('user_categories')->where('user_id', $check[0]->id)->delete();
 			DB::table('user_languages')->where('user_id', $check[0]->id)->delete();

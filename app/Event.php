@@ -112,7 +112,9 @@ class Event extends Model {
 		// $query = Event::with('locations');
 		$query = Event::select(DB::raw("events.*, username"));
 		$query->join('users', 'users.id', '=', 'events.user_id', 'left');
-		$query->where(DB::raw("keyword like '%$search%' or eng_name like '%$search%' or ar_name like '%$search%' or eng_company_name like '%$search%' or ar_company_name like '%$search%' or events.phone like '%$search%' or events.email like '%$search%' or events.start_date like '%$search%' or events.end_date like '%$search%'"));
+		$query->join('locations', 'locations.event_id', '=', 'events.id', 'inner');
+		$query->join('categories', 'categories.id', '=', 'events.category_id', 'inner');
+		$query->where(DB::raw("keyword like '%$search%' or eng_name like '%$search%' or ar_name like '%$search%' or eng_company_name like '%$search%' or ar_company_name like '%$search%' or events.phone like '%$search%' or events.email like '%$search%' or events.start_date like '%$search%' or events.end_date like '%$search%' or city like '%$search%' or english like '%$search%' or arabic like '%$search%' or events.id like '%$search%'"));
 		$query->orderByRaw($sort);
 		$result = $query->get();
 
