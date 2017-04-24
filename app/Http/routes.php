@@ -26,7 +26,7 @@ Route::group(['prefix' => 'api'], function () {
     Route::post('/save-password', 'ApiController@changePassword');
     Route::get('/save-token', 'ApiController@saveToken');
     Route::resource('/save-android-token', 'ApiController@saveAndroidToken');
-    Route::post('/save-user-preferred', 'ApiController@saveUserPreferred');
+    Route::resource('/save-user-preferred', 'ApiController@saveUserPreferred');
     Route::get('/get-categories', 'ApiController@getCategories');
     Route::post('/add-event', 'ApiController@addEvent');
     Route::resource('/get-events', 'ApiController@getEvents');
