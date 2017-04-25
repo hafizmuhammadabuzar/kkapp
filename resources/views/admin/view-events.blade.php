@@ -42,12 +42,10 @@
                         <tr>
                             <th>Sr#</th>
                             <th>Ref#</th>
-                            <th>Eng.Name</th>
-                            <th>Ar.Name</th>
+                            <th>Name</th>
                             <th>Category</th>
                             <th>City</th>
-                            <th>Eng.Company / Organizer</th>
-                            <th>Ar.Company / Organizer</th>
+                            <th>Company / Organizer</th>
                             <th>Date / Time</th>
                             <th>Username</th>
                             <th>Featured</th>
@@ -61,8 +59,7 @@
                         <tr>
                             <td>{{$key + 1}}</td>
                             <td>{{$event->reference_no}}</td>
-                            <td>{{$event->eng_name}}</td>
-                            <td>{{$event->ar_name}}</td>
+                            <td>{!!$event->eng_name.'<br/>'.$event->ar_name!!}</td>
                             <td>
                                 @foreach($categories[$key] as $cat_key => $cat)
                                 @if($cat_key < 3)
@@ -77,8 +74,7 @@
                                 @endif
                                 @endforeach
                             </td>
-                            <td>{{$event->eng_company_name}}</td>
-                            <td>{{$event->ar_company_name}}</td>
+                            <td>{!!$event->eng_company_name.'<br/>'.$event->ar_company_name!!}</td>
                             <?php
                             $all_day = ($event->all_day == 1) ? 'All Day' : date('d-M-Y h:i A', strtotime($event->start_date));
                             $username = ($event->username == '') ? 'Admin' : $event->username;
