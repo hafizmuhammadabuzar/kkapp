@@ -20,7 +20,7 @@ else if (strpos($_SERVER['REQUEST_URI'], "-event") > 0) {
 	<meta name="author" content="Alpha Beta">
 	<meta name="format-detection" content="telephone=no"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-	<!--	<link rel="shortcut icon" href="images/favicon.png">-->
+	<link rel="shortcut icon" href="{{ URL::asset('public/admin/images/favicon.png')}}">
 	<link rel="stylesheet" href="{{ URL::asset('public/admin/css/font-awesome.min.css') }}">
 	<link rel="stylesheet" href="{{ URL::asset('public/admin/css/bootstrap.min.css') }}">
 	<link rel="stylesheet" href="{{ URL::asset('public/admin/css/jquery-ui.min.css') }}">
