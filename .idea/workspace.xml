@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="a0b87357-c096-48a7-b0fe-d001249cd3cc" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/admin/event-details.blade.php" afterPath="$PROJECT_DIR$/resources/views/admin/event-details.blade.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/admin/css/style.css" afterPath="$PROJECT_DIR$/public/admin/css/style.css" />
     </list>
     <ignored path="kkapp.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -25,14 +24,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="event-details.blade.php" pinned="false" current-in-tab="false">
+      <file leaf-file-name="event-details.blade.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/resources/views/admin/event-details.blade.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-3.4736843">
-              <caret line="24" column="75" selection-start-line="24" selection-start-column="75" selection-end-line="24" selection-end-column="75" />
+            <state vertical-scroll-proportion="0.72351885">
+              <caret line="39" column="30" selection-start-line="39" selection-start-column="30" selection-end-line="39" selection-end-column="30" />
               <folding>
-                <element signature="e#13781#13822#0#HTML" expanded="true" />
-                <element signature="e#14552#14593#0#HTML" expanded="true" />
+                <element signature="e#13776#13817#0#HTML" expanded="true" />
+                <element signature="e#14547#14588#0#HTML" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -68,10 +67,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="style.css" pinned="false" current-in-tab="true">
+      <file leaf-file-name="style.css" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/admin/css/style.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.7094017">
+            <state vertical-scroll-proportion="0.0">
               <caret line="349" column="26" selection-start-line="349" selection-start-column="26" selection-end-line="349" selection-end-column="26" />
               <folding />
             </state>
@@ -123,8 +122,8 @@
         <option value="$PROJECT_DIR$/resources/views/admin/layout/master.blade.php" />
         <option value="$PROJECT_DIR$/public/admin/js/all.js" />
         <option value="$PROJECT_DIR$/resources/views/admin/view-events.blade.php" />
-        <option value="$PROJECT_DIR$/resources/views/admin/event-details.blade.php" />
         <option value="$PROJECT_DIR$/public/admin/css/style.css" />
+        <option value="$PROJECT_DIR$/resources/views/admin/event-details.blade.php" />
       </list>
     </option>
   </component>
@@ -395,7 +394,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Gulp" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18532526" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -430,8 +429,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#13781#13822#0#HTML" expanded="true" />
-            <element signature="e#14552#14593#0#HTML" expanded="true" />
+            <element signature="e#13776#13817#0#HTML" expanded="true" />
+            <element signature="e#14547#14588#0#HTML" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -485,8 +484,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#13781#13822#0#HTML" expanded="true" />
-            <element signature="e#14552#14593#0#HTML" expanded="true" />
+            <element signature="e#13776#13817#0#HTML" expanded="true" />
+            <element signature="e#14547#14588#0#HTML" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -540,8 +539,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="382" column="27" selection-start-line="382" selection-start-column="27" selection-end-line="382" selection-end-column="27" />
           <folding>
-            <element signature="e#13781#13822#0#HTML" expanded="true" />
-            <element signature="e#14552#14593#0#HTML" expanded="true" />
+            <element signature="e#13776#13817#0#HTML" expanded="true" />
+            <element signature="e#14547#14588#0#HTML" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -595,8 +594,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="41" column="142" selection-start-line="41" selection-start-column="142" selection-end-line="41" selection-end-column="142" />
           <folding>
-            <element signature="e#13781#13822#0#HTML" expanded="true" />
-            <element signature="e#14552#14593#0#HTML" expanded="true" />
+            <element signature="e#13776#13817#0#HTML" expanded="true" />
+            <element signature="e#14547#14588#0#HTML" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -650,8 +649,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="380" column="0" selection-start-line="380" selection-start-column="0" selection-end-line="380" selection-end-column="0" />
           <folding>
-            <element signature="e#13781#13822#0#HTML" expanded="true" />
-            <element signature="e#14552#14593#0#HTML" expanded="true" />
+            <element signature="e#13776#13817#0#HTML" expanded="true" />
+            <element signature="e#14547#14588#0#HTML" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -697,8 +696,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#13781#13822#0#HTML" expanded="true" />
-            <element signature="e#14552#14593#0#HTML" expanded="true" />
+            <element signature="e#13776#13817#0#HTML" expanded="true" />
+            <element signature="e#14547#14588#0#HTML" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -832,22 +831,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/admin/event-details.blade.php">
+    <entry file="file://$PROJECT_DIR$/public/admin/css/style.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-3.4736843">
-          <caret line="24" column="75" selection-start-line="24" selection-start-column="75" selection-end-line="24" selection-end-column="75" />
-          <folding>
-            <element signature="e#13781#13822#0#HTML" expanded="true" />
-            <element signature="e#14552#14593#0#HTML" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="0.0">
+          <caret line="349" column="26" selection-start-line="349" selection-start-column="26" selection-end-line="349" selection-end-column="26" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/public/admin/css/style.css">
+    <entry file="file://$PROJECT_DIR$/resources/views/admin/event-details.blade.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.7094017">
-          <caret line="349" column="26" selection-start-line="349" selection-start-column="26" selection-end-line="349" selection-end-column="26" />
-          <folding />
+        <state vertical-scroll-proportion="0.72351885">
+          <caret line="39" column="30" selection-start-line="39" selection-start-column="30" selection-end-line="39" selection-end-column="30" />
+          <folding>
+            <element signature="e#13776#13817#0#HTML" expanded="true" />
+            <element signature="e#14547#14588#0#HTML" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

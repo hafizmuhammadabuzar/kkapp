@@ -266,7 +266,7 @@
                                     <li>
                                         <a href="#" class="add-location location-data">{{$loc->location.' | '.$loc->city.' | '.$loc->latitude.', '.$loc->longitude}}</a>
                                         <?php if ($uri_segment != 'event-detail') { ?>
-                                        <a href="#" class="link-remove fa fa-remove location-remove"></a>
+                                            <a href="#" class="link-remove fa fa-remove location-remove"></a>
                                         <?php } ?>
                                     </li>
                                     @endforeach
@@ -283,7 +283,7 @@
                                 <li>
                                     <img src="{{URL::asset('public/uploads/'.$pic->picture)}}" alt="image" id="pic">
                                     <?php if ($uri_segment != 'event-detail') { ?>
-                                    <span class="remove-img"><i class="fa fa-remove picture-delete" data-event="{{'pictures,'.Crypt::encrypt($event->id).','.Crypt::encrypt($pic->id)}}"></i></span>
+                                        <span class="remove-img"><i class="fa fa-remove picture-delete" data-event="{{'pictures,'.Crypt::encrypt($event->id).','.Crypt::encrypt($pic->id)}}"></i></span>
                                     <?php } ?>
                                 </li>
                                 @endforeach
@@ -322,7 +322,7 @@
                                 <li>
                                     <img src="{{URL::asset('public/uploads/'.$attch->picture)}}" alt="image" id="attch_pic">
                                     <?php if ($uri_segment != 'event-detail') { ?>
-                                    <span class="remove-img"><i class="fa fa-remove picture-delete" data-event="{{'attachments,'.Crypt::encrypt($event->id).','.Crypt::encrypt($attch->id)}}"></i></span>
+                                        <span class="remove-img"><i class="fa fa-remove picture-delete" data-event="{{'attachments,'.Crypt::encrypt($event->id).','.Crypt::encrypt($attch->id)}}"></i></span>
                                     <?php } ?>
                                 </li>
                                 @endforeach
@@ -473,16 +473,16 @@
                 alert('Start date can not be greater than End date');
                 $('#start_date').focus();
                 return false;
-            }            
-            if($('input[name^=type]:checked').length == 0){
+            }
+            if ($('input[name^=type]:checked').length == 0) {
                 $('input[name^=type]').focus();
                 return false;
-            }            
-            if($('input[name^=category]:checked').length == 0){
+            }
+            if ($('input[name^=category]:checked').length == 0) {
                 $('input[name^=category]').focus();
                 return false;
-            }            
-            if($('input[name^=event_language]:checked').length == 0){
+            }
+            if ($('input[name^=event_language]:checked').length == 0) {
                 $('input[name^=event_language]').focus();
                 return false;
             }
