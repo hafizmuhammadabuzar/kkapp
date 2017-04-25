@@ -18,23 +18,23 @@
                         @endif
                         <div class="field-wrap type clearfix">
                             <div class="left">
-                                <h4>Type  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    لغة الحدث</h4>
+                                <h4>Type*  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    لغة الحدث</h4>
                                 <?php $type_id = (isset($event)) ? explode(',', $event->type_id) : explode(',', old('type')); ?>
-                                @foreach($types as $tp)
+                                @foreach($types as $key => $tp)
                                 <div class="radio-wrap">
-                                    <input type="checkbox" id="event_type_1" name="" value="{{$tp->id}}"<?php if (in_array($tp->id, $type_id)) echo 'checked="checked"'; ?>>
-                                    <label for="event_type_1">{{$tp->english.'&nbsp;&nbsp;&nbsp;&nbsp; '.$tp->arabic}}</label>
+                                    <input type="checkbox" id="event_type_<?php echo $key; ?>" name="type[]" value="{{$tp->id}}"<?php if (in_array($tp->id, $type_id)) echo 'checked="checked"'; ?>>
+                                    <label for="event_type_<?php echo $key; ?>">{{$tp->english.'&nbsp;&nbsp;&nbsp;&nbsp; '.$tp->arabic}}</label>
                                 </div>
                                 @endforeach
                             </div>
                             <div class="right left-right">
-                                <h4>Category &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   الفئة</h4>
+                                <h4>Category* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    لغة الحدث</h4>
                                 <?php $cat_id = (isset($event)) ? explode(',', $event->category_id) : explode(',', old('category')); ?>
-                                @foreach($categories as $cat)
-                                    <div class="radio-wrap">
-                                        <input type="checkbox" id="event_cat_1" name="category[]" value="{{$cat->id}}" <?php if (in_array($cat->id, $cat_id)) echo 'checked="checked"'; ?>>
-                                        <label for="event_cat_1">{{$cat->english.'&nbsp;&nbsp;&nbsp;&nbsp; '.$cat->arabic}}</label>
-                                    </div>
+                                @foreach($categories as $key => $cat)
+                                <div class="radio-wrap">
+                                    <input type="checkbox" id="event_cat_<?php echo $key; ?>" name="category[]" value="{{$cat->id}}" <?php if (in_array($cat->id, $cat_id)) echo 'checked="checked"'; ?>>
+                                    <label for="event_cat_<?php echo $key; ?>">{{$cat->english.'&nbsp;&nbsp;&nbsp;&nbsp; '.$cat->arabic}}</label>
+                                </div>
                                 @endforeach
                             </div>
                         </div>
@@ -42,7 +42,7 @@
                             <div class="left">
                                 <label for="keyword">Keyword</label>
                                 <?php $keyword = (isset($event)) ? $event->keyword : old('keyword'); ?>
-                                <input type="text" id="keyword" name="keyword" value="{{$keyword}}" required="required" data-role="tagsinput">
+                                <input type="text" id="keyword" name="keyword" value="{{$keyword}}" data-role="tagsinput">
                             </div>
                             <div class="right left-right">
                                 <div class="label-wrap">
@@ -50,29 +50,29 @@
                                     <label for="url">رابط موقع</label>
                                     <?php $url = (isset($event)) ? $event->weblink : old('url'); ?>
                                 </div>
-                                <input type="text" id="url" name="url" value="{{$url}}" required="required">
+                                <input type="text" id="url" name="url" value="{{$url}}">
                             </div>
                         </div>
                         <div class="field-wrap clearfix">
                             <div class="left">
-                                <label for="event-name">Event Name</label>
+                                <label for="event-name">Event Name*</label>
                                 <?php $eng_name = (isset($event)) ? $event->eng_name : old('event_name'); ?>
                                 <input type="text" id="event-name" name="event_name" value="{{$eng_name}}" required="required">
                             </div>
                             <div class="right">
-                                <label for="event-name-ar">اسم الحدث</label>
+                                <label for="event-name-ar">اسم الحدث*</label>
                                 <?php $ar_name = (isset($event)) ? $event->ar_name : old('event_name_ar'); ?>
                                 <input type="text" id="event-name-ar" name="event_name_ar" value="{{$ar_name}}" required="required">
                             </div>
                         </div>
                         <div class="field-wrap clearfix">
                             <div class="left">
-                                <label for="event-company">Organizer/Company Name</label>
+                                <label for="event-company">Organizer/Company Name*</label>
                                 <?php $comp_name_eng = (isset($event)) ? $event->eng_company_name : old('event_company'); ?>
                                 <input type="text" id="event-company" name="event_company" value="{{$comp_name_eng}}" required="required">
                             </div>
                             <div class="right">
-                                <label for="event-company-ar">اسم الشركة</label>
+                                <label for="event-company-ar">اسم الشركة*</label>
                                 <?php $comp_name_ar = (isset($event)) ? $event->ar_company_name : old('event_company_ar'); ?>
                                 <input type="text" id="event-company-ar" name="event_company_ar" value="{{$comp_name_ar}}" required="required">
                             </div>
@@ -84,7 +84,7 @@
                                     <?php $phone = (isset($event)) ? $event->phone : old('phone'); ?>
                                     <label for="phone">هاتف</label>
                                 </div>
-                                <input type="text" id="phone" name="phone" value="{{$phone}}" required="required">
+                                <input type="text" id="phone" name="phone" value="{{$phone}}">
                             </div>
                             <div class="right left-right">
                                 <div class="label-wrap">
@@ -92,7 +92,7 @@
                                     <label for="email">البريد الإلكتروني</label>
                                     <?php $email = (isset($event)) ? $event->email : old('email'); ?>
                                 </div>
-                                <input type="text" id="email" name="email" value="{{$email}}" required="required">
+                                <input type="text" id="email" name="email" value="{{$email}}">
                             </div>
                         </div>
                         <div class="field-wrap clearfix">
@@ -109,14 +109,14 @@
                             </div>
                             <div class="right cal event_dates">
                                 <div class="start-date">
-                                    <span>Start Date</span>
+                                    <span>*Start Date</span>
                                     <?php
                                     if (isset($event)) {
                                         if (!empty($event->start_date)) {
                                             $s_date = date('d-m-Y', strtotime($event->start_date));
-                                            $s_time = date('h:i A', strtotime($event->start_date));
+                                            $s_time = date('h:i', strtotime($event->start_date));
                                             $e_date = date('d-m-Y', strtotime($event->end_date));
-                                            $e_time = date('h:i A', strtotime($event->end_date));
+                                            $e_time = date('h:i', strtotime($event->end_date));
                                         } else {
                                             $s_date = '';
                                             $s_time = '';
@@ -126,9 +126,9 @@
                                     } else {
                                         if (!empty(old('start_date'))) {
                                             $s_date = date('d-m-Y', strtotime(old('start_date')));
-                                            $s_time = date('h:i A', strtotime(old('start_date')));
+                                            $s_time = date('h:i', strtotime(old('start_date')));
                                             $e_date = date('d-m-Y', strtotime(old('end_date')));
-                                            $e_time = date('h:i A', strtotime(old('end_date')));
+                                            $e_time = date('h:i', strtotime(old('end_date')));
                                         } else {
                                             $s_date = '';
                                             $s_time = '';
@@ -146,8 +146,8 @@
 
                                 </div>
                                 <div class="end-date">
-                                    <span>End Date</span>
-                                    <input type="text" placeholder="HH:MM AM" id="end_time" name="end_time" value="{{$e_time}}" required="required" class="timepicker end-time" <?php
+                                    <span>*End Date</span>
+                                    <input type="time" placeholder="HH:MM AM" id="end_time" name="end_time" value="{{$e_time}}" required="required" pattern="^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$" class="timepicker end-time" <?php
                                     if ($all_day) {
                                         echo 'disabled="disabled"';
                                     }
@@ -164,14 +164,14 @@
                             </div>
                             <div class="right">
                                 <label for="event-desc-ar">وصف</label>
-<?php $ar_dsc = (isset($event)) ? $event->ar_description : old('ar_description'); ?>
+                                <?php $ar_dsc = (isset($event)) ? $event->ar_description : old('ar_description'); ?>
                                 <textarea rows="6" name="ar_description" id="event-desc-ar">{{$ar_dsc}}</textarea>
                             </div>
                         </div>
                         <div class="field-wrap clearfix">
                             <div class="left">
                                 <h4>Facebook URL</h4>
-<?php $facebook = (isset($event)) ? $event->facebook : old('facebook'); ?>
+                                <?php $facebook = (isset($event)) ? $event->facebook : old('facebook'); ?>
                                 <div class="social-wrap">
                                     <span class="social-text">https://www.facebook.com/</span>
                                     <input type="text" id="facebook" name="facebook" value="{{$facebook}}">
@@ -179,7 +179,7 @@
                             </div>
                             <div class="right left-right">
                                 <h4>Twitter URL</h4>
-<?php $twitter = (isset($event)) ? $event->twitter : old('twitter'); ?>
+                                <?php $twitter = (isset($event)) ? $event->twitter : old('twitter'); ?>
                                 <div class="social-wrap">
                                     <span class="social-text">https://www.twitter.com/</span>
                                     <input type="text" id="twitter" name="twitter" value="{{$twitter}}">
@@ -189,7 +189,7 @@
                         <div class="field-wrap clearfix">
                             <div class="left">
                                 <h4>Instagram URL</h4>
-<?php $instagram = (isset($event)) ? $event->instagram : old('instagram'); ?>
+                                <?php $instagram = (isset($event)) ? $event->instagram : old('instagram'); ?>
                                 <div class="social-wrap">
                                     <span class="social-text">https://www.instagram.com/</span>
                                     <input type="text" id="instagram" name="instagram" value="{{$instagram}}">
@@ -251,7 +251,9 @@
                                     @for ($loc = 1; $loc < count($old_cities); $loc++)
                                     <li>
                                         <a href="#" class="add-location location-data">{{$old_locations[$loc].' | '.$old_cities[$loc].' | '.$old_latlngs[$loc]}}</a>
-                                        <a href="#" class="link-remove fa fa-remove location-remove"></a>
+                                        <?php if ($uri_segment != 'event-detail') { ?>
+                                            <a href="#" class="link-remove fa fa-remove location-remove"></a>
+                                        <?php } ?>
                                     </li>
                                     @endfor
                                     @else
@@ -263,7 +265,9 @@
                                     ?>
                                     <li>
                                         <a href="#" class="add-location location-data">{{$loc->location.' | '.$loc->city.' | '.$loc->latitude.', '.$loc->longitude}}</a>
-                                        <a href="#" class="link-remove fa fa-remove location-remove"></a>
+                                        <?php if ($uri_segment != 'event-detail') { ?>
+                                            <a href="#" class="link-remove fa fa-remove location-remove"></a>
+                                        <?php } ?>
                                     </li>
                                     @endforeach
                                     @endif
@@ -278,7 +282,9 @@
                                 @foreach($event->pictures as $pic)
                                 <li>
                                     <img src="{{URL::asset('public/uploads/'.$pic->picture)}}" alt="image" id="pic">
-                                    <span class="remove-img"><i class="fa fa-remove picture-delete" data-event="{{'pictures,'.Crypt::encrypt($event->id).','.Crypt::encrypt($pic->id)}}"></i></span>
+                                    <?php if ($uri_segment != 'event-detail') { ?>
+                                        <span class="remove-img"><i class="fa fa-remove picture-delete" data-event="{{'pictures,'.Crypt::encrypt($event->id).','.Crypt::encrypt($pic->id)}}"></i></span>
+                                    <?php } ?>
                                 </li>
                                 @endforeach
                             </ul>
@@ -286,7 +292,7 @@
                         @endif
                         <div class="field-wrap languages clearfix">
                             <div class="left">
-                                <h4>Language of Event  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    لغة الحدث</h4>
+                                <h4>Language of Event*  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    لغة الحدث</h4>
                                 @foreach($languages as $lang)
                                 <div class="radio-wrap">
                                     <input type="checkbox" id="event_language" name="event_language[]" value="{{$lang->id}}" <?php if (in_array($lang->id, $old_event_languages)) echo 'checked="checked"' ?>>
@@ -301,7 +307,7 @@
                                     <input type="checkbox" id="kids" name="kids" value="1" <?php if ($kids == '1') echo 'checked="checked"' ?>>
                                     <label for="kids">Kids أطفال</label>
                                 </div>
-<?php $disable = (isset($event)) ? $event->is_disabled : old('disable'); ?>
+                                <?php $disable = (isset($event)) ? $event->is_disabled : old('disable'); ?>
                                 <div class="radio-wrap">
                                     <input type="checkbox" id="disable" name="disable" value="1" <?php if ($disable == '1') echo 'checked="checked"' ?>>
                                     <label for="disable">Disable تعطيل</label>
@@ -315,7 +321,9 @@
                                 @foreach($event->attachments as $attch)
                                 <li>
                                     <img src="{{URL::asset('public/uploads/'.$attch->picture)}}" alt="image" id="attch_pic">
-                                    <span class="remove-img"><i class="fa fa-remove picture-delete" data-event="{{'attachments,'.Crypt::encrypt($event->id).','.Crypt::encrypt($attch->id)}}"></i></span>
+                                    <?php if ($uri_segment != 'event-detail') { ?>
+                                        <span class="remove-img"><i class="fa fa-remove picture-delete" data-event="{{'attachments,'.Crypt::encrypt($event->id).','.Crypt::encrypt($attch->id)}}"></i></span>
+                                    <?php } ?>
                                 </li>
                                 @endforeach
                             </ul>
@@ -323,8 +331,8 @@
                         @endif 
                         <div class="field-wrap clearfix">
                             <div class="left">
-                                <h4>Venue  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    مكان</h4>
-<?php $venue = (isset($event)) ? $event->venue : old('venue'); ?>
+                                <h4>Venue*  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    مكان</h4>
+                                <?php $venue = (isset($event)) ? $event->venue : old('venue'); ?>
                                 <div class="inner-row">
                                     <div class="radio-wrap">
                                         <input type="radio" id="men" name="venue" value="men" <?php if ($venue == 'men') echo 'checked="checked"' ?> required="required">
@@ -345,14 +353,14 @@
                                 </div>
                             </div>
                             <div class="right left-right">
-                                <h4>Paid/Free event  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    دفع / الحدث مجانا</h4>
+                                <h4>Paid/Free event* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    دفع / الحدث مجانا</h4>
                                 <div class="radio-wrap">
                                     <?php $fee = (isset($event)) ? $event->free_event : old('fee'); ?>
                                     <input type="radio" id="paid" name="fee" value="0" <?php if ($fee == '0') echo 'checked="checked"' ?> requried="required">
                                     <label for="paid">Paid   &nbsp;&nbsp;&nbsp;  دفع </label>
                                 </div>
                                 <div class="radio-wrap">
-<?php $fee = (isset($event)) ? $event->free_event : old('fee'); ?>
+                                    <?php $fee = (isset($event)) ? $event->free_event : old('fee'); ?>
                                     <input type="radio" id="free" name="fee" value="1" <?php if ($fee == '1' || $fee != '0') echo 'checked="checked"' ?> >
                                     <label for="free">Free   &nbsp;&nbsp;&nbsp;  حر </label>
                                 </div>
@@ -361,7 +369,7 @@
                         @if($uri_segment != 'add-event')
                         <div class="field-wrap clearfix">
                             <h4>Featured  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    متميز</h4>
-<?php $featured = (isset($event)) ? $event->is_featured : old('featured'); ?>
+                            <?php $featured = (isset($event)) ? $event->is_featured : old('featured'); ?>
                             <div class="radio-wrap">
                                 <input type="checkbox" id="featured" name="featured" value="1" <?php if ($featured == '1') echo 'checked="checked"' ?>>
                                 <label for="featured">Yes نعم فعلا</label>
@@ -451,29 +459,59 @@
         });
 
         $('#form-event').submit(function () {
-            var locs = $('.location-data').length;
-            if (locs == 0) {
-                alert('Please add Event Location');
+            var start_date, start_time, end_date, end_time;
+            start_date = $('#start_date').val();
+            start_time = $('#start_time').val();
+            end_date = $('#end_date').val();
+            end_time = $('#end_time').val();
+            if (start_time > end_time && start_date == end_date) {
+                alert('Start time can not be greater than End time');
+                $('#start_time').focus();
                 return false;
-            } else {
-                if ($('#city').val() == '') {
-                    var count = 1;
-                    $('.location-data').each(function () {
-                        if (count <= locs) {
-                            var data = $(this).text();
-                            data = data.split('|');
-                            var latlng = data[2].split(',');
-                            $('#city').val($('#city').val() + '~' + data[1]);
-                            $('#location').val($('#location').val() + '~' + data[0]);
-                            $('#latlng').val($('#latlng').val() + '~' + latlng[0].replace('(', ' ') + ',' + latlng[1].replace(')', ' '));
-                            count = (count + 1);
-                        } else {
-                            return false;
-                        }
-                    });
-                }
-                $(this).submit();
             }
+            if (start_date > end_date) {
+                alert('Start date can not be greater than End date');
+                $('#start_date').focus();
+                return false;
+            }
+            if ($('input[name^=type]:checked').length == 0) {
+                $('input[name^=type]').focus();
+                return false;
+            }
+            if ($('input[name^=category]:checked').length == 0) {
+                $('input[name^=category]').focus();
+                return false;
+            }
+            if ($('input[name^=event_language]:checked').length == 0) {
+                $('input[name^=event_language]').focus();
+                return false;
+            }
+
+            var locs = $('.location-data').length;
+//            if (locs == 0) {
+//                alert('Please add Event Location');
+//                return false;
+//            } else {
+//                if ($('#city').val() == '') {
+            if (locs > 0) {
+                var count = 1;
+                $('.location-data').each(function () {
+                    if (count <= locs) {
+                        var data = $(this).text();
+                        data = data.split('|');
+                        var latlng = data[2].split(',');
+                        $('#city').val($('#city').val() + '~' + data[1]);
+                        $('#location').val($('#location').val() + '~' + data[0]);
+                        $('#latlng').val($('#latlng').val() + '~' + latlng[0].replace('(', ' ') + ',' + latlng[1].replace(')', ' '));
+                        count = (count + 1);
+                    } else {
+                        return false;
+                    }
+                });
+            }
+            return true;
+//            $(this).submit();
+//            }
         });
 
         $('.form-location').submit(function () {
@@ -498,18 +536,12 @@
             if ($(this).is(':checked')) {
                 $('#start_time').attr('disabled', true);
                 $('#end_time').attr('disabled', true);
-
-                $('#start_date').attr('required', false);
                 $('#start_time').attr('required', false);
-                $('#end_date').attr('required', false);
                 $('#end_time').attr('required', false);
             } else {
                 $('#start_time').attr('disabled', false);
                 $('#end_time').attr('disabled', false);
-
-                $('#start_date').attr('required', true);
                 $('#start_time').attr('required', true);
-                $('#end_date').attr('required', true);
                 $('#end_time').attr('required', true);
             }
         });
