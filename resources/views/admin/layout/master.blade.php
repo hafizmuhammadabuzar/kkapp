@@ -100,6 +100,7 @@ else if (strpos($_SERVER['REQUEST_URI'], "-event") > 0) {
 					<li><a href="{{url('admin/view-verified-users')}}"">Verified Users</a></li>
 					<li <?php if (isset($category)) {echo $category;}?>><a href="{{url('admin/view-categories')}}">Categories</a></li>
 					<li <?php if (isset($type_class)) {echo $type_class;}?>><a href="{{url('admin/view-types')}}">Type</a></li>
+					<li><a href="{{url('admin/view-languages')}}">Languages</a></li>
 					<li><a href="{{url('/admin/logout')}}">Logout</a></li>
 					{{-- <li><a href="push.php">Push Notifications</a></li> --}}
 				</ul>

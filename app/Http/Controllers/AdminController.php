@@ -301,6 +301,105 @@ class AdminController extends Controller {
 
     /* ---------- Type CRUD End ---------- */
 
+    /* Language CRUD start */
+
+    public function addLanguage(Request $request) {
+
+        if ($request->isMethod('get')) {
+            return view('admin.add-language');
+        }
+
+        $validation_data = [
+            'language' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $validation_data);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withInput()->withErrors($validator);
+        }
+
+        $lang_data = [
+            'title' => $request->language,
+            'created_at' => $this->current_date_time,
+            'updated_at' => $this->current_date_time,
+        ];
+
+        $id = DB::table('languages')->insertGetId($lang_data);
+
+        if ($id) {
+            Session::flash('success', 'Language successfully added');
+
+            return redirect('admin/view-languages');
+        }
+
+        Session::flash('error', 'Language could not be added');
+
+        return redirect()->back();
+    }
+
+    public function viewLanguages() {
+
+        $result['languages'] = DB::table('languages')->orderBy('title', 'ASC')->paginate(15);
+        return view('admin.view-languages', $result);
+    }
+
+    public function updateLanguage(Request $request) {
+
+        if ($request->isMethod('get')) {
+
+            $id = Crypt::decrypt($request->segment(3));
+            $result['language'] = DB::table('languages')->where('id', '=', $id)->first();
+
+            return view('admin.edit-language', $result);
+        }
+
+        $validation_data = [
+            'language' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $validation_data);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withInput()->withErrors($validator);
+        }
+
+        $language_data = [
+            'title' => $request->language,
+            'updated_at' => $this->current_date_time,
+        ];
+
+        $id = Crypt::decrypt($request->language_id);
+
+        $res = DB::table('languages')->where('id', '=', $id)->update($language_data);
+
+        if ($res > 0) {
+            Session::flash('success', 'Language successfully updated');
+
+            return redirect('admin/view-languages');
+        }
+
+        Session::flash('error', 'Language could not be updated');
+
+        return redirect()->back();
+    }
+
+    public function deletelanguage(Request $request) {
+
+        $id = Crypt::decrypt($request->segment(3));
+        $res = DB::table('languages')->where('id', '=', $id)->delete();
+
+        if ($res == 1) {
+            Session::flash('success', 'Language successfully deleted');
+        } else {
+            Session::flash('error', 'Language could not be deleted');
+        }
+
+        return redirect('admin/view-languages');
+    }
+
+    /* ---------- Language CRUD End ---------- */
+
     /* User CRUD start */
 
     public function AddUser(Request $request) {
@@ -825,14 +924,8 @@ class AdminController extends Controller {
 
         $event_id = Crypt::decrypt($request->eventId);
         $image_id = Crypt::decrypt($request->imageId);
-        $pictures = DB::table($request->type)->where('id', '=', $image_id)->where('event_id','=',$event_id)->get();
-
-        foreach ($attachments as $attch) {
-            unlink(base_path() . '/public/uploads/' . $attch->picture);
-        }
-        foreach ($pictures as $pic) {
-            unlink(base_path() . '/public/uploads/' . $pic->picture);
-        }
+        $pictures = DB::table($request->type)->where('id', '=', $image_id)->where('event_id','=',$event_id)->first();
+        unlink(base_path() . '/public/uploads/' . $pictures->picture);
         
         $res = DB::table($request->type)->where('id', '=', $image_id)->where('event_id','=',$event_id)->delete();
 

@@ -28,7 +28,7 @@
                                 @endforeach
                             </div>
                             <div class="right left-right">
-                                <h4>Category* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    لغة الحدث</h4>
+                                <h4>Category* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    الفئة</h4>
                                 <?php $cat_id = (isset($event)) ? explode(',', $event->category_id) : explode(',', old('category')); ?>
                                 @foreach($categories as $key => $cat)
                                 <div class="radio-wrap">

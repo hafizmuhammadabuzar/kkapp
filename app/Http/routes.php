@@ -57,6 +57,12 @@ Route::group(['middleware' => 'checkLogin', 'prefix' => 'admin'], function () {
     Route::post('/update-type', 'AdminController@updateType');
     Route::get('/delete-type/{id}', 'AdminController@deleteType');
 
+    Route::resource('/add-language', 'AdminController@addLanguage');
+    Route::get('/view-languages', 'AdminController@viewLanguages');
+    Route::get('/edit-language/{num}', 'AdminController@updateLanguage');
+    Route::post('/update-language', 'AdminController@updateLanguage');
+    Route::get('/delete-language/{id}', 'AdminController@deleteLanguage');
+
     Route::get('/add-user', 'AdminController@AddUser');
     Route::post('/save-user', 'AdminController@AddUser');
     Route::get('/view-users', 'AdminController@viewUsers');
