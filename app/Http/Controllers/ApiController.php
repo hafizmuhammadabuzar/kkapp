@@ -113,12 +113,17 @@ class ApiController extends Controller {
             exit;
         }
 
-        $reference_no = uniqid();
+        $characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        $reference_no = '';
+        $max = strlen($characters) - 1;
+        for ($i = 0; $i < 5; $i++) {
+            $reference_no .= $characters[mt_rand(0, $max)];
+        }
 
         $event_data = [
             'reference_no' => $reference_no,
-            'type_id' => $request->types[0],
-            'category_id' => $request->categories[0],
+            'type_id' => implode(',', $request->types),
+            'category_id' => implode(',', $request->categories),
             'keyword' => $request->keywords,
             'eng_name' => $request->event_name,
             'eng_company_name' => $request->company_name,
@@ -179,19 +184,21 @@ class ApiController extends Controller {
                 DB::table('attachments')->insert($attch_data);
             }
 
-            DB::table('locations')->where('event_id', $id)->delete();
-
-            for ($loc = 0; $loc < count($request->locations); $loc++) {
-                $latlng = explode(',', $request->locations[$loc]['latlng']);
-                $loc_data[] = [
-                    'event_id' => $id,
-                    'city' => $request->locations[$loc]['city'],
-                    'location' => $request->locations[$loc]['location'],
-                    'latitude' => $latlng[0],
-                    'longitude' => $latlng[1]
-                ];
+            if(isset($request->locations) || count($request->locations) > 0){
+                DB::table('locations')->where('event_id', $id)->delete();
+                
+                for ($loc = 0; $loc < count($request->locations); $loc++) {
+                    $latlng = explode(',', $request->locations[$loc]['latlng']);
+                    $loc_data[] = [
+                        'event_id' => $id,
+                        'city' => trim($request->locations[$loc]['city']),
+                        'location' => trim($request->locations[$loc]['location']),
+                        'latitude' => $latlng[0],
+                        'longitude' => $latlng[1]
+                    ];
+                }
+                DB::table('locations')->insert($loc_data);
             }
-            DB::table('locations')->insert($loc_data);
 
             $result['status'] = 'Success';
             $result['msg'] = $this->save_success;
@@ -215,7 +222,7 @@ class ApiController extends Controller {
         $likes = Event::getMostLike();
         $shared = Event::getMostShared();
 
-        if (count($events) > 0 || count($featured_events) > 0) {
+        if (count($events) > 0 || count($featured_events) > 0 || count($shared) > 0 || count($likes) > 0) {
             if (!empty($request->user_id)) {
                 $user_favourites = DB::table('user_favourite_events')->where('user_id', $request->user_id)->get();
                 foreach ($user_favourites as $key => $fav) {

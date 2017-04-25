@@ -42,10 +42,12 @@
                         <tr>
                             <th>Sr#</th>
                             <th>Ref#</th>
-                            <th>Name</th>
+                            <th>Eng.Name</th>
+                            <th>Ar.Name</th>
                             <th>Category</th>
                             <th>City</th>
-                            <th>Company / Organizer</th>
+                            <th>Eng.Company / Organizer</th>
+                            <th>Ar.Company / Organizer</th>
                             <th>Date / Time</th>
                             <th>Username</th>
                             <th>Featured</th>
@@ -60,17 +62,23 @@
                             <td>{{$key + 1}}</td>
                             <td>{{$event->reference_no}}</td>
                             <td>{{$event->eng_name}}</td>
+                            <td>{{$event->ar_name}}</td>
                             <td>
-                                @foreach($categories[$key] as $cat)
+                                @foreach($categories[$key] as $cat_key => $cat)
+                                @if($cat_key < 3)
                                 {{$cat->english.','}}
+                                @endif
                                 @endforeach
                             </td>
                             <td>
-                                @foreach($locations[$key] as $loc)
+                                @foreach($locations[$key] as $loc_key => $loc)
+                                @if($loc_key < 3)
                                 {{$loc->city.','}}
+                                @endif
                                 @endforeach
                             </td>
                             <td>{{$event->eng_company_name}}</td>
+                            <td>{{$event->ar_company_name}}</td>
                             <?php
                             $all_day = ($event->all_day == 1) ? 'All Day' : date('d-M-Y h:i A', strtotime($event->start_date));
                             $username = ($event->username == '') ? 'Admin' : $event->username;
@@ -81,7 +89,20 @@
                             <td>{{$username}}</td>
                             <td>{{$featured}}</td>
                             <td>{{$free}}</td>
-                            <td class="{{'status-'.$key}}">{{$event->status}}</td>
+                            <td>
+                                <span class="{{'status-'.$key}}">
+                                    {{$event->status.' |'}}
+                                </span>
+                                @if($event->status == 'Active')
+                                <a href="javascript:" data-status="{{'Inactive-'.$key.'-'.Crypt::encrypt($event->id)}}" title="Inactive" class="e-status">
+                                    <i class="fa fa-ban" aria-hidden="true"></i>
+                                </a>
+                                @else
+                                <a href="javascript:" data-status="{{'Active-'.$key.'-'.Crypt::encrypt($event->id)}}" title="Active" class="e-status">
+                                    <i class="fa fa-check" aria-hidden="true"></i>
+                                </a>
+                                @endif
+                            </td>
                             <td>
                                 <a href="{{url('admin/event-detail/'.Crypt::encrypt($event->id))}}" title="view">
                                     <i class="fa fa-eye"></i>
@@ -94,16 +115,8 @@
                                 </a> |
                                 <a href="{{url('admin/delete-event/'.Crypt::encrypt($event->id))}}" title="delete">
                                     <i class="fa fa-remove" style="color: #880000"></i>
-                                </a> |
-                                @if($event->status == 'Active')
-                                <a href="javascript:" data-status="{{'Inactive-'.$key.'-'.Crypt::encrypt($event->id)}}" title="Inactive" class="e-status">
-                                    <i class="fa fa-ban" aria-hidden="true"></i>
                                 </a>
-                                @else
-                                <a href="javascript:" data-status="{{'Active-'.$key.'-'.Crypt::encrypt($event->id)}}" title="Active" class="e-status">
-                                    <i class="fa fa-check" aria-hidden="true"></i>
-                                </a>
-                                @endif
+                                
                             </td>
                         </tr>
                         @endforeach
@@ -141,13 +154,13 @@
                 url: "<?php echo url('admin/event-status'); ?>",
                 success: function (response) {
                     if (response == 1) {
-                        $('.status-' + status[1]).text(status[0]);
+                        $('.status-' + status[1]).text(status[0]+' |');
                         alert('Successfully ' + status[0]);
                         $(self).removeAttr('href');
                         if (status[0] == 'Active') {
-                            $(self).replaceWith('<a href="javascript:" data-status="Inactive-' + status[1] + '-' + status[2] + '" title="Inactive" class="e-status">									<i class="fa fa-ban" aria-hidden="true"></i></a>');
+                            $(self).replaceWith('<a href="javascript:" data-status="Inactive-' + status[1] + '-' + status[2] + '" title="Inactive" class="e-status"><i class="fa fa-ban" aria-hidden="true"></i></a>');
                         } else {
-                            $(self).replaceWith('<a href="javascript:" data-status="Active-' + status[1] + '-' + status[2] + '" title="Active" class="e-status">									<i class="fa fa-check" aria-hidden="true"></i></a>');
+                            $(self).replaceWith('<a href="javascript:" data-status="Active-' + status[1] + '-' + status[2] + '" title="Active" class="e-status"><i class="fa fa-check" aria-hidden="true"></i></a>');
                         }
                     }
                 }

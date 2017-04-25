@@ -25,7 +25,7 @@ class Event extends Model {
 
         $query = Event::with('pictures', 'attachments', 'locations');
         $query->select(DB::raw("events.*"));
-        $query->join('locations', 'locations.event_id', '=', 'events.id');
+        $query->join('locations', 'locations.event_id', '=', 'events.id', 'left');
         if ($is_featured == false) {
             $query->whereNull('is_featured');
         } else {
@@ -38,6 +38,7 @@ class Event extends Model {
             $query->whereIn('type_id', explode(',', $type));
         }
         $query->take(50)->skip($offset);
+        $query->orderBy('id');
         $query->groupBy('id');
         $result = $query->get();
 
@@ -55,6 +56,7 @@ class Event extends Model {
             $query->whereIn('type_id', explode(',', $type));
         }
         $query->havingRaw("distance < $radius");
+        $query->orderBy("id");
         $query->groupBy("id");
         $result = $query->get();
 
@@ -105,20 +107,25 @@ class Event extends Model {
                 ->join('user_categories','user_categories.user_id','=','users.id','left')
                 ->where('users.id',$user_id)
                 ->get();
-        
-        dd($categories);
-        
-        if($categories[0]->category_id){
-            foreach($categories as $cats){
-                $pref_cats[] = $cats->category_id;
-            }
-        }        
-
+                
         $query = Event::with('pictures', 'attachments', 'locations');
         $query->select(DB::raw("events.*"));
         $query->where('user_id', '=', $user_id);
-        if($categories){
-            $query->where('user_id', '=', $user_id);
+        if($categories[0]->interested_in_kids == 1){
+            $query->where('is_kids', '=', 1);
+        }
+        if($categories[0]->interested_in_disabled == 1){
+            $query->where('is_disabled', '=', 1);
+        }
+        if($categories[0]->category_id){
+            foreach($categories as $key => $cat){
+                if($key == 0){
+                    $query->whereRaw('FIND_IN_SET('.$cat->category_id.',category_id)');
+                }
+                else{
+                    $query->orWhereRaw('FIND_IN_SET('.$cat->category_id.',category_id)');
+                }
+            }
         }
         $query->groupBy("id");
         $result = $query->get();
@@ -131,9 +138,9 @@ class Event extends Model {
         // $query = Event::with('locations');
         $query = Event::select(DB::raw("events.*, username"));
         $query->join('users', 'users.id', '=', 'events.user_id', 'left');
-        $query->join('locations', 'locations.event_id', '=', 'events.id', 'inner');
+        $query->join('locations', 'locations.event_id', '=', 'events.id', 'left');
         $query->join('categories', 'categories.id', '=', 'events.category_id', 'inner');
-        $query->where(DB::raw("keyword like '%$search%' or eng_name like '%$search%' or ar_name like '%$search%' or eng_company_name like '%$search%' or ar_company_name like '%$search%' or events.phone like '%$search%' or events.email like '%$search%' or events.start_date like '%$search%' or events.end_date like '%$search%' or city like '%$search%' or english like '%$search%' or arabic like '%$search%' or events.id like '%$search%'"));
+        $query->where(DB::raw("reference_no like '%$search%' or keyword like '%$search%' or eng_name like '%$search%' or ar_name like '%$search%' or eng_company_name like '%$search%' or ar_company_name like '%$search%' or events.phone like '%$search%' or events.email like '%$search%' or events.start_date like '%$search%' or events.end_date like '%$search%' or city like '%$search%' or english like '%$search%' or arabic like '%$search%' or events.id like '%$search%'"));
         $query->orderByRaw($sort);
         $result = $query->get();
 

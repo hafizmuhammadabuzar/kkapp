@@ -561,7 +561,7 @@ class AdminController extends Controller {
     }
 
     public function addEvent(Request $request) {
-
+        
         if ($request->isMethod('get')) {
             $keywords = DB::table('events')->select('keyword')->take(5)->orderBy('id', 'DESC')->get();
 
@@ -571,6 +571,7 @@ class AdminController extends Controller {
                     $result['keywords'][]['keyword'] = trim($skw);
                 }
             }
+            
             $result['cities'] = DB::table('cities')->select('city_name', 'latitude', 'longitude')->where('country_id', 11)->orderBy('city_name', 'ASC')->get();
             $result['categories'] = DB::table('categories')->select('id', 'english', 'arabic')->get();
             $result['types'] = DB::table('types')->select('id', 'english', 'arabic')->get();
@@ -580,28 +581,23 @@ class AdminController extends Controller {
             return view('admin.event-details', $result);
         }
 
+//        dd($request->all());
         $validation_data = [
             'type' => 'required',
             'category' => 'required',
-            'keyword' => 'required',
             'event_name' => 'required',
             'event_name_ar' => 'required',
             'event_company' => 'required',
             'event_company_ar' => 'required',
-            'phone' => 'required',
-            'email' => 'required|email',
-            'url' => 'required',
             'fee' => 'required',
-            'city' => 'required',
-            'location' => 'required',
             'venue' => 'required',
+            'start_date' => 'required',
+            'end_date' => 'required',
         ];
 
         if ($request->all_day != 1) {
             $event_dates = [
-                'start_date' => 'required',
                 'start_time' => 'required',
-                'end_date' => 'required',
                 'end_time' => 'required'
             ];
 
@@ -613,8 +609,13 @@ class AdminController extends Controller {
         if ($validator->fails()) {
             return redirect()->back()->withInput()->withErrors($validator);
         }
-
-        $reference_no = uniqid();
+        
+        $characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        $reference_no = '';
+        $max = strlen($characters) - 1;
+        for ($i = 0; $i < 5; $i++) {
+            $reference_no .= $characters[mt_rand(0, $max)];
+        }
 
         $event_data = [
             'type_id' => implode(',', $request->type),
@@ -727,30 +728,31 @@ class AdminController extends Controller {
                 DB::table('attachments')->insert($attch_data);
             }
 
-            $cities = explode('~', $request->city);
-            $locations = explode('~', $request->location);
-            $latlngs = explode('~', $request->latlng);
+            if(count($request->city) > 0 && !empty($request->city[0])){
+                $cities = explode('~', $request->city);
+                $locations = explode('~', $request->location);
+                $latlngs = explode('~', $request->latlng);
+                
+                DB::table('locations')->where('event_id', $id)->delete();
 
-            DB::table('locations')->where('event_id', $id)->delete();
+                for ($loc = 1; $loc < count($cities); $loc++) {
 
-            for ($loc = 1; $loc < count($cities); $loc++) {
+                    $latlng = str_replace(array('(', ')'), '', $latlngs[$loc]);
+                    $latlng = explode(',', $latlng);
+                    $city = explode(',', $cities[$loc]);
 
-                $latlng = str_replace(array('(', ')'), '', $latlngs[$loc]);
-                $latlng = explode(',', $latlng);
-                $city = explode(',', $cities[$loc]);
-
-                $loc_data[] = [
-                    'event_id' => $id,
-                    'city' => $city[0],
-                    'location' => $locations[$loc],
-                    'latitude' => $latlng[0],
-                    'longitude' => $latlng[1]
-                ];
+                    $loc_data[] = [
+                        'event_id' => $id,
+                        'city' => trim($city[0]),
+                        'location' => trim($locations[$loc]),
+                        'latitude' => $latlng[0],
+                        'longitude' => $latlng[1]
+                    ];
+                }
+                DB::table('locations')->insert($loc_data);
             }
-            DB::table('locations')->insert($loc_data);
 
             Session::flash('success', 'Event successfully saved');
-
             return redirect('admin/view-events');
         }
     }
@@ -823,6 +825,15 @@ class AdminController extends Controller {
 
         $event_id = Crypt::decrypt($request->eventId);
         $image_id = Crypt::decrypt($request->imageId);
+        $pictures = DB::table($request->type)->where('id', '=', $image_id)->where('event_id','=',$event_id)->get();
+
+        foreach ($attachments as $attch) {
+            unlink(base_path() . '/public/uploads/' . $attch->picture);
+        }
+        foreach ($pictures as $pic) {
+            unlink(base_path() . '/public/uploads/' . $pic->picture);
+        }
+        
         $res = DB::table($request->type)->where('id', '=', $image_id)->where('event_id','=',$event_id)->delete();
 
         if ($res == 1) {
