@@ -595,7 +595,7 @@ class ApiController extends Controller {
     public function getCompanyVerifiedUsers() {
 
         $companies = DB::table('events')->select('eng_company_name', 'ar_company_name')->where('status', '=', 'Active')->groupBy('eng_company_name', 'ar_company_name')->orderBy('eng_company_name')->get();
-        $users = DB::table('users')->select('username')->where('is_verified', '=', 1)->orderBy('username')->get();
+        $users = DB::table('users')->select('id','username')->where('is_verified', '=', 1)->orderBy('username')->get();
 
         if (count($users) > 0 || count($companies) > 0) {
             $result['status'] = 'Success';
@@ -626,7 +626,8 @@ class ApiController extends Controller {
             'vanue' => $request->venue,
             'is_kids' => $request->is_kids,
             'is_disabled' => $request->is_disabled,
-            'free_event' => $request->free_event,
+            'is_free' => $request->is_free,
+            'is_paid' => $request->is_paid,
         ];
 
         $events = Event::getAppSearchEvent($data);
@@ -1180,7 +1181,7 @@ class ApiController extends Controller {
                 curl_close($ch);
 
                 echo $response = json_decode($response);
-                
+
                 die;
                 $res = DB::table('tokens')->insertGetId([
                     'token' => $token,
@@ -1196,7 +1197,7 @@ class ApiController extends Controller {
                     $result['status'] = 'Error';
                     $result['msg'] = $this->save_error;
                 }
-            }else{
+            } else {
                 $result['status'] = 'Success';
                 $result['msg'] = 'Token saved';
             }
@@ -1241,158 +1242,6 @@ class ApiController extends Controller {
         }
 
         return response()->json($result);
-    }
-
-    public function product_notification() {
-
-        $this->form_validation->set_rules('title', 'Title', 'trim|required');
-        $this->form_validation->set_rules('msg', 'Message', 'trim|required');
-
-        if ($this->form_validation->run() == false) {
-            $this->load->view('includes/header');
-            $this->load->view('push_notification');
-            $this->load->view('includes/footer');
-        } else {
-            $title = $_POST['title'];
-            $msg = $_POST['msg'];
-
-            if (isset($_POST['send_to_android']) && isset($_POST['send_to_ios'])) {
-
-                $result_android = $this->android_push($title, $msg);
-                $result_ios = $this->ios_notification($title, $msg);
-            } else if (isset($_POST['send_to_android'])) {
-                $result_android = $this->android_push($title, $msg);
-            } else if ($_POST['send_to_ios']) {
-                $result_ios = $this->ios_notification($title, $msg);
-            } else {
-                $result_android = $this->android_push($title, $msg);
-                $result_ios = $this->ios_notification($title, $msg);
-            }
-
-            if (isset($result_ios) || isset($result_android)) {
-                $this->session->set_userdata('error', 'Successfully Sent !');
-                redirect('home/push_form');
-            }
-        }
-    }
-
-    public function ind_product_notification() {
-
-        if (!isset($_POST['submit'])) {
-            $result['emails'] = $this->Home_model->getAllLoggedInUsers();
-
-            $this->load->view('includes/header');
-            $this->load->view('ind_push_notification', $result);
-        } else {
-            $result_ios = $this->ios_notification($_POST['title'], $_POST['msg'], $_POST['email']);
-            $result_android = $this->android_push($_POST['title'], $_POST['msg'], $_POST['email']);
-
-            if (isset($result_ios) || isset($result_android)) {
-                $this->session->set_userdata('error', 'Successfully Sent !');
-
-                $result['emails'] = $this->Home_model->getAllLoggedInUsers();
-
-                $this->load->view('includes/header');
-                $this->load->view('ind_push_notification', $result);
-            }
-        }
-    }
-
-    public function ios_notification($noti_title, $msg, $email = '') {
-
-        if (!empty($email)) {
-            $email = "and user_email = '" . $email . "'";
-            $tokens = DB::raw("select token from tokens where device_id is null $email");
-            foreach ($tokens as $tk) {
-                $ids[] = $tk['token'];
-            }
-
-            $devices = ['include_ios_tokens' => $ids];
-        } else {
-            $devices = ['included_segments' => array('All')];
-        }
-
-        $title = array(
-            "en" => $noti_title,
-        );
-        $content = array(
-            "en" => $msg,
-        );
-
-        $fields = array(
-            'app_id' => "a58f2a20-c16c-4b09-8202-4a768d408a97",
-            'contents' => $content,
-            'heading' => $title,
-            'data' => ['title' => $noti_title, 'body' => $msg],
-            'ios_badgeType' => 'SetTo',
-            'ios_badgeCount' => 1,
-        );
-        $fields = array_merge($fields, $devices);
-
-        $fields = json_encode($fields);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json',
-            'Authorization: Basic NTdkYTU5ZGYtM2M3Yy00MDNkLWE0NjAtOTU4MWVjZWY2NmNh'));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        return $response;
-    }
-
-    public function android_push($title, $body, $email = '') {
-
-        $email = (!empty($email)) ? $email : '';
-
-        $tokens = $this->Home_model->getTokens($email);
-
-        foreach ($tokens as $tk) {
-            $ids[] = $tk['token'];
-        }
-
-        $chunks = array_chunk($ids, 1000);
-
-        foreach ($chunks as $chk) {
-            $registrationIds = $chk;
-            define('API_ACCESS_KEY', 'AIzaSyCFa-Xt1PROlf6n51Mxh8fe4MzyODv8i8Q');
-
-            $msg['notification'] = array
-                (
-                'title' => $title,
-                'message' => $body,
-            );
-
-            $fields = array
-                (
-                'registration_ids' => $registrationIds,
-                'data' => $msg,
-            );
-
-            $headers = array
-                (
-                'Authorization: key=' . API_ACCESS_KEY,
-                'Content-Type: application/json',
-            );
-
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, 'https://android.googleapis.com/gcm/send');
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
-            $result = curl_exec($ch);
-            curl_close($ch);
-
-            return $result;
-        }
     }
 
     //-------------------------------------------------------------------------

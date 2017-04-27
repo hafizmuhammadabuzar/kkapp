@@ -151,27 +151,55 @@ class Event extends Model {
     public static function getAppSearchEvent($search_data) {
 
         $query = Event::with('pictures', 'attachments', 'locations');
-        $query->join('users', 'users.id', '=', 'events.user_id', 'left');
-        $query->join('locations', 'locations.event_id', '=', 'events.id', 'left');     
-        $query->select(DB::raw("events.*"));
+        if(!empty($search_data['verified_user'])){
+            $query->join('users', 'users.id', '=', 'events.user_id');
+        }
+        if(!empty($search_data['city'])){
+            $query->join('locations', 'locations.event_id', '=', 'events.id');     
+        }
+        $query->select(DB::raw("event.*"));
         if(!empty($search_data['eng_company'])){
             $query->where('eng_company_name', '=', $search_data['eng_company']);
         }
+        
         if(!empty($search_data['ar_company'])){
             $query->where('ar_company_name', '=', $search_data['ar_company']);
         }
+        
         if($search_data['is_kids'] == 1){
             $query->where('is_kids', '=', 1);
         }
+        
         if($search_data['is_disabled'] == 1){
             $query->where('is_disabled', '=', 1);
         }
+        
         if(!empty($search_data['venue'])){
             $query->whereIn('venue', explode(',', $search_data['venue']));
-        }        
-        if(!empty($search_data['free_event'])){
-            $query->whereIn('free_event', explode(',', $search_data['free_event']));
         }
+        
+        if($search_data['is_free'] == 1 && $search_data['is_paid'] != 1){
+            $query->where('free_event', '=', 1);
+        }
+        else if($search_data['is_free'] != 1 && $search_data['is_paid'] == 1){
+            $query->where('free_event', '=', 0);
+        }        
+        
+        if(!empty($search_data['city'])){
+            $cities = explode(',', $search_data['city']);
+            $query->whereIn('city', explode(',', $search_data['city']));
+        }
+        if(!empty($search_data['verified_user'])){
+            $query->where('user_id', '=', $search_data['verified_user']);
+        }
+        if(!empty($search_data['start_date']) && !empty($search_data['end_date'])){
+            $query->where('start_date','>=',$search_data['start_date']);
+            $query->where('end_date','<=',$search_data['end_date']);
+        }
+        else if(!empty($search_data['start_date']) && empty($search_data['end_date'])){
+            $query->where('start_date','=',$search_data['start_date']);
+        }
+        
         if(!empty($search_data['category'])){
             $categories = explode(',', $search_data['category']);
             foreach($categories as $key => $cat){
@@ -200,10 +228,10 @@ class Event extends Model {
             $key = '';
             foreach($languages as $key => $lang){
                 if($key == 0){
-                    $query->whereRaw('FIND_IN_SET('.$lang.',event_languages)');
+                    $query->whereRaw('FIND_IN_SET('.$lang.',event_language)');
                 }
                 else{
-                    $query->orWhereRaw('FIND_IN_SET('.$lang.',event_languages)');
+                    $query->orWhereRaw('FIND_IN_SET('.$lang.',event_language)');
                 }
             }
         }
@@ -212,26 +240,12 @@ class Event extends Model {
             $key = '';
             foreach($keywords as $key => $kw){
                 if($key == 0){
-                    $query->whereRaw('FIND_IN_SET('.$kw.',keyword)');
+                    $query->whereRaw('FIND_IN_SET("'.$kw.'",keyword)');
                 }
                 else{
-                    $query->orWhereRaw('FIND_IN_SET('.$kw.',keyword)');
+                    $query->orWhereRaw('FIND_IN_SET("'.$kw.'",keyword)');
                 }
             }
-        }
-        if(!empty($search_data['city'])){
-            $cities = explode(',', $search_data['city']);
-            $query->whereIn('city', explode(',', $search_data['city']));
-        }
-        if(!empty($search_data['verified_user'])){
-            $query->where('username',$search_data['verified_user']);
-        }
-        if(!empty($search_data['start_date']) && !empty($search_data['end_date'])){
-            $query->where('start_date','>=',$search_data['start_date']);
-            $query->where('end_date','<=',$search_data['end_date']);
-        }
-        else if(!empty($search_data['start_date']) && empty($search_data['end_date'])){
-            $query->where('start_date','=',$search_data['start_date']);
         }
         $query->groupBy("id");
         $result = $query->get();

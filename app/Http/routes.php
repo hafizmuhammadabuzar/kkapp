@@ -13,6 +13,7 @@
 
 /* Api Routes Start */
 
+Route::get('/', 'AdminController@home');
 Route::group(['prefix' => 'api'], function () {
     Route::get('/', 'ApiController@index');
     Route::post('/signup', 'ApiController@register');
