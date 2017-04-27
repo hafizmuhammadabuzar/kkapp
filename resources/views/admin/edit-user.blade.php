@@ -15,7 +15,7 @@
                         <div class="field-wrap clearfix">
                             <div class="left">
                                 <label for="event-name">Email</label>
-                                <input type="text" id="email" name="email" value="{{$user->email}}" required="required">
+                                <input type="text" id="email" name="email" value="{{$user->email}}" disabled="disabled">
                             </div>
                             <div class="right left-right">
                                 <label for="event-name">Username</label>

@@ -17,7 +17,7 @@ Route::group(['prefix' => 'api'], function () {
     Route::get('/', 'ApiController@index');
     Route::post('/signup', 'ApiController@register');
     Route::post('/update-profile', 'ApiController@updateProfile');
-    Route::post('/new-corporate', 'ApiController@corporateRegister');
+    Route::resource('/new-corporate', 'ApiController@corporateRegister');
     Route::post('/signin', 'ApiController@login');
     Route::resource('/signout', 'ApiController@logout');
     Route::resource('/forgot-password', 'ApiController@forgotPassword');
@@ -34,6 +34,8 @@ Route::group(['prefix' => 'api'], function () {
     Route::resource('/share-event', 'ApiController@eventShare');
     Route::resource('/get-favourite-events', 'ApiController@getUserFavouriteEvents');
     Route::resource('/get-user-events', 'ApiController@getUserEvents');
+    Route::resource('/get-company-verfied-users', 'ApiController@getCompanyVerifiedUsers');
+    Route::resource('/search-event', 'ApiController@searchEvent');
 });
 Route::get('/user/verification/{slug}', 'ApiController@userVerify');
 
@@ -85,6 +87,8 @@ Route::group(['middleware' => 'checkLogin', 'prefix' => 'admin'], function () {
     Route::post('/search-events', 'AdminController@searchEvents');
     Route::post('/event-status', 'AdminController@EventStatus');
     Route::post('/delete-event-image', 'AdminController@deleteEventImage');
+    
+    Route::get('/push-notification', 'AdminController@pushNotification');
 });
 
 Route::group(['prefix' => 'user'], function () {

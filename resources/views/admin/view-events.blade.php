@@ -76,7 +76,8 @@
                             </td>
                             <td>{!!$event->eng_company_name.'<br/>'.$event->ar_company_name!!}</td>
                             <?php
-                            $all_day = ($event->all_day == 1) ? 'All Day' : date('d-M-Y h:i A', strtotime($event->start_date));
+//                            $all_day = ($event->all_day == 1) ? 'All Day' : date('d-M-Y h:i A', strtotime($event->start_date));
+                            $all_day = date('d-M-Y h:i A', strtotime($event->start_date));
                             $username = ($event->username == '') ? 'Admin' : $event->username;
                             $featured = ($event->is_featured == 1) ? 'Yes' : 'No';
                             $free = ($event->free_event == 1) ? 'Free' : 'Paid';

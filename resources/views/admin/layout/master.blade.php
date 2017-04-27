@@ -95,14 +95,14 @@ else if (strpos($_SERVER['REQUEST_URI'], "-event") > 0) {
 			<nav class="main-nav">
 				<a href="{{ URL('/admin') }}" class="logo"><img src="{{ URL::asset('public/admin/images/logo.png')}}"></a>
 				<ul class="main-menu">
-					<li <?php if (isset($event)) {echo $event;}?>><a href="{{url('admin/view-events')}}">Events</a></li>
+					<li><a href="{{url('admin/view-events')}}">Events</a></li>
 					<li><a href="{{url('admin/view-users')}}">Users</a></li>
 					<li><a href="{{url('admin/view-verified-users')}}"">Verified Users</a></li>
-					<li <?php if (isset($category)) {echo $category;}?>><a href="{{url('admin/view-categories')}}">Categories</a></li>
-					<li <?php if (isset($type_class)) {echo $type_class;}?>><a href="{{url('admin/view-types')}}">Type</a></li>
+					<li><a href="{{url('admin/view-categories')}}">Categories</a></li>
+					<li><a href="{{url('admin/view-types')}}">Type</a></li>
 					<li><a href="{{url('admin/view-languages')}}">Languages</a></li>
+					<li><a href="{{url('/admin/push-notification')}}">Push Notifications</a></li>
 					<li><a href="{{url('/admin/logout')}}">Logout</a></li>
-					{{-- <li><a href="push.php">Push Notifications</a></li> --}}
 				</ul>
 			</nav>
 		</div>

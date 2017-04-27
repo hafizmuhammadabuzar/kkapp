@@ -469,7 +469,6 @@ class AdminController extends Controller {
 
         $validation_data = [
             'username' => 'required',
-            'email' => 'required|email',
             'gender' => 'required',
         ];
 
@@ -486,11 +485,6 @@ class AdminController extends Controller {
 
         $id = Crypt::decrypt($request->user_id);
 
-        $check = DB::table('users')->where('id', '!=', $id)->where('email', '=', $request->email)->first();
-        if ($check) {
-            return redirect()->back()->withInput()->withErrors(['error' => 'Email already exists']);
-        }
-
         if ($request->hasFile('picture')) {
             $file = $request->file('picture');
             $extension = $file->getClientOriginalExtension();
@@ -503,7 +497,6 @@ class AdminController extends Controller {
 
         $user_data = [
             'username' => $request->username,
-            'email' => $request->email,
             'gender' => $request->gender,
             'dob' => $request->dob,
             'image' => $picture,
@@ -716,6 +709,11 @@ class AdminController extends Controller {
             $reference_no .= $characters[mt_rand(0, $max)];
         }
 
+        $all_day = !empty($request->all_day) ? $request->all_day : 0;
+        $fee = !empty($request->fee) ? $request->fee : 0;
+        $is_kids = !empty($request->is_kids) ? $request->is_kids : 0;
+        $is_disabled = !empty($request->is_disabled) ? $request->is_disabled : 0;
+        $is_featured = !empty($request->is_featured) ? $request->is_featured : 0;
         $event_data = [
             'type_id' => implode(',', $request->type),
             'category_id' => implode(',', $request->category),
@@ -729,8 +727,8 @@ class AdminController extends Controller {
             'weblink' => $request->url,
             'start_date' => date('Y-m-d', strtotime($request->start_date)) . ' ' . date('H:i:s', strtotime($request->start_time)),
             'end_date' => date('Y-m-d', strtotime($request->end_date)) . ' ' . date('H:i:s', strtotime($request->end_time)),
-            'all_day' => $request->all_day,
-            'free_event' => $request->fee,
+            'all_day' => $all_day,
+            'free_event' => $fee,
             'facebook' => $request->facebook,
             'twitter' => $request->twitter,
             'instagram' => $request->instagram,
@@ -738,9 +736,9 @@ class AdminController extends Controller {
             'eng_description' => $request->eng_description,
             'ar_description' => $request->ar_description,
             'venue' => $request->venue,
-            'is_kids' => $request->kids,
-            'is_disabled' => $request->disable,
-            'is_featured' => $request->featured,
+            'is_kids' => $is_kids,
+            'is_disabled' => $is_disabled,
+            'is_featured' => $is_featured,
             'share_count' => 1,
             'created_at' => $this->current_date_time,
             'updated_at' => $this->current_date_time,
@@ -934,6 +932,22 @@ class AdminController extends Controller {
         } else {
             echo 'Error';
         }
+    }
+    
+    public function pushNotification(Request $request) {
+
+        if ($request->isMethod('get')) {
+
+            return view('admin.push-notification');
+        }
+
+        if ($request->email == 'admin' && $request->password == 'admin') {
+            Session::put('admin_data', 'loggedIn');
+            return redirect('admin/view-events');
+        }
+
+        Session::put('login_error', 'Invalid Username or Password');
+        return redirect()->back();
     }
 
     // Water mark logo on image
