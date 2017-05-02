@@ -29,7 +29,6 @@ class Event extends Model {
         $query->join('locations', 'locations.event_id', '=', 'events.id', 'left');
         if ($is_featured == false) {
             $query->where('is_featured', '=', '0');
-//            $query->whereNull('is_featured');
         } else {
             $query->where('is_featured', '=', '1');
         }
@@ -251,6 +250,43 @@ class Event extends Model {
             }
         }
         $query->groupBy("id");
+        $result = $query->get();
+
+        return $result;
+    }
+
+    public static function getNotificationEvent($search_data) {
+
+        $query = Event::select('user_id');
+        $query->join('users', 'users.id', '=', 'events.user_id');     
+        
+        if(!empty($search_data['city'])){
+            $query->join('locations', 'locations.event_id', '=', 'events.id');     
+            $query->whereIn('city', $search_data['city']);
+        }
+        if(!empty($search_data['category'])){
+            foreach($search_data['category'] as $key => $cat){
+                if($key == 0){
+                    $query->whereRaw('FIND_IN_SET('.$cat.',category_id)');
+                }
+                else{
+                    $query->orWhereRaw('FIND_IN_SET('.$cat.',category_id)');
+                }
+            }
+        }
+        if(!empty($search_data['type'])){
+            $key = '';
+            foreach($search_data['type'] as $key => $type){
+                if($key == 0){
+                    $query->whereRaw('FIND_IN_SET('.$type.',type_id)');
+                }
+                else{
+                    $query->orWhereRaw('FIND_IN_SET('.$type.',type_id)');
+                }
+            }
+        }
+        $query->where('user_id' ,'<>', 0);
+        $query->groupBy("user_id");
         $result = $query->get();
 
         return $result;

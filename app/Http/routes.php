@@ -89,7 +89,7 @@ Route::group(['middleware' => 'checkLogin', 'prefix' => 'admin'], function () {
     Route::post('/event-status', 'AdminController@eventStatus');
     Route::post('/delete-event-image', 'AdminController@deleteEventImage');
     
-    Route::get('/push-notification', 'AdminController@pushNotification');
+    Route::resource('/push-notification', 'AdminController@pushNotification');
 });
 
 // User Routes
