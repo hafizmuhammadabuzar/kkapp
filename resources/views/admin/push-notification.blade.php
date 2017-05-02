@@ -9,12 +9,12 @@
                 <h4>Push Notification</h4>
             </div>
             <div class="table-responsive">
-                <form action="#" method="post" class="push-form">
+                <form action="{{url('admin/push-notification')}}" method="post" class="push-form">
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Title">
+                        <input type="text" class="form-control" placeholder="Title" name="title">
                     </div>
                     <div class="form-group">
-                        <textarea rows="6" class="form-control" placeholder="Body"></textarea>
+                        <textarea rows="6" class="form-control" placeholder="Body" name="message"></textarea>
                     </div>
                     <div class="field-wrap clearfix">
                         <div class="left">

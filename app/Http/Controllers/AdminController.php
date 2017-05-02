@@ -20,7 +20,7 @@ class AdminController extends Controller {
     public function home() {
         return view('index');
     }
-    
+
     public function index(Request $request) {
 
         if ($request->isMethod('get')) {
@@ -657,7 +657,7 @@ class AdminController extends Controller {
     }
 
     public function addEvent(Request $request) {
-        
+
         if ($request->isMethod('get')) {
             $keywords = DB::table('events')->select('keyword')->take(5)->orderBy('id', 'DESC')->get();
 
@@ -667,7 +667,7 @@ class AdminController extends Controller {
                     $result['keywords'][]['keyword'] = trim($skw);
                 }
             }
-            
+
             $result['cities'] = DB::table('cities')->select('city_name', 'latitude', 'longitude')->where('country_id', 11)->orderBy('city_name', 'ASC')->get();
             $result['categories'] = DB::table('categories')->select('id', 'english', 'arabic')->get();
             $result['types'] = DB::table('types')->select('id', 'english', 'arabic')->get();
@@ -705,7 +705,7 @@ class AdminController extends Controller {
         if ($validator->fails()) {
             return redirect()->back()->withInput()->withErrors($validator);
         }
-        
+
         $characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
         $reference_no = '';
         $max = strlen($characters) - 1;
@@ -747,7 +747,7 @@ class AdminController extends Controller {
             'created_at' => $this->current_date_time,
             'updated_at' => $this->current_date_time,
         ];
-        
+
         if (!empty($request->event_id) && $request->uri != 'duplicate-event') {
             $event_id = Crypt::decrypt($request->event_id);
             $res = DB::table('events')->where('id', '=', $event_id)->update($event_data);
@@ -829,11 +829,11 @@ class AdminController extends Controller {
                 DB::table('attachments')->insert($attch_data);
             }
 
-            if(count($request->city) > 0 && !empty($request->city[0])){
+            if (count($request->city) > 0 && !empty($request->city[0])) {
                 $cities = explode('~', $request->city);
                 $locations = explode('~', $request->location);
                 $latlngs = explode('~', $request->latlng);
-                
+
                 DB::table('locations')->where('event_id', $id)->delete();
 
                 for ($loc = 1; $loc < count($cities); $loc++) {
@@ -926,10 +926,10 @@ class AdminController extends Controller {
 
         $event_id = Crypt::decrypt($request->eventId);
         $image_id = Crypt::decrypt($request->imageId);
-        $pictures = DB::table($request->type)->where('id', '=', $image_id)->where('event_id','=',$event_id)->first();
+        $pictures = DB::table($request->type)->where('id', '=', $image_id)->where('event_id', '=', $event_id)->first();
         unlink(base_path() . '/public/uploads/' . $pictures->picture);
-        
-        $res = DB::table($request->type)->where('id', '=', $image_id)->where('event_id','=',$event_id)->delete();
+
+        $res = DB::table($request->type)->where('id', '=', $image_id)->where('event_id', '=', $event_id)->delete();
 
         if ($res == 1) {
             echo '1';
@@ -937,74 +937,39 @@ class AdminController extends Controller {
             echo 'Error';
         }
     }
-    
+
     public function pushNotification(Request $request) {
 
         if ($request->isMethod('get')) {
-            return view('admin.push-notification');
+            $result['cities'] = DB::table('cities')->where('country_id', 11)->orderBy('city_name', 'ASC')->get();
+            $result['types'] = DB::table('types')->get();
+            $result['categories'] = DB::table('categories')->get();
+
+            return view('admin.push-notification', $result);
+        } else {
+
+            $data = [
+                'category' => $request->category,
+                'type' => $request->type,
+                'language' => $request->language,
+                'city' => $request->city,
+            ];
+
+            $events = Event::getNotificationEvent($data);
+            
+//            dd($events);
+            
+            
+            echo '<pre>'; print_r($events); die;
+
+            $this->android_push($request->title, $request->message, $events);
+
         }
-        
-        
+
+
 
         Session::put('login_error', 'Invalid Username or Password');
         return redirect()->back();
-    }
-    
-    
-
-    public function product_notification() {
-
-        $this->form_validation->set_rules('title', 'Title', 'trim|required');
-        $this->form_validation->set_rules('msg', 'Message', 'trim|required');
-
-        if ($this->form_validation->run() == false) {
-            $this->load->view('includes/header');
-            $this->load->view('push_notification');
-            $this->load->view('includes/footer');
-        } else {
-            $title = $_POST['title'];
-            $msg = $_POST['msg'];
-
-            if (isset($_POST['send_to_android']) && isset($_POST['send_to_ios'])) {
-
-                $result_android = $this->android_push($title, $msg);
-                $result_ios = $this->ios_notification($title, $msg);
-            } else if (isset($_POST['send_to_android'])) {
-                $result_android = $this->android_push($title, $msg);
-            } else if ($_POST['send_to_ios']) {
-                $result_ios = $this->ios_notification($title, $msg);
-            } else {
-                $result_android = $this->android_push($title, $msg);
-                $result_ios = $this->ios_notification($title, $msg);
-            }
-
-            if (isset($result_ios) || isset($result_android)) {
-                $this->session->set_userdata('error', 'Successfully Sent !');
-                redirect('home/push_form');
-            }
-        }
-    }
-
-    public function ind_product_notification() {
-
-        if (!isset($_POST['submit'])) {
-            $result['emails'] = $this->Home_model->getAllLoggedInUsers();
-
-            $this->load->view('includes/header');
-            $this->load->view('ind_push_notification', $result);
-        } else {
-            $result_ios = $this->ios_notification($_POST['title'], $_POST['msg'], $_POST['email']);
-            $result_android = $this->android_push($_POST['title'], $_POST['msg'], $_POST['email']);
-
-            if (isset($result_ios) || isset($result_android)) {
-                $this->session->set_userdata('error', 'Successfully Sent !');
-
-                $result['emails'] = $this->Home_model->getAllLoggedInUsers();
-
-                $this->load->view('includes/header');
-                $this->load->view('ind_push_notification', $result);
-            }
-        }
     }
 
     public function ios_notification($noti_title, $msg, $email = '') {
@@ -1056,11 +1021,15 @@ class AdminController extends Controller {
         return $response;
     }
 
-    public function android_push($title, $body, $email = '') {
+    public function android_push($title, $body, $user_ids = '') {
+        
+        
 
-        $email = (!empty($email)) ? $email : '';
+//        $user_ids = count($user_ids) > 0 ? $user_ids : '';
 
-        $tokens = DB::table('tokens')->get();
+        $tokens = DB::table('tokens')->whereIn(implode(',', $user_ids))->where('device_id', '!=', '')->get();
+        
+        dd($tokens);
 
         foreach ($tokens as $tk) {
             $ids[] = $tk['token'];
