@@ -3,6 +3,7 @@
 namespace App;
 
 use DB;
+use Session;
 use Illuminate\Database\Eloquent\Model;
 
 class Event extends Model {
@@ -136,12 +137,14 @@ class Event extends Model {
 
     public static function getSearchEvent($search, $sort = '') {
 
-        // $query = Event::with('locations');
         $query = Event::select(DB::raw("events.*, username"));
         $query->join('users', 'users.id', '=', 'events.user_id', 'left');
         $query->join('locations', 'locations.event_id', '=', 'events.id', 'left');
         $query->join('categories', 'categories.id', '=', 'events.category_id', 'inner');
-        $query->where(DB::raw("reference_no like '%$search%' or keyword like '%$search%' or eng_name like '%$search%' or ar_name like '%$search%' or eng_company_name like '%$search%' or ar_company_name like '%$search%' or events.phone like '%$search%' or events.email like '%$search%' or events.start_date like '%$search%' or events.end_date like '%$search%' or city like '%$search%' or english like '%$search%' or arabic like '%$search%' or events.id like '%$search%'"));
+        if(Session::has('user_id')){
+            $query->where('user_id', Session::get('user_id'));
+        }
+        $query->whereRaw("(reference_no like '%$search%' or keyword like '%$search%' or eng_name like '%$search%' or ar_name like '%$search%' or eng_company_name like '%$search%' or ar_company_name like '%$search%' or events.phone like '%$search%' or events.email like '%$search%' or events.start_date like '%$search%' or events.end_date like '%$search%' or city like '%$search%' or english like '%$search%' or arabic like '%$search%')");
         $query->orderByRaw($sort);
         $result = $query->get();
 
@@ -157,7 +160,7 @@ class Event extends Model {
         if(!empty($search_data['city'])){
             $query->join('locations', 'locations.event_id', '=', 'events.id');     
         }
-        $query->select(DB::raw("event.*"));
+        $query->select(DB::raw("events.*"));
         if(!empty($search_data['eng_company'])){
             $query->where('eng_company_name', '=', $search_data['eng_company']);
         }

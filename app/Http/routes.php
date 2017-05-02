@@ -86,12 +86,13 @@ Route::group(['middleware' => 'checkLogin', 'prefix' => 'admin'], function () {
     Route::get('/event-detail/{num}', 'AdminController@eventDetails');
     Route::get('/delete-event/{num}', 'AdminController@deleteEvent');
     Route::post('/search-events', 'AdminController@searchEvents');
-    Route::post('/event-status', 'AdminController@EventStatus');
+    Route::post('/event-status', 'AdminController@eventStatus');
     Route::post('/delete-event-image', 'AdminController@deleteEventImage');
     
     Route::get('/push-notification', 'AdminController@pushNotification');
 });
 
+// User Routes
 Route::group(['prefix' => 'user'], function () {
     Route::get('/', 'UserController@index');
     Route::post('/login', 'UserController@index');
@@ -101,8 +102,10 @@ Route::group(['prefix' => 'user'], function () {
     Route::post('/update-event', 'UserController@addEvent');
     Route::get('/edit-event/{num}', 'UserController@eventDetails');
     Route::get('/duplicate-event/{num}', 'UserController@eventDetails');
-    Route::get('/view-events', 'UserController@viewEvents');
+    Route::resource('/view-events', 'UserController@viewEvents');
     Route::get('/event-detail/{num}', 'UserController@eventDetails');
-    Route::get('/delete-event/{num}', 'UserController@deleteEvent');
     Route::get('user', 'UserController@addEvent');
+    Route::get('/delete-event/{num}', 'UserController@deleteEvent');
+    Route::post('/search-events', 'UserController@searchEvents');
+    Route::post('/event-status', 'AdminController@eventStatus');
 });

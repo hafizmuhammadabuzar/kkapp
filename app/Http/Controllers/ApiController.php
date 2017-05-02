@@ -611,7 +611,7 @@ class ApiController extends Controller {
     }
 
     public function searchEvent(Request $request) {
-
+       
         $data = [
             'eng_company' => $request->eng_company_name,
             'ar_company' => $request->ar_company_name,

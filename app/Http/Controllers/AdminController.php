@@ -677,7 +677,7 @@ class AdminController extends Controller {
             return view('admin.event-details', $result);
         }
 
-//        dd($request->all());
+        //dd($request->all());
         $validation_data = [
             'type' => 'required',
             'category' => 'required',
@@ -715,9 +715,9 @@ class AdminController extends Controller {
 
         $all_day = !empty($request->all_day) ? $request->all_day : 0;
         $fee = !empty($request->fee) ? $request->fee : 0;
-        $is_kids = !empty($request->is_kids) ? $request->is_kids : 0;
-        $is_disabled = !empty($request->is_disabled) ? $request->is_disabled : 0;
-        $is_featured = !empty($request->is_featured) ? $request->is_featured : 0;
+        $is_kids = !empty($request->kids) ? $request->kids : 0;
+        $is_disabled = !empty($request->disable) ? $request->disable : 0;
+        $is_featured = !empty($request->featured) ? $request->featured : 0;
         $event_data = [
             'type_id' => implode(',', $request->type),
             'category_id' => implode(',', $request->category),
@@ -747,7 +747,7 @@ class AdminController extends Controller {
             'created_at' => $this->current_date_time,
             'updated_at' => $this->current_date_time,
         ];
-
+        
         if (!empty($request->event_id) && $request->uri != 'duplicate-event') {
             $event_id = Crypt::decrypt($request->event_id);
             $res = DB::table('events')->where('id', '=', $event_id)->update($event_data);
