@@ -259,33 +259,24 @@
     border-radius: 3px;
     border: 1px solid #ccc;
 }
-.add-event {
-    overflow: hidden;
-}
-.add-event .field-wrap {
-    margin: 0 0 20px;
-}
-.add-event .field-wrap.no-margin {margin: 0 0 5px;}
-.add-event .field-wrap p{margin: 0;}
-.add-event .field-wrap .left {
+.add-event {overflow: hidden;}
+.field-wrap {margin: 0 0 20px;}
+.field-wrap.no-margin {margin: 0 0 5px;}
+.field-wrap p{margin: 0;}
+.field-wrap .left {
     float: left;
     width: 45%;
 }
-.add-event .field-wrap .right {
+.field-wrap .right {
     float: right;
     width: 45%;
     text-align: right;
     direction: rtl;
 }
-.add-event .field-wrap .right.cal {
-    text-align: left;
-}
-.field-wrap label {
-    display: block;
-}
-.add-event .all-day.right {
-    width: 100%;
-}
+.field-wrap .right.cal {text-align: left;}
+.field-wrap label {display: block;}
+.push-form .field-wrap .radio-wrap {width: 30%;}
+.add-event .all-day.right {width: 100%;}
 .field-wrap input[type=text], .field-wrap textarea, .field-wrap input[type=time] {
     display: block;
     width: 100%;
