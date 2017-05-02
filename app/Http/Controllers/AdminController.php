@@ -958,9 +958,6 @@ class AdminController extends Controller {
             $events = Event::getNotificationEvent($data);
             
 //            dd($events);
-            
-            
-            echo '<pre>'; print_r($events); die;
 
             $this->android_push($request->title, $request->message, $events);
 
