@@ -16,35 +16,60 @@
                     <div class="form-group">
                         <textarea rows="6" class="form-control" placeholder="Body"></textarea>
                     </div>
-                    <div class="form-group clearfix">
-                        <div class="select-wrap">
-                            <select>
-                                <option>Select Language</option>
-                                <option>English</option>
-                                <option>Arabic</option>
-                            </select>
+                    <div class="field-wrap clearfix">
+                        <div class="left">
+                            <h4>Select Language</h4>
+                            <div class="radio-wrap">
+                                <input id="english" name="lang" type="radio">
+                                <label for="english">English&nbsp;&nbsp;&nbsp;&nbsp; </label>
+                            </div>
+                            <div class="radio-wrap">
+                                <input id="arabic" name="lang" type="radio">
+                                <label for="arabic">Arabic&nbsp;&nbsp;&nbsp;&nbsp; </label>
+                            </div>
                         </div>
-                        <div class="select-wrap">
-                            <select multiple>
-                                <option>Select City</option>
-                                <option>Dubai</option>
-                                <option>Abu Dhabi</option>
-                                <option>Sharjah</option>
-                            </select>
+                        <div class="right left-right">
+                            <h4>Select City</h4>
+                            <div class="radio-wrap">
+                                <input id="abu-dhabi" name="abu-dhabi" type="checkbox">
+                                <label for="abu-dhabi">Abu Dhabi&nbsp;&nbsp;&nbsp;&nbsp; </label>
+                            </div>
+                            <div class="radio-wrap">
+                                <input id="dubai" name="dubai" type="checkbox">
+                                <label for="dubai">Dubai&nbsp;&nbsp;&nbsp;&nbsp; </label>
+                            </div>
+                            <div class="radio-wrap">
+                                <input id="sharjah" name="sharjah" type="checkbox">
+                                <label for="sharjah">Sharjah&nbsp;&nbsp;&nbsp;&nbsp; </label>
+                            </div>
                         </div>
-                        <div class="select-wrap">
-                            <select multiple>
-                                <option>Select Category</option>
-                                <option>category1</option>
-                                <option>category2</option>
-                            </select>
+                    </div>
+                    <div class="field-wrap clearfix">
+                        <div class="left">
+                            <h4>Select Category</h4>
+                            <div class="radio-wrap">
+                                <input id="cat1" name="english" type="checkbox">
+                                <label for="cat1">Category1&nbsp;&nbsp;&nbsp;&nbsp; </label>
+                            </div>
+                            <div class="radio-wrap">
+                                <input id="cat2" name="arabic" type="checkbox">
+                                <label for="cat2">Category2&nbsp;&nbsp;&nbsp;&nbsp; </label>
+                            </div>
                         </div>
-                        <div class="select-wrap">
-                            <select multiple>
-                                <option>Select Intl Type</option>
-                                <option>type1</option>
-                                <option>type2</option>
-                            </select>
+                        <div class="right left-right">
+                            <h4>Select Intl Type</h4>
+                            <div class="radio-wrap">
+                                <input id="type1" name="abu-dhabi" type="checkbox">
+                                <label for="type1">Type1&nbsp;&nbsp;&nbsp;&nbsp; </label>
+                            </div>
+                            <div class="radio-wrap">
+                                <input id="type2" name="dubai" type="checkbox">
+                                <label for="type2">Type2&nbsp;&nbsp;&nbsp;&nbsp; </label>
+                            </div>
+                            <div class="radio-wrap">
+                                <input id="type3" name="sharjah" type="checkbox">
+                                <label for="type3">Type3&nbsp;&nbsp;&nbsp;&nbsp; </label>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group clearfix">
