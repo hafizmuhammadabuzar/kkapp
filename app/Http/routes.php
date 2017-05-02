@@ -13,11 +13,12 @@
 
 /* Api Routes Start */
 
+Route::get('/', 'AdminController@home');
 Route::group(['prefix' => 'api'], function () {
     Route::get('/', 'ApiController@index');
     Route::post('/signup', 'ApiController@register');
     Route::post('/update-profile', 'ApiController@updateProfile');
-    Route::post('/new-corporate', 'ApiController@corporateRegister');
+    Route::resource('/new-corporate', 'ApiController@corporateRegister');
     Route::post('/signin', 'ApiController@login');
     Route::resource('/signout', 'ApiController@logout');
     Route::resource('/forgot-password', 'ApiController@forgotPassword');
@@ -34,6 +35,8 @@ Route::group(['prefix' => 'api'], function () {
     Route::resource('/share-event', 'ApiController@eventShare');
     Route::resource('/get-favourite-events', 'ApiController@getUserFavouriteEvents');
     Route::resource('/get-user-events', 'ApiController@getUserEvents');
+    Route::resource('/get-company-verfied-users', 'ApiController@getCompanyVerifiedUsers');
+    Route::resource('/search-event', 'ApiController@searchEvent');
 });
 Route::get('/user/verification/{slug}', 'ApiController@userVerify');
 
@@ -57,6 +60,12 @@ Route::group(['middleware' => 'checkLogin', 'prefix' => 'admin'], function () {
     Route::post('/update-type', 'AdminController@updateType');
     Route::get('/delete-type/{id}', 'AdminController@deleteType');
 
+    Route::resource('/add-language', 'AdminController@addLanguage');
+    Route::get('/view-languages', 'AdminController@viewLanguages');
+    Route::get('/edit-language/{num}', 'AdminController@updateLanguage');
+    Route::post('/update-language', 'AdminController@updateLanguage');
+    Route::get('/delete-language/{id}', 'AdminController@deleteLanguage');
+
     Route::get('/add-user', 'AdminController@AddUser');
     Route::post('/save-user', 'AdminController@AddUser');
     Route::get('/view-users', 'AdminController@viewUsers');
@@ -77,10 +86,13 @@ Route::group(['middleware' => 'checkLogin', 'prefix' => 'admin'], function () {
     Route::get('/event-detail/{num}', 'AdminController@eventDetails');
     Route::get('/delete-event/{num}', 'AdminController@deleteEvent');
     Route::post('/search-events', 'AdminController@searchEvents');
-    Route::post('/event-status', 'AdminController@EventStatus');
+    Route::post('/event-status', 'AdminController@eventStatus');
     Route::post('/delete-event-image', 'AdminController@deleteEventImage');
+    
+    Route::get('/push-notification', 'AdminController@pushNotification');
 });
 
+// User Routes
 Route::group(['prefix' => 'user'], function () {
     Route::get('/', 'UserController@index');
     Route::post('/login', 'UserController@index');
@@ -90,8 +102,10 @@ Route::group(['prefix' => 'user'], function () {
     Route::post('/update-event', 'UserController@addEvent');
     Route::get('/edit-event/{num}', 'UserController@eventDetails');
     Route::get('/duplicate-event/{num}', 'UserController@eventDetails');
-    Route::get('/view-events', 'UserController@viewEvents');
+    Route::resource('/view-events', 'UserController@viewEvents');
     Route::get('/event-detail/{num}', 'UserController@eventDetails');
-    Route::get('/delete-event/{num}', 'UserController@deleteEvent');
     Route::get('user', 'UserController@addEvent');
+    Route::get('/delete-event/{num}', 'UserController@deleteEvent');
+    Route::post('/search-events', 'UserController@searchEvents');
+    Route::post('/event-status', 'AdminController@eventStatus');
 });

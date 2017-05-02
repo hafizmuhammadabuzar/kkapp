@@ -3,6 +3,7 @@
 namespace App;
 
 use DB;
+use Session;
 use Illuminate\Database\Eloquent\Model;
 
 class Event extends Model {
@@ -27,7 +28,8 @@ class Event extends Model {
         $query->select(DB::raw("events.*"));
         $query->join('locations', 'locations.event_id', '=', 'events.id', 'left');
         if ($is_featured == false) {
-            $query->whereNull('is_featured');
+            $query->where('is_featured', '=', '0');
+//            $query->whereNull('is_featured');
         } else {
             $query->where('is_featured', '=', '1');
         }
@@ -135,13 +137,120 @@ class Event extends Model {
 
     public static function getSearchEvent($search, $sort = '') {
 
-        // $query = Event::with('locations');
         $query = Event::select(DB::raw("events.*, username"));
         $query->join('users', 'users.id', '=', 'events.user_id', 'left');
         $query->join('locations', 'locations.event_id', '=', 'events.id', 'left');
         $query->join('categories', 'categories.id', '=', 'events.category_id', 'inner');
-        $query->where(DB::raw("reference_no like '%$search%' or keyword like '%$search%' or eng_name like '%$search%' or ar_name like '%$search%' or eng_company_name like '%$search%' or ar_company_name like '%$search%' or events.phone like '%$search%' or events.email like '%$search%' or events.start_date like '%$search%' or events.end_date like '%$search%' or city like '%$search%' or english like '%$search%' or arabic like '%$search%' or events.id like '%$search%'"));
+        if(Session::has('user_id')){
+            $query->where('user_id', Session::get('user_id'));
+        }
+        $query->whereRaw("(reference_no like '%$search%' or keyword like '%$search%' or eng_name like '%$search%' or ar_name like '%$search%' or eng_company_name like '%$search%' or ar_company_name like '%$search%' or events.phone like '%$search%' or events.email like '%$search%' or events.start_date like '%$search%' or events.end_date like '%$search%' or city like '%$search%' or english like '%$search%' or arabic like '%$search%')");
         $query->orderByRaw($sort);
+        $result = $query->get();
+
+        return $result;
+    }
+
+    public static function getAppSearchEvent($search_data) {
+
+        $query = Event::with('pictures', 'attachments', 'locations');
+        if(!empty($search_data['verified_user'])){
+            $query->join('users', 'users.id', '=', 'events.user_id');
+        }
+        if(!empty($search_data['city'])){
+            $query->join('locations', 'locations.event_id', '=', 'events.id');     
+        }
+        $query->select(DB::raw("events.*"));
+        if(!empty($search_data['eng_company'])){
+            $query->where('eng_company_name', '=', $search_data['eng_company']);
+        }
+        
+        if(!empty($search_data['ar_company'])){
+            $query->where('ar_company_name', '=', $search_data['ar_company']);
+        }
+        
+        if($search_data['is_kids'] == 1){
+            $query->where('is_kids', '=', 1);
+        }
+        
+        if($search_data['is_disabled'] == 1){
+            $query->where('is_disabled', '=', 1);
+        }
+        
+        if(!empty($search_data['venue'])){
+            $query->whereIn('venue', explode(',', $search_data['venue']));
+        }
+        
+        if($search_data['is_free'] == 1 && $search_data['is_paid'] != 1){
+            $query->where('free_event', '=', 1);
+        }
+        else if($search_data['is_free'] != 1 && $search_data['is_paid'] == 1){
+            $query->where('free_event', '=', 0);
+        }        
+        
+        if(!empty($search_data['city'])){
+            $cities = explode(',', $search_data['city']);
+            $query->whereIn('city', explode(',', $search_data['city']));
+        }
+        if(!empty($search_data['verified_user'])){
+            $query->where('user_id', '=', $search_data['verified_user']);
+        }
+        if(!empty($search_data['start_date']) && !empty($search_data['end_date'])){
+            $query->where('start_date','>=',$search_data['start_date']);
+            $query->where('end_date','<=',$search_data['end_date']);
+        }
+        else if(!empty($search_data['start_date']) && empty($search_data['end_date'])){
+            $query->where('start_date','=',$search_data['start_date']);
+        }
+        
+        if(!empty($search_data['category'])){
+            $categories = explode(',', $search_data['category']);
+            foreach($categories as $key => $cat){
+                if($key == 0){
+                    $query->whereRaw('FIND_IN_SET('.$cat.',category_id)');
+                }
+                else{
+                    $query->orWhereRaw('FIND_IN_SET('.$cat.',category_id)');
+                }
+            }
+        }
+        if(!empty($search_data['type'])){
+            $types = explode(',', $search_data['type']);
+            $key = '';
+            foreach($types as $key => $type){
+                if($key == 0){
+                    $query->whereRaw('FIND_IN_SET('.$type.',type_id)');
+                }
+                else{
+                    $query->orWhereRaw('FIND_IN_SET('.$type.',type_id)');
+                }
+            }
+        }
+        if(!empty($search_data['language'])){
+            $languages = explode(',', $search_data['language']);
+            $key = '';
+            foreach($languages as $key => $lang){
+                if($key == 0){
+                    $query->whereRaw('FIND_IN_SET('.$lang.',event_language)');
+                }
+                else{
+                    $query->orWhereRaw('FIND_IN_SET('.$lang.',event_language)');
+                }
+            }
+        }
+        if(!empty($search_data['keyword'])){
+            $keywords = explode(',', $search_data['keyword']);
+            $key = '';
+            foreach($keywords as $key => $kw){
+                if($key == 0){
+                    $query->whereRaw('FIND_IN_SET("'.$kw.'",keyword)');
+                }
+                else{
+                    $query->orWhereRaw('FIND_IN_SET("'.$kw.'",keyword)');
+                }
+            }
+        }
+        $query->groupBy("id");
         $result = $query->get();
 
         return $result;

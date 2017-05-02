@@ -52,19 +52,84 @@ class UserController extends Controller {
 
     /* Event module start */
 
-    public function viewEvents() {
+    public function searchEvents(Request $request) {
+
+        $search = $request->search;
+
+        if (empty($search)) {
+            return redirect('user/view-events/' . $request->sort);
+        }
+        if (!empty($request->sort)) {
+            $sort = [
+                'paid' => 'free_event ASC, start_date DESC',
+                'free' => 'free_event DESC, start_date DESC',
+                'name' => 'eng_name ASC',
+                'company' => 'eng_company_name ASC',
+                'date' => 'start_date DESC'
+            ];
+
+            $order = $sort[$request->sort];
+        } else {
+            $order = 'id DESC';
+        }
+
+        $result['events'] = Event::getSearchEvent($search, $order);
+        $result['uri_segment'] = 'search';
+        $result['search'] = $search;
+
+        if (count($result['events']) > 0) {
+            foreach ($result['events'] as $event) {
+                $result['categories'][] = DB::table('categories')->whereIn('id', explode(',', $event->category_id))->get();
+                $result['locations'][] = DB::table('locations')->where('event_id', $event->id)->get();
+            }
+        } else {
+            $result['categories'] = array();
+            $result['locations'] = array();
+        }
+
+        return view('user.view-events', $result);
+    }
+    
+    public function viewEvents(Request $request) {
+        
+        if (!empty($request->sort)) {
+            $sort = [
+                'paid' => 'free_event ASC, start_date DESC',
+                'free' => 'free_event DESC, start_date DESC',
+                'name' => 'eng_name ASC',
+                'company' => 'eng_company_name ASC',
+                'date' => 'start_date DESC'
+            ];
+
+            $order = $sort[$request->sort];
+        } else {
+            $order = 'id DESC';
+        }
 
         $result['events'] = DB::table('events')
-                ->select(DB::raw('id, eng_name, eng_company_name, phone, email, start_date, end_date, all_day'))
+                ->select(DB::raw('events.*, username'))
+                ->join('users', 'users.id', '=', 'events.user_id', 'left')
+                ->join('categories', 'users.id', '=', 'events.user_id', 'left')
                 ->where('user_id', Session::get('user_id'))
-                ->orderBy('id', 'DESC')
+                ->orderByRaw($order)
+                ->groupBy('events.id')
                 ->paginate(15);
+
+        if (count($result['events']) > 0) {
+            foreach ($result['events'] as $event) {
+                $result['categories'][] = DB::table('categories')->whereIn('id', explode(',', $event->category_id))->get();
+                $result['locations'][] = DB::table('locations')->where('event_id', $event->id)->get();
+            }
+        }
+
+        $result['uri_segment'] = 'view';
 
         return view('user.view-events', $result);
     }
 
     public function addEvent(Request $request) {
-      
+
+
         if ($request->isMethod('get')) {
             $keywords = DB::table('events')->select('keyword')->take(5)->orderBy('id', 'DESC')->get();
 
@@ -87,26 +152,19 @@ class UserController extends Controller {
         $validation_data = [
             'type' => 'required',
             'category' => 'required',
-            'keyword' => 'required',
             'event_name' => 'required',
             'event_name_ar' => 'required',
             'event_company' => 'required',
             'event_company_ar' => 'required',
-            'phone' => 'required',
-            'email' => 'required|email',
-            'url' => 'required',
             'fee' => 'required',
-            'city' => 'required',
-            'location' => 'required',
             'venue' => 'required',
-            'user_id' => Session::get('user_id'),
+            'start_date' => 'required',
+            'end_date' => 'required',
         ];
 
         if ($request->all_day != 1) {
             $event_dates = [
-                'start_date' => 'required',
                 'start_time' => 'required',
-                'end_date' => 'required',
                 'end_time' => 'required'
             ];
 
@@ -119,9 +177,18 @@ class UserController extends Controller {
             return redirect()->back()->withInput()->withErrors($validator);
         }
 
-        $reference_no = uniqid();
-        $event_id = Crypt::decrypt($request->event_id);
+        $characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        $reference_no = '';
+        $max = strlen($characters) - 1;
+        for ($i = 0; $i < 5; $i++) {
+            $reference_no .= $characters[mt_rand(0, $max)];
+        }
 
+        $all_day = !empty($request->all_day) ? $request->all_day : 0;
+        $fee = !empty($request->fee) ? $request->fee : 0;
+        $is_kids = !empty($request->kids) ? $request->kids : 0;
+        $is_disabled = !empty($request->disable) ? $request->disable : 0;
+        $is_featured = !empty($request->featured) ? $request->featured : 0;
         $event_data = [
             'type_id' => implode(',', $request->type),
             'category_id' => implode(',', $request->category),
@@ -135,8 +202,8 @@ class UserController extends Controller {
             'weblink' => $request->url,
             'start_date' => date('Y-m-d', strtotime($request->start_date)) . ' ' . date('H:i:s', strtotime($request->start_time)),
             'end_date' => date('Y-m-d', strtotime($request->end_date)) . ' ' . date('H:i:s', strtotime($request->end_time)),
-            'all_day' => $request->all_day,
-            'free_event' => $request->fee,
+            'all_day' => $all_day,
+            'free_event' => $fee,
             'facebook' => $request->facebook,
             'twitter' => $request->twitter,
             'instagram' => $request->instagram,
@@ -144,15 +211,17 @@ class UserController extends Controller {
             'eng_description' => $request->eng_description,
             'ar_description' => $request->ar_description,
             'venue' => $request->venue,
-            'is_kids' => $request->kids,
-            'is_disabled' => $request->disable,
-            'is_featured' => $request->featured,
+            'is_kids' => $is_kids,
+            'is_disabled' => $is_disabled,
+            'is_featured' => $is_featured,
             'share_count' => 1,
+            'user_id' => Session::get('user_id'),
             'created_at' => $this->current_date_time,
             'updated_at' => $this->current_date_time,
         ];
 
         if (!empty($request->event_id) && $request->uri != 'duplicate-event') {
+            $event_id = Crypt::decrypt($request->event_id);
             $res = DB::table('events')->where('id', '=', $event_id)->update($event_data);
 
             if ($res == 1) {
@@ -170,6 +239,7 @@ class UserController extends Controller {
             $destinationPath = base_path() . '/public/uploads';
 
             if ($request->uri == 'duplicate-event') {
+                $event_id = Crypt::decrypt($request->event_id);
                 $pic_res = DB::table('pictures')->where('event_id', $event_id)->get();
                 if ($pic_res) {
                     foreach ($pic_res as $old) {
@@ -231,30 +301,31 @@ class UserController extends Controller {
                 DB::table('attachments')->insert($attch_data);
             }
 
-            $cities = explode('~', $request->city);
-            $locations = explode('~', $request->location);
-            $latlngs = explode('~', $request->latlng);
+            if (count($request->city) > 0 && !empty($request->city[0])) {
+                $cities = explode('~', $request->city);
+                $locations = explode('~', $request->location);
+                $latlngs = explode('~', $request->latlng);
 
-            DB::table('locations')->where('event_id', $id)->delete();
+                DB::table('locations')->where('event_id', $id)->delete();
 
-            for ($loc = 1; $loc < count($cities); $loc++) {
+                for ($loc = 1; $loc < count($cities); $loc++) {
 
-                $latlng = str_replace(array('(', ')'), '', $latlngs[$loc]);
-                $latlng = explode(',', $latlng);
-                $city = explode(',', $cities[$loc]);
+                    $latlng = str_replace(array('(', ')'), '', $latlngs[$loc]);
+                    $latlng = explode(',', $latlng);
+                    $city = explode(',', $cities[$loc]);
 
-                $loc_data[] = [
-                    'event_id' => $id,
-                    'city' => $city[0],
-                    'location' => $locations[$loc],
-                    'latitude' => $latlng[0],
-                    'longitude' => $latlng[1]
-                ];
+                    $loc_data[] = [
+                        'event_id' => $id,
+                        'city' => trim($city[0]),
+                        'location' => trim($locations[$loc]),
+                        'latitude' => $latlng[0],
+                        'longitude' => $latlng[1]
+                    ];
+                }
+                DB::table('locations')->insert($loc_data);
             }
-            DB::table('locations')->insert($loc_data);
 
             Session::flash('success', 'Event successfully saved');
-
             return redirect('user/view-events');
         }
     }
@@ -263,7 +334,6 @@ class UserController extends Controller {
 
         $id = Crypt::decrypt($request->segment(3));
         if ($id) {
-
             $keywords = DB::table('events')->select('keyword')->take(5)->orderBy('id', 'DESC')->get();
             foreach ($keywords as $kw) {
                 $sub_keyword = explode(',', $kw->keyword);
@@ -282,7 +352,7 @@ class UserController extends Controller {
             $result['old_event_languages'] = explode(',', $result['event']->event_language);
         }
 
-        return view('admin.event-details', $result);
+        return view('user.event-details', $result);
     }
 
     public function deleteEvent(Request $request) {

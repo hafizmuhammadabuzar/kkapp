@@ -17,6 +17,10 @@ class AdminController extends Controller {
         $this->current_date_time = Carbon::now('Asia/Dubai');
     }
 
+    public function home() {
+        return view('index');
+    }
+    
     public function index(Request $request) {
 
         if ($request->isMethod('get')) {
@@ -301,6 +305,105 @@ class AdminController extends Controller {
 
     /* ---------- Type CRUD End ---------- */
 
+    /* Language CRUD start */
+
+    public function addLanguage(Request $request) {
+
+        if ($request->isMethod('get')) {
+            return view('admin.add-language');
+        }
+
+        $validation_data = [
+            'language' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $validation_data);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withInput()->withErrors($validator);
+        }
+
+        $lang_data = [
+            'title' => $request->language,
+            'created_at' => $this->current_date_time,
+            'updated_at' => $this->current_date_time,
+        ];
+
+        $id = DB::table('languages')->insertGetId($lang_data);
+
+        if ($id) {
+            Session::flash('success', 'Language successfully added');
+
+            return redirect('admin/view-languages');
+        }
+
+        Session::flash('error', 'Language could not be added');
+
+        return redirect()->back();
+    }
+
+    public function viewLanguages() {
+
+        $result['languages'] = DB::table('languages')->orderBy('title', 'ASC')->paginate(15);
+        return view('admin.view-languages', $result);
+    }
+
+    public function updateLanguage(Request $request) {
+
+        if ($request->isMethod('get')) {
+
+            $id = Crypt::decrypt($request->segment(3));
+            $result['language'] = DB::table('languages')->where('id', '=', $id)->first();
+
+            return view('admin.edit-language', $result);
+        }
+
+        $validation_data = [
+            'language' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $validation_data);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withInput()->withErrors($validator);
+        }
+
+        $language_data = [
+            'title' => $request->language,
+            'updated_at' => $this->current_date_time,
+        ];
+
+        $id = Crypt::decrypt($request->language_id);
+
+        $res = DB::table('languages')->where('id', '=', $id)->update($language_data);
+
+        if ($res > 0) {
+            Session::flash('success', 'Language successfully updated');
+
+            return redirect('admin/view-languages');
+        }
+
+        Session::flash('error', 'Language could not be updated');
+
+        return redirect()->back();
+    }
+
+    public function deletelanguage(Request $request) {
+
+        $id = Crypt::decrypt($request->segment(3));
+        $res = DB::table('languages')->where('id', '=', $id)->delete();
+
+        if ($res == 1) {
+            Session::flash('success', 'Language successfully deleted');
+        } else {
+            Session::flash('error', 'Language could not be deleted');
+        }
+
+        return redirect('admin/view-languages');
+    }
+
+    /* ---------- Language CRUD End ---------- */
+
     /* User CRUD start */
 
     public function AddUser(Request $request) {
@@ -370,7 +473,6 @@ class AdminController extends Controller {
 
         $validation_data = [
             'username' => 'required',
-            'email' => 'required|email',
             'gender' => 'required',
         ];
 
@@ -387,11 +489,6 @@ class AdminController extends Controller {
 
         $id = Crypt::decrypt($request->user_id);
 
-        $check = DB::table('users')->where('id', '!=', $id)->where('email', '=', $request->email)->first();
-        if ($check) {
-            return redirect()->back()->withInput()->withErrors(['error' => 'Email already exists']);
-        }
-
         if ($request->hasFile('picture')) {
             $file = $request->file('picture');
             $extension = $file->getClientOriginalExtension();
@@ -404,7 +501,6 @@ class AdminController extends Controller {
 
         $user_data = [
             'username' => $request->username,
-            'email' => $request->email,
             'gender' => $request->gender,
             'dob' => $request->dob,
             'image' => $picture,
@@ -581,7 +677,7 @@ class AdminController extends Controller {
             return view('admin.event-details', $result);
         }
 
-//        dd($request->all());
+        //dd($request->all());
         $validation_data = [
             'type' => 'required',
             'category' => 'required',
@@ -617,6 +713,11 @@ class AdminController extends Controller {
             $reference_no .= $characters[mt_rand(0, $max)];
         }
 
+        $all_day = !empty($request->all_day) ? $request->all_day : 0;
+        $fee = !empty($request->fee) ? $request->fee : 0;
+        $is_kids = !empty($request->kids) ? $request->kids : 0;
+        $is_disabled = !empty($request->disable) ? $request->disable : 0;
+        $is_featured = !empty($request->featured) ? $request->featured : 0;
         $event_data = [
             'type_id' => implode(',', $request->type),
             'category_id' => implode(',', $request->category),
@@ -630,8 +731,8 @@ class AdminController extends Controller {
             'weblink' => $request->url,
             'start_date' => date('Y-m-d', strtotime($request->start_date)) . ' ' . date('H:i:s', strtotime($request->start_time)),
             'end_date' => date('Y-m-d', strtotime($request->end_date)) . ' ' . date('H:i:s', strtotime($request->end_time)),
-            'all_day' => $request->all_day,
-            'free_event' => $request->fee,
+            'all_day' => $all_day,
+            'free_event' => $fee,
             'facebook' => $request->facebook,
             'twitter' => $request->twitter,
             'instagram' => $request->instagram,
@@ -639,14 +740,14 @@ class AdminController extends Controller {
             'eng_description' => $request->eng_description,
             'ar_description' => $request->ar_description,
             'venue' => $request->venue,
-            'is_kids' => $request->kids,
-            'is_disabled' => $request->disable,
-            'is_featured' => $request->featured,
+            'is_kids' => $is_kids,
+            'is_disabled' => $is_disabled,
+            'is_featured' => $is_featured,
             'share_count' => 1,
             'created_at' => $this->current_date_time,
             'updated_at' => $this->current_date_time,
         ];
-
+        
         if (!empty($request->event_id) && $request->uri != 'duplicate-event') {
             $event_id = Crypt::decrypt($request->event_id);
             $res = DB::table('events')->where('id', '=', $event_id)->update($event_data);
@@ -825,14 +926,8 @@ class AdminController extends Controller {
 
         $event_id = Crypt::decrypt($request->eventId);
         $image_id = Crypt::decrypt($request->imageId);
-        $pictures = DB::table($request->type)->where('id', '=', $image_id)->where('event_id','=',$event_id)->get();
-
-        foreach ($attachments as $attch) {
-            unlink(base_path() . '/public/uploads/' . $attch->picture);
-        }
-        foreach ($pictures as $pic) {
-            unlink(base_path() . '/public/uploads/' . $pic->picture);
-        }
+        $pictures = DB::table($request->type)->where('id', '=', $image_id)->where('event_id','=',$event_id)->first();
+        unlink(base_path() . '/public/uploads/' . $pictures->picture);
         
         $res = DB::table($request->type)->where('id', '=', $image_id)->where('event_id','=',$event_id)->delete();
 
@@ -840,6 +935,172 @@ class AdminController extends Controller {
             echo '1';
         } else {
             echo 'Error';
+        }
+    }
+    
+    public function pushNotification(Request $request) {
+
+        if ($request->isMethod('get')) {
+            return view('admin.push-notification');
+        }
+        
+        
+
+        Session::put('login_error', 'Invalid Username or Password');
+        return redirect()->back();
+    }
+    
+    
+
+    public function product_notification() {
+
+        $this->form_validation->set_rules('title', 'Title', 'trim|required');
+        $this->form_validation->set_rules('msg', 'Message', 'trim|required');
+
+        if ($this->form_validation->run() == false) {
+            $this->load->view('includes/header');
+            $this->load->view('push_notification');
+            $this->load->view('includes/footer');
+        } else {
+            $title = $_POST['title'];
+            $msg = $_POST['msg'];
+
+            if (isset($_POST['send_to_android']) && isset($_POST['send_to_ios'])) {
+
+                $result_android = $this->android_push($title, $msg);
+                $result_ios = $this->ios_notification($title, $msg);
+            } else if (isset($_POST['send_to_android'])) {
+                $result_android = $this->android_push($title, $msg);
+            } else if ($_POST['send_to_ios']) {
+                $result_ios = $this->ios_notification($title, $msg);
+            } else {
+                $result_android = $this->android_push($title, $msg);
+                $result_ios = $this->ios_notification($title, $msg);
+            }
+
+            if (isset($result_ios) || isset($result_android)) {
+                $this->session->set_userdata('error', 'Successfully Sent !');
+                redirect('home/push_form');
+            }
+        }
+    }
+
+    public function ind_product_notification() {
+
+        if (!isset($_POST['submit'])) {
+            $result['emails'] = $this->Home_model->getAllLoggedInUsers();
+
+            $this->load->view('includes/header');
+            $this->load->view('ind_push_notification', $result);
+        } else {
+            $result_ios = $this->ios_notification($_POST['title'], $_POST['msg'], $_POST['email']);
+            $result_android = $this->android_push($_POST['title'], $_POST['msg'], $_POST['email']);
+
+            if (isset($result_ios) || isset($result_android)) {
+                $this->session->set_userdata('error', 'Successfully Sent !');
+
+                $result['emails'] = $this->Home_model->getAllLoggedInUsers();
+
+                $this->load->view('includes/header');
+                $this->load->view('ind_push_notification', $result);
+            }
+        }
+    }
+
+    public function ios_notification($noti_title, $msg, $email = '') {
+
+        if (!empty($email)) {
+            $email = "and user_email = '" . $email . "'";
+            $tokens = DB::raw("select token from tokens where device_id is null $email");
+            foreach ($tokens as $tk) {
+                $ids[] = $tk['token'];
+            }
+
+            $devices = ['include_ios_tokens' => $ids];
+        } else {
+            $devices = ['included_segments' => array('All')];
+        }
+
+        $title = array(
+            "en" => $noti_title,
+        );
+        $content = array(
+            "en" => $msg,
+        );
+
+        $fields = array(
+            'app_id' => "a58f2a20-c16c-4b09-8202-4a768d408a97",
+            'contents' => $content,
+            'heading' => $title,
+            'data' => ['title' => $noti_title, 'body' => $msg],
+            'ios_badgeType' => 'SetTo',
+            'ios_badgeCount' => 1,
+        );
+        $fields = array_merge($fields, $devices);
+
+        $fields = json_encode($fields);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json',
+            'Authorization: Basic NTdkYTU5ZGYtM2M3Yy00MDNkLWE0NjAtOTU4MWVjZWY2NmNh'));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
+    }
+
+    public function android_push($title, $body, $email = '') {
+
+        $email = (!empty($email)) ? $email : '';
+
+        $tokens = DB::table('tokens')->get();
+
+        foreach ($tokens as $tk) {
+            $ids[] = $tk['token'];
+        }
+
+        $chunks = array_chunk($ids, 1000);
+
+        foreach ($chunks as $chk) {
+            $registrationIds = $chk;
+            define('API_ACCESS_KEY', 'AIzaSyCFa-Xt1PROlf6n51Mxh8fe4MzyODv8i8Q');
+
+            $msg['notification'] = array
+                (
+                'title' => $title,
+                'message' => $body,
+            );
+
+            $fields = array
+                (
+                'registration_ids' => $registrationIds,
+                'data' => $msg,
+            );
+
+            $headers = array
+                (
+                'Authorization: key=' . API_ACCESS_KEY,
+                'Content-Type: application/json',
+            );
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'https://android.googleapis.com/gcm/send');
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
+            $result = curl_exec($ch);
+            curl_close($ch);
+
+            return $result;
         }
     }
 
