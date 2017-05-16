@@ -66,6 +66,20 @@ return [
             'engine' => null,
         ],
 
+        'mysqlDO' => [
+            'driver' => 'mysql',
+            'host' => '107.170.68.130',
+            'port' => '3306',
+            'database' => 'kkapp_db',
+            'username' => 'hamza',
+            'password' => 'kkhamzadb',
+            'charset' => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', 'localhost'),

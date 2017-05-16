@@ -13,28 +13,31 @@ use Validator;
 class AdminController extends Controller {
 
     public function __construct() {
+        $this->digitalOcean = DB::connection('mysqlDO');
 
         $this->current_date_time = Carbon::now('Asia/Dubai');
     }
 
-    public function home() {
+    public function home() {       
+        
         return view('index');
     }
 
     public function index(Request $request) {
-
+        
         if ($request->isMethod('get')) {
 
             if (Session::has('admin_data')) {
-                return redirect('admin/view-events');
+                return redirect('admin/view-admin-events');
             }
 
             return view('admin.login');
         }
 
+//        if ($request->email == 'admin' && $request->password == 'KhairKeys321@123') {
         if ($request->email == 'admin' && $request->password == 'admin') {
             Session::put('admin_data', 'loggedIn');
-            return redirect('admin/view-events');
+            return redirect('admin/view-admin-events');
         }
 
         Session::put('login_error', 'Invalid Username or Password');
@@ -91,6 +94,7 @@ class AdminController extends Controller {
         ];
 
         $id = DB::table('categories')->insertGetId($category_data);
+        $this->digitalOcean->table('categories')->insertGetId($category_data);
 
         if ($id) {
             Session::flash('success', 'Type successfully added');
@@ -106,7 +110,8 @@ class AdminController extends Controller {
     public function viewCategories() {
 
         $result['categories'] = DB::table('categories')->orderBy('id', 'DESC')->paginate(15);
-
+        $result['sr'] = ($result['categories']->currentPage() > 1) ? ($result['categories']->currentPage()-1)*($result['categories']->perPage())+1 : 1;
+        
         return view('admin.view-categories', $result);
     }
 
@@ -170,6 +175,7 @@ class AdminController extends Controller {
         $id = Crypt::decrypt($request->cat_id);
 
         $res = DB::table('categories')->where('id', '=', $id)->update($category_data);
+        $this->digitalOcean->table('categories')->where('id', '=', $id)->update($category_data);
 
         if ($res > 0) {
             Session::flash('success', 'Category successfully updated');
@@ -190,6 +196,7 @@ class AdminController extends Controller {
         unlink(base_path() . '/public/admin/icons/non-' . $category->selected_icon);
 
         $res = DB::table('categories')->where('id', '=', $id)->delete();
+        $this->digitalOcean->table('categories')->where('id', '=', $id)->delete();
 
         if ($res == 1) {
             Session::flash('success', 'Category successfully deleted');
@@ -229,6 +236,7 @@ class AdminController extends Controller {
         ];
 
         $id = DB::table('types')->insertGetId($type_data);
+        $this->digitalOcean->table('types')->insertGetId($type_data);
 
         if ($id) {
             Session::flash('success', 'Type successfully added');
@@ -244,6 +252,8 @@ class AdminController extends Controller {
     public function viewTypes() {
 
         $result['types'] = DB::table('types')->orderBy('id', 'DESC')->paginate(15);
+        $result['sr'] = ($result['types']->currentPage() > 1) ? ($result['types']->currentPage()-1)*($result['types']->perPage())+1 : 1;
+        
         return view('admin.view-types', $result);
     }
 
@@ -277,6 +287,7 @@ class AdminController extends Controller {
         $id = Crypt::decrypt($request->type_id);
 
         $res = DB::table('types')->where('id', '=', $id)->update($type_data);
+        $this->digitalOcean->table('types')->where('id', '=', $id)->update($type_data);
 
         if ($res > 0) {
             Session::flash('success', 'Type successfully updated');
@@ -293,6 +304,7 @@ class AdminController extends Controller {
 
         $id = Crypt::decrypt($request->segment(3));
         $res = DB::table('types')->where('id', '=', $id)->delete();
+        $this->digitalOcean->table('types')->where('id', '=', $id)->delete();
 
         if ($res == 1) {
             Session::flash('success', 'Type successfully deleted');
@@ -330,6 +342,7 @@ class AdminController extends Controller {
         ];
 
         $id = DB::table('languages')->insertGetId($lang_data);
+        $this->digitalOcean->table('languages')->insertGetId($lang_data);
 
         if ($id) {
             Session::flash('success', 'Language successfully added');
@@ -345,6 +358,8 @@ class AdminController extends Controller {
     public function viewLanguages() {
 
         $result['languages'] = DB::table('languages')->orderBy('title', 'ASC')->paginate(15);
+        $result['sr'] = ($result['languages']->currentPage() > 1) ? ($result['languages']->currentPage()-1)*($result['languages']->perPage())+1 : 1;
+        
         return view('admin.view-languages', $result);
     }
 
@@ -376,6 +391,7 @@ class AdminController extends Controller {
         $id = Crypt::decrypt($request->language_id);
 
         $res = DB::table('languages')->where('id', '=', $id)->update($language_data);
+        $this->digitalOcean->table('languages')->where('id', '=', $id)->update($language_data);
 
         if ($res > 0) {
             Session::flash('success', 'Language successfully updated');
@@ -392,6 +408,7 @@ class AdminController extends Controller {
 
         $id = Crypt::decrypt($request->segment(3));
         $res = DB::table('languages')->where('id', '=', $id)->delete();
+        $this->digitalOcean->table('languages')->where('id', '=', $id)->delete();
 
         if ($res == 1) {
             Session::flash('success', 'Language successfully deleted');
@@ -449,11 +466,12 @@ class AdminController extends Controller {
         ];
 
         $id = DB::table('users')->insertGetId($user_data);
+        $this->digitalOcean->table('users')->insertGetId($user_data);
 
         if ($id) {
             Session::flash('success', 'User successfully added');
 
-            return redirect('admin/view-users');
+            return redirect('admin/view-verified-users');
         }
 
         Session::flash('error', 'User could not be added');
@@ -509,6 +527,7 @@ class AdminController extends Controller {
         ];
 
         $res = DB::table('users')->where('id', '=', $id)->update($user_data);
+        $this->digitalOcean->table('users')->where('id', '=', $id)->update($user_data);
 
         if ($res > 0) {
             Session::flash('success', 'User successfully updated');
@@ -532,7 +551,10 @@ class AdminController extends Controller {
             WHEN status = 1 THEN "Active"
             ELSE "Deleted" END) AS status, TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS age')
                 )->where('is_verified', '=', 0)->orderBy('username', 'asc')->paginate(15);
-
+                
+        $result['sr'] = ($result['users']->currentPage() > 1) ? ($result['users']->currentPage()-1)*($result['users']->perPage())+1 : 1;
+        $result['uri_segment'] = 'view';
+        
         return view('admin.view-users', $result);
     }
 
@@ -544,48 +566,82 @@ class AdminController extends Controller {
             WHEN status = 1 THEN "Active"
             ELSE "Deleted" END) AS status, TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS age')
                 )->where('is_verified', '=', 1)->orderBy('username', 'asc')->paginate(15);
-
+                
+        $result['sr'] = ($result['users']->currentPage() > 1) ? ($result['users']->currentPage()-1)*($result['users']->perPage())+1 : 1;
+        $result['uri_segment'] = 'search';
+               
         return view('admin.view-verified-users', $result);
     }
 
-    public function deleteUser(Request $request) {
+    public function userStatus(Request $request) {
 
-        $id = Crypt::decrypt($request->segment(3));
-        $res = DB::table('users')->where('id', '=', $id)->update(['status' => 2]);
-
-        if ($res == 1) {
-            Session::flash('success', 'User successfully deleted');
-        } else {
-            Session::flash('error', 'User could not be deleted');
-        }
-
-        return redirect('admin/view-users');
-    }
-
-    public function deleteVerifiedUser(Request $request) {
-
-        $id = Crypt::decrypt($request->segment(3));
-        $res = DB::table('users')->where('id', '=', $id)->update(['status' => 2]);
+        $id = Crypt::decrypt($request->id);
+        $status = ($request->status == 'Active') ? 1 : 2;
+        $res = DB::table('users')->where('id', '=', $id)->update(['status' => $status]);
+        $this->digitalOcean->table('users')->where('id', '=', $id)->update(['status' => $status]);
 
         if ($res == 1) {
-            Session::flash('success', 'User successfully deleted');
+            echo '1';
         } else {
-            Session::flash('error', 'User could not be deleted');
+            echo 'Error';
         }
-
-        return redirect('admin/view-verified-users');
     }
-
-    /* ---------- User CRUD End ---------- */
-
-    /* Event module start */
-
-    public function searchEvents(Request $request) {
+    
+    public function searchUsers(Request $request) {
 
         $search = $request->search;
 
         if (empty($search)) {
-            return redirect('admin/view-events/' . $request->sort);
+            return redirect('admin/view-users');
+        }
+
+        $result['users'] = DB::select("select *,
+            (CASE
+            WHEN status = 0 THEN 'Pending'
+            WHEN status = 1 THEN 'Active'
+            ELSE 'Deleted' END) AS status, TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS age
+            from users 
+            where (username like '%$search%' or email like '%$search%' or gender like '%$search%')
+            and is_verified = 0
+            ");
+               
+        $result['uri_segment'] = 'search';
+
+        return view('admin.view-users', $result);
+    }
+    
+    public function searchVerifiedUsers(Request $request) {
+
+        $search = $request->search;
+
+        if (empty($search)) {
+            return redirect('admin/view-users');
+        }
+
+        $result['users'] = DB::select("select *,
+            (CASE
+            WHEN status = 0 THEN 'Pending'
+            WHEN status = 1 THEN 'Active'
+            ELSE 'Deleted' END) AS status, TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS age
+            from users 
+            where (username like '%$search%' or email like '%$search%' or gender like '%$search%')
+            and is_verified = 1
+            ");
+               
+        $result['uri_segment'] = 'search';
+
+        return view('admin.view-verified-users', $result);
+    }
+    /* ---------- User CRUD End ---------- */
+
+    /* Event module start */
+
+    public function searchAdminEvents(Request $request) {
+
+        $search = $request->search;
+
+        if (empty($search)) {
+            return redirect('admin/view-admin-events/' . $request->sort);
         }
         if (!empty($request->sort)) {
             $sort = [
@@ -601,7 +657,7 @@ class AdminController extends Controller {
             $order = 'id DESC';
         }
 
-        $result['events'] = Event::getSearchEvent($search, $order);
+        $result['events'] = Event::getSearchEvent($search, $order, 'admin');
         $result['uri_segment'] = 'search';
         $result['search'] = $search;
 
@@ -618,8 +674,13 @@ class AdminController extends Controller {
         return view('admin.view-events', $result);
     }
 
-    public function viewEvents(Request $request) {
+    public function searchUserEvents(Request $request) {
 
+        $search = $request->search;
+
+        if (empty($search)) {
+            return redirect('admin/view-user-events/' . $request->sort);
+        }
         if (!empty($request->sort)) {
             $sort = [
                 'paid' => 'free_event ASC, start_date DESC',
@@ -634,13 +695,87 @@ class AdminController extends Controller {
             $order = 'id DESC';
         }
 
+        $result['events'] = Event::getSearchEvent($search, $order, 'user');
+        $result['uri_segment'] = 'search';
+        $result['search'] = $search;
+
+        if (count($result['events']) > 0) {
+            foreach ($result['events'] as $event) {
+                $result['categories'][] = DB::table('categories')->whereIn('id', explode(',', $event->category_id))->get();
+                $result['locations'][] = DB::table('locations')->where('event_id', $event->id)->get();
+            }
+        } else {
+            $result['categories'] = array();
+            $result['locations'] = array();
+        }
+
+        return view('admin.view-user-events', $result);
+    }
+
+    public function viewAdminEvents(Request $request) {
+
+        if (!empty($request->sort)) {
+            $sort = [
+                'paid' => 'free_event ASC, start_date DESC',
+                'free' => 'free_event DESC, start_date DESC',
+                'name' => 'eng_name ASC',
+                'company' => 'eng_company_name ASC',
+                'date' => 'start_date DESC'
+            ];
+
+            $order = $sort[$request->sort];
+        } else {
+            $order = 'id DESC';
+        }
+        
         $result['events'] = DB::table('events')
                 ->select(DB::raw('events.*, username'))
                 ->join('users', 'users.id', '=', 'events.user_id', 'left')
                 ->join('categories', 'users.id', '=', 'events.user_id', 'left')
+                ->whereRaw('user_id = 0')
                 ->orderByRaw($order)
                 ->groupBy('events.id')
                 ->paginate(15);
+                
+        $result['sr'] = ($result['events']->currentPage() > 1) ? ($result['events']->currentPage()-1)*($result['events']->perPage())+1 : 1;
+        
+        if (count($result['events']) > 0) {
+            foreach ($result['events'] as $event) {
+                $result['categories'][] = DB::table('categories')->whereIn('id', explode(',', $event->category_id))->get();
+                $result['locations'][] = DB::table('locations')->where('event_id', $event->id)->get();
+            }
+        }
+
+        $result['uri_segment'] = 'view';
+
+        return view('admin.view-events', $result);
+    }
+
+    public function viewUserEvents(Request $request) {
+
+        if (!empty($request->sort)) {
+            $sort = [
+                'paid' => 'free_event ASC, start_date DESC',
+                'free' => 'free_event DESC, start_date DESC',
+                'name' => 'eng_name ASC',
+                'company' => 'eng_company_name ASC',
+                'date' => 'start_date DESC'
+            ];
+
+            $order = $sort[$request->sort];
+        } else {
+            $order = 'id DESC';
+        }
+        
+        $result['events'] = DB::table('events')
+                ->select(DB::raw('events.*, username'))
+                ->join('users', 'users.id', '=', 'events.user_id', 'inner')
+                ->join('categories', 'users.id', '=', 'events.user_id', 'left')
+                ->orderByRaw($order)
+                ->groupBy('events.id')
+                ->paginate(15);
+                
+        $result['sr'] = ($result['events']->currentPage() > 1) ? ($result['events']->currentPage()-1)*($result['events']->perPage())+1 : 1;
 
         if (count($result['events']) > 0) {
             foreach ($result['events'] as $event) {
@@ -649,11 +784,9 @@ class AdminController extends Controller {
             }
         }
 
-        // dd($result);
-
         $result['uri_segment'] = 'view';
 
-        return view('admin.view-events', $result);
+        return view('admin.view-user-events', $result);
     }
 
     public function addEvent(Request $request) {
@@ -677,7 +810,6 @@ class AdminController extends Controller {
             return view('admin.event-details', $result);
         }
 
-        //dd($request->all());
         $validation_data = [
             'type' => 'required',
             'category' => 'required',
@@ -714,6 +846,14 @@ class AdminController extends Controller {
         }
 
         $all_day = !empty($request->all_day) ? $request->all_day : 0;
+        if($all_date == 1){
+            $start_date = date('Y-m-d', strtotime($request->start_date));
+            $end_date = date('Y-m-d', strtotime($request->end_date));
+        } 
+        else{
+            $start_date = date('Y-m-d', strtotime($request->start_date)) . ' ' . date('H:i:s', strtotime($request->start_time));
+            $end_date = date('Y-m-d', strtotime($request->end_date)) . ' ' . date('H:i:s', strtotime($request->end_time));
+        }
         $fee = !empty($request->fee) ? $request->fee : 0;
         $is_kids = !empty($request->kids) ? $request->kids : 0;
         $is_disabled = !empty($request->disable) ? $request->disable : 0;
@@ -724,13 +864,13 @@ class AdminController extends Controller {
             'keyword' => $request->keyword,
             'eng_name' => $request->event_name,
             'ar_name' => $request->event_name_ar,
-            'eng_company_name' => $request->event_company,
-            'ar_company_name' => $request->event_company_ar,
+            'eng_company_name' => trim($request->event_company),
+            'ar_company_name' => trim($request->event_company_ar),
             'phone' => $request->phone,
             'email' => $request->email,
             'weblink' => $request->url,
-            'start_date' => date('Y-m-d', strtotime($request->start_date)) . ' ' . date('H:i:s', strtotime($request->start_time)),
-            'end_date' => date('Y-m-d', strtotime($request->end_date)) . ' ' . date('H:i:s', strtotime($request->end_time)),
+            'start_date' => $start_date,
+            'end_date' => $end_date,
             'all_day' => $all_day,
             'free_event' => $fee,
             'facebook' => $request->facebook,
@@ -744,6 +884,7 @@ class AdminController extends Controller {
             'is_disabled' => $is_disabled,
             'is_featured' => $is_featured,
             'share_count' => 1,
+            'status' => 'Active',
             'created_at' => $this->current_date_time,
             'updated_at' => $this->current_date_time,
         ];
@@ -751,6 +892,7 @@ class AdminController extends Controller {
         if (!empty($request->event_id) && $request->uri != 'duplicate-event') {
             $event_id = Crypt::decrypt($request->event_id);
             $res = DB::table('events')->where('id', '=', $event_id)->update($event_data);
+            $this->digitalOcean->table('events')->where('id', '=', $event_id)->update($event_data);
 
             if ($res == 1) {
                 $id = $event_id;
@@ -761,6 +903,7 @@ class AdminController extends Controller {
             $ref = ['reference_no' => $reference_no];
             $event_data = array_merge($ref, $event_data);
             $id = DB::table('events')->insertGetId($event_data);
+            $this->digitalOcean->table('events')->insertGetId($event_data);
         }
         if ($id) {
 
@@ -811,6 +954,7 @@ class AdminController extends Controller {
 
             if (isset($pic_data)) {
                 DB::table('pictures')->insert($pic_data);
+                $this->digitalOcean->table('pictures')->insert($pic_data);
             }
 
             if ($request->hasFile('attachment')) {
@@ -827,6 +971,7 @@ class AdminController extends Controller {
 
             if (isset($attch_data)) {
                 DB::table('attachments')->insert($attch_data);
+                $this->digitalOcean->table('attachments')->insert($attch_data);
             }
 
             if (count($request->city) > 0 && !empty($request->city[0])) {
@@ -835,6 +980,7 @@ class AdminController extends Controller {
                 $latlngs = explode('~', $request->latlng);
 
                 DB::table('locations')->where('event_id', $id)->delete();
+                $this->digitalOcean->table('locations')->where('event_id', $id)->delete();
 
                 for ($loc = 1; $loc < count($cities); $loc++) {
 
@@ -851,10 +997,11 @@ class AdminController extends Controller {
                     ];
                 }
                 DB::table('locations')->insert($loc_data);
+                $this->digitalOcean->table('locations')->insert($loc_data);
             }
 
             Session::flash('success', 'Event successfully saved');
-            return redirect('admin/view-events');
+            return redirect('admin/view-admin-events');
         }
     }
 
@@ -880,21 +1027,25 @@ class AdminController extends Controller {
             $result['uri_segment'] = $request->segment(2);
             $result['old_event_languages'] = explode(',', $result['event']->event_language);
         }
-
+        
         return view('admin.event-details', $result);
     }
 
     public function deleteEvent(Request $request) {
-
-        $id = Crypt::decrypt($request->segment(3));
+        
+        $id = Crypt::decrypt($request->segment(3));        
         $attachments = DB::table('attachments')->where('event_id', '=', $id)->get();
         $pictures = DB::table('pictures')->where('event_id', '=', $id)->get();
 
-        foreach ($attachments as $attch) {
-            unlink(base_path() . '/public/uploads/' . $attch->picture);
+        if(count($attachments) > 0){
+            foreach ($attachments as $attch) {
+                unlink(base_path() . '/public/uploads/' . $attch->picture);
+            }
         }
-        foreach ($pictures as $pic) {
-            unlink(base_path() . '/public/uploads/' . $pic->picture);
+        if(count($attachments) > 0){
+            foreach ($pictures as $pic) {
+                unlink(base_path() . '/public/uploads/' . $pic->picture);
+            }
         }
 
         // $res = DB::table('events')->where('id', '=', $id)->delete();
@@ -905,15 +1056,29 @@ class AdminController extends Controller {
 					left join locations on locations.event_id = events.id
 					where events.id = $id
 ");
+        
+        $this->digitalOcean->delete("delete events, attachments, pictures, locations
+					from events
+					left join attachments on attachments.event_id = events.id
+					left join pictures on pictures.event_id = events.id
+					left join locations on locations.event_id = events.id
+					where events.id = $id
+");
 
         Session::flash('success', 'Event successfully deleted');
-        return redirect('admin/view-events');
+        if($request->segment(2) == 'delete-admin-event'){
+            return redirect('admin/view-admin-events');
+        }
+        else{
+            return redirect('admin/view-user-events');
+        }
     }
 
     public function eventStatus(Request $request) {
 
         $id = Crypt::decrypt($request->id);
         $res = DB::table('events')->where('id', '=', $id)->update(['status' => $request->status]);
+        $this->digitalOcean->table('events')->where('id', '=', $id)->update(['status' => $request->status]);
 
         if ($res == 1) {
             echo '1';
@@ -930,6 +1095,7 @@ class AdminController extends Controller {
         unlink(base_path() . '/public/uploads/' . $pictures->picture);
 
         $res = DB::table($request->type)->where('id', '=', $image_id)->where('event_id', '=', $event_id)->delete();
+        $this->digitalOcean->table($request->type)->where('id', '=', $image_id)->where('event_id', '=', $event_id)->delete();
 
         if ($res == 1) {
             echo '1';
@@ -939,134 +1105,158 @@ class AdminController extends Controller {
     }
 
     public function pushNotification(Request $request) {
-
+        
         if ($request->isMethod('get')) {
             $result['cities'] = DB::table('cities')->where('country_id', 11)->orderBy('city_name', 'ASC')->get();
+            $result['languages'] = DB::table('languages')->get();
             $result['types'] = DB::table('types')->get();
             $result['categories'] = DB::table('categories')->get();
 
             return view('admin.push-notification', $result);
-        } else {
+        } 
+                
+        $validation_data = [
+            'title' => 'required',
+            'message' => 'required'
+        ];
 
-            $data = [
-                'category' => $request->category,
-                'type' => $request->type,
-                'language' => $request->language,
-                'city' => $request->city,
-            ];
+        $validator = Validator::make($request->all(), $validation_data);
 
-            $events = Event::getNotificationEvent($data);
+        if ($validator->fails()) {
+            return redirect()->back()->withInput()->withErrors($validator);
+        }
+        
+        $data = [
+            'category' => $request->category,
+            'type' => $request->type,
+            'language' => $request->language,
+            'city' => $request->city,
+        ];
+
+        $events = Event::getNotificationEvent($data);
+
+        if(count($events) > 0){
+            foreach($events as $row){
+                $user_ids[] = $row['user_id'];
+            }
+
+            $this->android_push($request->title, $request->message, $user_ids);
+            $this->ios_notification($request->title, $request->message, $user_ids);
             
-//            dd($events);
-
-            $this->android_push($request->title, $request->message, $events);
-
+            Session::put('success', 'Request Sent!');
+        }
+        else{
+            Session::put('error', 'No record found');
         }
 
-
-
-        Session::put('login_error', 'Invalid Username or Password');
         return redirect()->back();
     }
 
-    public function ios_notification($noti_title, $msg, $email = '') {
+    public function ios_notification($noti_title, $msg, $user_ids = '') {
 
-        if (!empty($email)) {
-            $email = "and user_email = '" . $email . "'";
-            $tokens = DB::raw("select token from tokens where device_id is null $email");
-            foreach ($tokens as $tk) {
-                $ids[] = $tk['token'];
+        if (count($user_ids) > 0) {
+            $user_ids = implode(',', $user_ids);
+            $tokens = DB::select("select object_id from tokens where object_id IS NOT NULL and user_id in ($user_ids)");
+            if(count($tokens) > 0){
+                
+                foreach ($tokens as $tk) {
+                    $ids[] = $tk->object_id;
+                }
+
+                $chunks = array_chunk($ids, 2000);
+                foreach ($chunks as $chk) {
+                    $player_ids = $chk;
+                    $title = array(
+                        "en" => $noti_title,
+                    );
+                    $content = array(
+                        "en" => $msg,
+                    );
+
+                    $fields = array(
+                        'app_id' => "81c54624-340c-4ccd-907e-8fade9cbccb9",
+                        'include_player_ids' => $player_ids,
+                        'contents' => $content,
+                        'heading' => $title,
+                        'data' => ['title' => $noti_title, 'body' => $msg],
+                        'ios_badgeType' => 'SetTo',
+                        'ios_badgeCount' => 1,
+                    );
+
+                    $fields = json_encode($fields);
+
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json',
+                        'Authorization: Basic ZmYwY2NmYWYtMDYyZC00ODBhLWJhYmQtNjVhYTFiYTY5NWZl'));
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_HEADER, false);
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+                    $response = curl_exec($ch);
+                    curl_close($ch);
+                }
             }
-
-            $devices = ['include_ios_tokens' => $ids];
-        } else {
-            $devices = ['included_segments' => array('All')];
+            else{
+                return 'no token found';
+            }
         }
-
-        $title = array(
-            "en" => $noti_title,
-        );
-        $content = array(
-            "en" => $msg,
-        );
-
-        $fields = array(
-            'app_id' => "a58f2a20-c16c-4b09-8202-4a768d408a97",
-            'contents' => $content,
-            'heading' => $title,
-            'data' => ['title' => $noti_title, 'body' => $msg],
-            'ios_badgeType' => 'SetTo',
-            'ios_badgeCount' => 1,
-        );
-        $fields = array_merge($fields, $devices);
-
-        $fields = json_encode($fields);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json',
-            'Authorization: Basic NTdkYTU5ZGYtM2M3Yy00MDNkLWE0NjAtOTU4MWVjZWY2NmNh'));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-        $response = curl_exec($ch);
-        curl_close($ch);
-
+        else{
+            die('user ids required');
+        }
+        
         return $response;
     }
 
     public function android_push($title, $body, $user_ids = '') {
         
+        $tokens = DB::table('tokens')->select('token')->whereIn('user_id', $user_ids)->whereNull('object_id')->get();
         
+        if(count($tokens) > 0){
+            foreach ($tokens as $tk) {
+                $ids[] = $tk->token;
+            }
 
-//        $user_ids = count($user_ids) > 0 ? $user_ids : '';
+            $chunks = array_chunk($ids, 1000);
 
-        $tokens = DB::table('tokens')->whereIn(implode(',', $user_ids))->where('device_id', '!=', '')->get();
-        
-        dd($tokens);
+            foreach ($chunks as $chk) {
+                $registrationIds = $chk;
+                define('API_ACCESS_KEY', 'AIzaSyA7qEzOETYNfXWADnLq_heXFXoSY25nr-k');
 
-        foreach ($tokens as $tk) {
-            $ids[] = $tk['token'];
-        }
+                $msg['notification'] = array
+                    (
+                    'title' => $title,
+                    'message' => $body,
+                );
 
-        $chunks = array_chunk($ids, 1000);
+                $fields = array
+                    (
+                    'registration_ids' => $registrationIds,
+                    'data' => $msg,
+                );
 
-        foreach ($chunks as $chk) {
-            $registrationIds = $chk;
-            define('API_ACCESS_KEY', 'AIzaSyCFa-Xt1PROlf6n51Mxh8fe4MzyODv8i8Q');
+                $headers = array
+                    (
+                    'Authorization: key=' . API_ACCESS_KEY,
+                    'Content-Type: application/json',
+                );
 
-            $msg['notification'] = array
-                (
-                'title' => $title,
-                'message' => $body,
-            );
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, 'https://android.googleapis.com/gcm/send');
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
+                $result = curl_exec($ch);
+                curl_close($ch);
 
-            $fields = array
-                (
-                'registration_ids' => $registrationIds,
-                'data' => $msg,
-            );
-
-            $headers = array
-                (
-                'Authorization: key=' . API_ACCESS_KEY,
-                'Content-Type: application/json',
-            );
-
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, 'https://android.googleapis.com/gcm/send');
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
-            $result = curl_exec($ch);
-            curl_close($ch);
-
-            return $result;
+                return $result;
+            }
+        }else{
+            return 'no token found';
         }
     }
 

@@ -92,6 +92,10 @@ class UserController extends Controller {
     
     public function viewEvents(Request $request) {
         
+        if (!Session::has('user_id')) {
+            return redirect('user');
+        }
+            
         if (!empty($request->sort)) {
             $sort = [
                 'paid' => 'free_event ASC, start_date DESC',

@@ -23,10 +23,14 @@ class Event extends Model {
     }
 
     public static function getEvents($city = '', $type = '', $offset = '', $is_featured = false) {
+        
+        $cur_date = date('Y-m-d');
 
         $query = Event::with('pictures', 'attachments', 'locations');
-        $query->select(DB::raw("events.*"));
+        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    --    %h:%i %p') as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    --    %h:%i %p') as end_date"));
         $query->join('locations', 'locations.event_id', '=', 'events.id', 'left');
+        $query->where('events.status', '=', 'Active');
+        $query->where('end_date', '>=', $cur_date);
         if ($is_featured == false) {
             $query->where('is_featured', '=', '0');
         } else {
@@ -38,8 +42,8 @@ class Event extends Model {
         if (!empty($type)) {
             $query->whereIn('type_id', explode(',', $type));
         }
-        $query->take(50)->skip($offset);
-        $query->orderBy('id');
+        $query->take(5)->skip($offset);
+        $query->orderBy('start_date');
         $query->groupBy('id');
         $result = $query->get();
 
@@ -48,16 +52,19 @@ class Event extends Model {
 
     public static function getEventsByRadius($latLng, $radius, $type = '') {
 
+        $cur_date = date('Y-m-d');
         $split_latLng = explode(',', $latLng);
 
         $query = Event::with('pictures', 'attachments', 'locations');
-        $query->select(DB::raw("events.*, ( 3959 * acos( cos( radians(" . $split_latLng[0] . ") ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(" . $split_latLng[1] . ") ) + sin( radians(" . $split_latLng[0] . ") ) * sin( radians( latitude ) ) ) ) `distance`"));
+        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    --    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    --    %h:%i %p') as end_date, ( 3959 * acos( cos( radians(" . $split_latLng[0] . ") ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(" . $split_latLng[1] . ") ) + sin( radians(" . $split_latLng[0] . ") ) * sin( radians( latitude ) ) ) ) `distance`"));
         $query->join('locations', 'locations.event_id', '=', 'events.id');
+        $query->where('events.status', '=', 'Active');
+        $query->where('end_date', '>=', $cur_date);
         if (!empty($type)) {
             $query->whereIn('type_id', explode(',', $type));
         }
         $query->havingRaw("distance < $radius");
-        $query->orderBy("id");
+        $query->orderBy("start_date");
         $query->groupBy("id");
         $result = $query->get();
 
@@ -66,9 +73,13 @@ class Event extends Model {
 
     public static function getMostLike() {
 
+        $cur_date = date('Y-m-d');
+        
         $query = Event::with('pictures', 'attachments', 'locations');
-        $query->select(DB::raw("events.*, count(user_favourite_events.event_id) as likes"));
+        $query->select(DB::raw("events.*, count(user_favourite_events.event_id) as likes, DATE_FORMAT(events.start_date,'%d-%m-%Y    --    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    --    %h:%i %p') as end_date"));
         $query->join('user_favourite_events', 'user_favourite_events.event_id', '=', 'events.id');
+        $query->where('events.status', '=', 'Active');
+        $query->where('end_date', '>=', $cur_date);
         $query->groupBy('user_favourite_events.event_id');
         $query->orderBy('likes', 'DESC');
         $query->take(5)->skip(0);
@@ -79,9 +90,13 @@ class Event extends Model {
 
     public static function getMostShared() {
 
+        $cur_date = date('Y-m-d');
+        
         $query = Event::with('pictures', 'attachments', 'locations');
-        $query->select(DB::raw("events.*"));
+        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    --    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    --    %h:%i %p') as end_date"));
+        $query->where('events.status', '=', 'Active');
         $query->where('share_count', '!=', 0);
+        $query->where('end_date', '>=', $cur_date);
         $query->orderBy('share_count', 'DESC');
         $query->take(5)->skip(0);
         $result = $query->get();
@@ -92,9 +107,10 @@ class Event extends Model {
     public static function getFavouriteEvents($user_id) {
 
         $query = Event::with('pictures', 'attachments', 'locations');
-        $query->select(DB::raw("events.*"));
+        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    --    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    --    %h:%i %p') as end_date"));
         $query->join('user_favourite_events', 'user_favourite_events.event_id', '=', 'events.id');
         $query->where('user_favourite_events.user_id', '=', $user_id);
+        $query->where('events.status', '=', 'Active');
         $query->groupBy("id");
         $result = $query->get();
 
@@ -110,7 +126,7 @@ class Event extends Model {
                 ->get();
                 
         $query = Event::with('pictures', 'attachments', 'locations');
-        $query->select(DB::raw("events.*"));
+        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    --    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    --    %h:%i %p') as end_date"));
         $query->where('user_id', '=', $user_id);
         if($categories[0]->interested_in_kids == 1){
             $query->where('is_kids', '=', 1);
@@ -119,14 +135,26 @@ class Event extends Model {
             $query->where('is_disabled', '=', 1);
         }
         if($categories[0]->category_id){
-            foreach($categories as $key => $cat){
-                if($key == 0){
-                    $query->whereRaw('FIND_IN_SET('.$cat->category_id.',category_id)');
+            
+            $query->where(function ($query) use ($categories) {
+                foreach($categories as $key => $cat){
+                    if($key == 0){
+                        $query->whereRaw('FIND_IN_SET('.$cat->category_id.',category_id)');
+                    }
+                    else{
+                        $query->orWhereRaw('FIND_IN_SET('.$cat->category_id.',category_id)');
+                    }
                 }
-                else{
-                    $query->orWhereRaw('FIND_IN_SET('.$cat->category_id.',category_id)');
-                }
-            }
+            });            
+            
+//            foreach($categories as $key => $cat){
+//                if($key == 0){
+//                    $query->whereRaw('FIND_IN_SET('.$cat->category_id.',category_id)');
+//                }
+//                else{
+//                    $query->orWhereRaw('FIND_IN_SET('.$cat->category_id.',category_id)');
+//                }
+//            }   
         }
         $query->groupBy("id");
         $result = $query->get();
@@ -134,7 +162,7 @@ class Event extends Model {
         return $result;
     }
 
-    public static function getSearchEvent($search, $sort = '') {
+    public static function getSearchEvent($search, $sort = '', $type = '') {
 
         $query = Event::select(DB::raw("events.*, username"));
         $query->join('users', 'users.id', '=', 'events.user_id', 'left');
@@ -142,6 +170,12 @@ class Event extends Model {
         $query->join('categories', 'categories.id', '=', 'events.category_id', 'inner');
         if(Session::has('user_id')){
             $query->where('user_id', Session::get('user_id'));
+        }
+        if($type == 'admin'){
+            $query->whereRaw('user_id = 0');
+        }
+        else{
+            $query->whereRaw('user_id > 0');
         }
         $query->whereRaw("(reference_no like '%$search%' or keyword like '%$search%' or eng_name like '%$search%' or ar_name like '%$search%' or eng_company_name like '%$search%' or ar_company_name like '%$search%' or events.phone like '%$search%' or events.email like '%$search%' or events.start_date like '%$search%' or events.end_date like '%$search%' or city like '%$search%' or english like '%$search%' or arabic like '%$search%')");
         $query->orderByRaw($sort);
@@ -151,15 +185,21 @@ class Event extends Model {
     }
 
     public static function getAppSearchEvent($search_data) {
+        
+        $cur_date = date('Y-m-d');
 
         $query = Event::with('pictures', 'attachments', 'locations');
+        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    --    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    --    %h:%i %p') as end_date"));
         if(!empty($search_data['verified_user'])){
             $query->join('users', 'users.id', '=', 'events.user_id');
         }
         if(!empty($search_data['city'])){
             $query->join('locations', 'locations.event_id', '=', 'events.id');     
         }
-        $query->select(DB::raw("events.*"));
+        $query->where('events.status', '=', 'Active');
+        if(empty($search_data['start_date']) && empty($search_data['end_date'])){
+            $query->where('end_date', '>=', $cur_date);
+        }
         if(!empty($search_data['eng_company'])){
             $query->where('eng_company_name', '=', $search_data['eng_company']);
         }
@@ -195,15 +235,15 @@ class Event extends Model {
             $query->where('user_id', '=', $search_data['verified_user']);
         }
         if(!empty($search_data['start_date']) && !empty($search_data['end_date'])){
-            $query->where('start_date','>=',$search_data['start_date']);
-            $query->where('end_date','<=',$search_data['end_date']);
+            $query->where('start_date','>=',date('Y-m-d', strtotime($search_data['start_date'])));
+            $query->where('end_date','<=',date('Y-m-d', strtotime($search_data['end_date'])));
         }
         else if(!empty($search_data['start_date']) && empty($search_data['end_date'])){
-            $query->where('start_date','=',$search_data['start_date']);
+            $query->where('start_date','=',date('Y-m-d', strtotime($search_data['start_date'])));
         }
         
         if(!empty($search_data['category'])){
-            $categories = explode(',', $search_data['category']);
+            /*$categories = explode(',', $search_data['category']);
             foreach($categories as $key => $cat){
                 if($key == 0){
                     $query->whereRaw('FIND_IN_SET('.$cat.',category_id)');
@@ -211,44 +251,64 @@ class Event extends Model {
                 else{
                     $query->orWhereRaw('FIND_IN_SET('.$cat.',category_id)');
                 }
-            }
+            }*/
+            $categories = explode(',', $search_data['category']);
+            
+            $query->where(function ($query) use ($categories, $search_data) {
+                foreach($categories as $key => $cat){
+                    if($key == 0){
+                        $query->whereRaw('FIND_IN_SET('.$cat.',category_id)');
+                    }
+                    else{
+                        $query->orWhereRaw('FIND_IN_SET('.$cat.',category_id)');
+                    }
+                }
+            });
+            
         }
         if(!empty($search_data['type'])){
             $types = explode(',', $search_data['type']);
             $key = '';
-            foreach($types as $key => $type){
-                if($key == 0){
-                    $query->whereRaw('FIND_IN_SET('.$type.',type_id)');
+            $query->where(function ($query) use ($types, $search_data) {
+                foreach($types as $key => $type){
+                    if($key == 0){
+                        $query->whereRaw('FIND_IN_SET('.$type.',type_id)');
+                    }
+                    else{
+                        $query->orWhereRaw('FIND_IN_SET('.$type.',type_id)');
+                    }
                 }
-                else{
-                    $query->orWhereRaw('FIND_IN_SET('.$type.',type_id)');
-                }
-            }
+            });
         }
         if(!empty($search_data['language'])){
             $languages = explode(',', $search_data['language']);
             $key = '';
-            foreach($languages as $key => $lang){
-                if($key == 0){
-                    $query->whereRaw('FIND_IN_SET('.$lang.',event_language)');
+            $query->where(function ($query) use ($languages, $search_data) {
+                foreach($languages as $key => $lang){
+                    if($key == 0){
+                        $query->whereRaw('FIND_IN_SET('.$lang.',event_language)');
+                    }
+                    else{
+                        $query->orWhereRaw('FIND_IN_SET('.$lang.',event_language)');
+                    }
                 }
-                else{
-                    $query->orWhereRaw('FIND_IN_SET('.$lang.',event_language)');
-                }
-            }
+            });
         }
         if(!empty($search_data['keyword'])){
             $keywords = explode(',', $search_data['keyword']);
             $key = '';
-            foreach($keywords as $key => $kw){
-                if($key == 0){
-                    $query->whereRaw('FIND_IN_SET("'.$kw.'",keyword)');
+            $query->where(function ($query) use ($keywords, $search_data) {
+                foreach($keywords as $key => $kw){
+                    if($key == 0){
+                        $query->whereRaw('FIND_IN_SET("'.$kw.'",keyword)');
+                    }
+                    else{
+                        $query->orWhereRaw('FIND_IN_SET("'.$kw.'",keyword)');
+                    }
                 }
-                else{
-                    $query->orWhereRaw('FIND_IN_SET("'.$kw.'",keyword)');
-                }
-            }
+            });
         }
+        $query->orderBy("start_date");
         $query->groupBy("id");
         $result = $query->get();
 
@@ -258,34 +318,53 @@ class Event extends Model {
     public static function getNotificationEvent($search_data) {
 
         $query = Event::select('user_id');
-        $query->join('users', 'users.id', '=', 'events.user_id');     
-        
-        if(!empty($search_data['city'])){
-            $query->join('locations', 'locations.event_id', '=', 'events.id');     
-            $query->whereIn('city', $search_data['city']);
+        $query->join('users', 'users.id', '=', 'events.user_id');
+        if(count($search_data['city']) > 0){
+            $query->join('locations', 'locations.event_id', '=', 'events.id');
+            $query->whereIn("city", $search_data['city']);
         }
+        
         if(!empty($search_data['category'])){
-            foreach($search_data['category'] as $key => $cat){
-                if($key == 0){
-                    $query->whereRaw('FIND_IN_SET('.$cat.',category_id)');
+            
+            
+            $query->where(function ($query) use ($search_data) {
+                foreach($search_data['category'] as $key => $cat){
+                    if($key == 0){
+                        $query->whereRaw('FIND_IN_SET('.$cat.',category_id)');
+                    }
+                    else{
+                        $query->orWhereRaw('FIND_IN_SET('.$cat.',category_id)');
+                    }
                 }
-                else{
-                    $query->orWhereRaw('FIND_IN_SET('.$cat.',category_id)');
+            });            
+        }
+        if(!empty($search_data['language'])){
+            
+            $query->where(function ($query) use ($search_data) {
+                foreach($search_data['language'] as $key => $cat){
+                    if($key == 0){
+                        $query->whereRaw('FIND_IN_SET('.$cat.',event_language)');
+                    }
+                    else{
+                        $query->orWhereRaw('FIND_IN_SET('.$cat.',event_language)');
+                    }
                 }
-            }
+            });            
         }
         if(!empty($search_data['type'])){
             $key = '';
-            foreach($search_data['type'] as $key => $type){
-                if($key == 0){
-                    $query->whereRaw('FIND_IN_SET('.$type.',type_id)');
+            $query->where(function ($query) use ($search_data) {
+                foreach($search_data['type'] as $key => $type){
+                    if($key == 0){
+                        $query->whereRaw('FIND_IN_SET('.$type.',type_id)');
+                    }
+                    else{
+                        $query->orWhereRaw('FIND_IN_SET('.$type.',type_id)');
+                    }
                 }
-                else{
-                    $query->orWhereRaw('FIND_IN_SET('.$type.',type_id)');
-                }
-            }
+            });
         }
-        $query->where('user_id' ,'<>', 0);
+        
         $query->groupBy("user_id");
         $result = $query->get();
 

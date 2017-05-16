@@ -84,7 +84,7 @@
                                     <?php $phone = (isset($event)) ? $event->phone : old('phone'); ?>
                                     <label for="phone">هاتف</label>
                                 </div>
-                                <input type="text" id="phone" name="phone" value="{{$phone}}">
+                                <input type="number" id="phone" name="phone" value="{{$phone}}">
                             </div>
                             <div class="right left-right">
                                 <div class="label-wrap">
@@ -112,11 +112,17 @@
                                     <span>*Start Date</span>
                                     <?php
                                     if (isset($event)) {
+                                        if ($event->all_day != 1) {
+                                            $s_time = date('h:i A', strtotime($event->start_date));
+                                            $e_time = date('h:i A', strtotime($event->end_date));
+                                        }
+                                        else{
+                                            $s_time = '';
+                                            $e_time = '';
+                                        }
                                         if (!empty($event->start_date)) {
                                             $s_date = date('d-m-Y', strtotime($event->start_date));
-                                            $s_time = date('h:i', strtotime($event->start_date));
                                             $e_date = date('d-m-Y', strtotime($event->end_date));
-                                            $e_time = date('h:i', strtotime($event->end_date));
                                         } else {
                                             $s_date = '';
                                             $s_time = '';
@@ -137,7 +143,7 @@
                                         }
                                     }
                                     ?>
-                                    <input type="time" placeholder="HH:MM AM" id="start_time" name="start_time" value="{{$s_time}}" required="required" pattern="^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$" class="timepicker start-time" <?php
+                                    <input type="text" placeholder="HH:MM AM" id="start_time" name="start_time" value="{{$s_time}}" required="required" pattern="^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$" class="timepicker start-time" <?php
                                     if ($all_day) {
                                         echo 'disabled="disabled"';
                                     }
@@ -147,7 +153,7 @@
                                 </div>
                                 <div class="end-date">
                                     <span>*End Date</span>
-                                    <input type="time" placeholder="HH:MM AM" id="end_time" name="end_time" value="{{$e_time}}" required="required" pattern="^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$" class="timepicker end-time" <?php
+                                    <input type="text" placeholder="HH:MM AM" id="end_time" name="end_time" value="{{$e_time}}" required="required" pattern="^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$" class="timepicker end-time" <?php
                                     if ($all_day) {
                                         echo 'disabled="disabled"';
                                     }
@@ -343,11 +349,11 @@
                                         <label for="women">Women   &nbsp;&nbsp;&nbsp;  إناثا</label>
                                     </div>
                                     <div class="radio-wrap">
-                                        <input type="radio" id="separate" name="venue" value="seperate" <?php if ($venue == 'seperate') echo 'checked="checked"' ?>>
+                                        <input type="radio" id="separate" name="venue" value="separate" <?php if ($venue == 'separate') echo 'checked="checked"' ?>>
                                         <label for="separate">Separate Sitting   &nbsp;&nbsp;&nbsp;  جلوس منفصلة</label>
                                     </div>
                                     <div class="radio-wrap">
-                                        <input type="radio" id="public" name="venue" value="public" <?php if ($venue == 'public' || $venue == '' && $venue != 'men' && $venue != 'women' && $venue != 'seperate') echo 'checked="checked"' ?>>
+                                        <input type="radio" id="public" name="venue" value="public" <?php if ($venue == 'public' || $venue == '' && $venue != 'men' && $venue != 'women' && $venue != 'separate') echo 'checked="checked"' ?>>
                                         <label for="public">Public   &nbsp;&nbsp;&nbsp;  جلوس منفصلة</label>
                                     </div>
                                 </div>
@@ -423,6 +429,14 @@
             $("#end_date").val('');
             $("#start_time").focus();
         }
+        
+        $('#start_time').focus(function(){
+            $(this).attr('type', 'time');            
+        });
+        
+        $('#end_time').focus(function(){
+            $(this).attr('type', 'time');            
+        });
 
         $('.pic-clone a').click(function (e) {
             e.preventDefault();

@@ -5,7 +5,7 @@
         <div class="container">
             <div class="row">
                 <div class="head head-on">
-                    <h4>Add Type</h4>
+                    <h4>Add Language</h4>
                 </div>
                 <div class="add-event">
                     @include('partials.errors')

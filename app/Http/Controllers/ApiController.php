@@ -20,6 +20,8 @@ class ApiController extends Controller {
     public $update_error;
 
     public function __construct() {
+        
+        $this->digitalOcean = DB::connection('mysqlDO');
 
         //DB::enableQueryLog();
         $this->current_date_time = Carbon::now('Asia/Dubai');
@@ -136,7 +138,7 @@ class ApiController extends Controller {
             'category_id' => implode(',', $request->categories),
             'keyword' => $request->keywords,
             'eng_name' => $request->event_name,
-            'eng_company_name' => $request->company_name,
+            'eng_company_name' => trim($request->company_name),
             'phone' => $request->phone,
             'email' => $request->email,
             'weblink' => $request->website,
@@ -189,9 +191,11 @@ class ApiController extends Controller {
 
             if (isset($pic_data)) {
                 DB::table('pictures')->insert($pic_data);
+                $this->digitalOcean->table('pictures')->insert($pic_data);
             }
             if (isset($attch_data)) {
                 DB::table('attachments')->insert($attch_data);
+                $this->digitalOcean->table('attachments')->insert($attch_data);
             }
 
             if (isset($request->locations) || count($request->locations) > 0) {
@@ -208,6 +212,7 @@ class ApiController extends Controller {
                     ];
                 }
                 DB::table('locations')->insert($loc_data);
+                $this->digitalOcean->table('locations')->insert($loc_data);
             }
 
             $result['status'] = 'Success';
@@ -233,7 +238,7 @@ class ApiController extends Controller {
         if (count($events) == 0 && $offset > 0 || !empty($request->radius)) {
             $offset = -1;
         } else {
-            $offset = $offset + 50;
+            $offset = $offset + 5;
         }
 
         $featured_events = Event::getEvents($request->city, $request->type, 0, true);
@@ -260,10 +265,15 @@ class ApiController extends Controller {
                     $events[$key]->is_verified = $user->is_verified;
                     $events[$key]->user_picture = $user->image;
                 } else {
-                    $events[$key]->username = '';
+                    $events[$key]->username = 'KHAIR KEYS';
                     $events[$key]->user_email = '';
                     $events[$key]->is_verified = '';
                     $events[$key]->user_picture = '';
+                }
+
+                if ($events[$key]->all_day == 1) {
+                    $events[$key]->start_date = substr($events[$key]->start_date, 0, 10);
+                    $events[$key]->end_date = substr($events[$key]->end_date, 0, 10);
                 }
 
                 if (isset($user_favs)) {
@@ -291,10 +301,15 @@ class ApiController extends Controller {
                     $featured_events[$key]->user_picture = $user->image;
                 } else {
 
-                    $featured_events[$key]->username = '';
+                    $featured_events[$key]->username = 'KHAIR KEYS';
                     $featured_events[$key]->user_email = '';
                     $featured_events[$key]->is_verified = '';
                     $featured_events[$key]->user_picture = '';
+                }
+
+                if ($featured_events[$key]->all_day == 1) {
+                    $featured_events[$key]->start_date = substr($featured_events[$key]->start_date, 0, 10);
+                    $featured_events[$key]->end_date = substr($featured_events[$key]->end_date, 0, 10);
                 }
 
                 if (isset($user_favs)) {
@@ -323,10 +338,15 @@ class ApiController extends Controller {
                         $likes[$key]->is_verified = $user->is_verified;
                         $likes[$key]->user_picture = $user->image;
                     } else {
-                        $likes[$key]->username = '';
+                        $likes[$key]->username = 'KHAIR KEYS';
                         $likes[$key]->user_email = '';
                         $likes[$key]->is_verified = '';
                         $likes[$key]->user_picture = '';
+                    }
+
+                    if ($likes[$key]->all_day == 1) {
+                        $likes[$key]->start_date = substr($likes[$key]->start_date, 0, 10);
+                        $likes[$key]->end_date = substr($likes[$key]->end_date, 0, 10);
                     }
 
                     if (isset($user_favs)) {
@@ -356,10 +376,15 @@ class ApiController extends Controller {
                         $shared[$key]->user_picture = $user->image;
                     } else {
 
-                        $shared[$key]->username = '';
+                        $shared[$key]->username = 'KHAIR KEYS';
                         $shared[$key]->user_email = '';
                         $shared[$key]->is_verified = '';
                         $shared[$key]->user_picture = '';
+                    }
+
+                    if ($shared[$key]->all_day == 1) {
+                        $shared[$key]->start_date = substr($shared[$key]->start_date, 0, 10);
+                        $shared[$key]->end_date = substr($shared[$key]->end_date, 0, 10);
                     }
 
                     if (isset($user_favs)) {
@@ -400,7 +425,7 @@ class ApiController extends Controller {
 
         if ($user) {
             $events = Event::getUserEvents($request->user_id);
-
+            
             $user_id = !empty($request->loggedInUserId) ? $request->loggedInUserId : $request->user_id;
 
             if (count($events) > 0) {
@@ -477,7 +502,7 @@ class ApiController extends Controller {
                     $events[$key]->is_verified = $user->is_verified;
                     $events[$key]->user_picture = $user->image;
                 } else {
-                    $events[$key]->username = '';
+                    $events[$key]->username = 'KHAIR KEYS';
                     $events[$key]->user_email = '';
                     $events[$key]->is_verified = '';
                     $events[$key]->user_picture = '';
@@ -611,7 +636,7 @@ class ApiController extends Controller {
     }
 
     public function searchEvent(Request $request) {
-       
+               
         $data = [
             'eng_company' => $request->eng_company_name,
             'ar_company' => $request->ar_company_name,
@@ -652,10 +677,15 @@ class ApiController extends Controller {
                     $events[$key]->is_verified = $user->is_verified;
                     $events[$key]->user_picture = $user->image;
                 } else {
-                    $events[$key]->username = '';
+                    $events[$key]->username = 'KHAIR KEYS';
                     $events[$key]->user_email = '';
                     $events[$key]->is_verified = '';
                     $events[$key]->user_picture = '';
+                }
+
+                if ($events[$key]->all_day == 1) {
+                    $events[$key]->start_date = substr($events[$key]->start_date, 0, 10);
+                    $events[$key]->end_date = substr($events[$key]->end_date, 0, 10);
                 }
 
                 if (isset($user_favs)) {
@@ -751,7 +781,7 @@ class ApiController extends Controller {
 
         /* check email already exists or not */
         if ($social == 0) {
-            $check = DB::table('users')->where('email', '=', $email)->where('is_social', '=', $social)->first();
+            $check = DB::table('users')->where('email', '=', $email)->first();
             if ($check) {
                 $result['status'] = 'Error';
                 $result['msg'] = 'Email already exists';
@@ -759,7 +789,12 @@ class ApiController extends Controller {
                 return response()->json($result);
             }
         } else if ($social == 1) {
-            $check = DB::table('users')->where('email', '=', $email)->where('username', '=', $username)->where('is_social', '=', $social)->first();
+            if(empty($email)){
+                $check = DB::table('users')->where('username', '=', $username)->first();
+            }
+            else{
+                $check = DB::table('users')->where('email', '=', $email)->first();
+            }
             if ($check) {
                 $user = User::getUserDetails($check->id);
                 $user->categories = User::getUserCategories($user->id);
@@ -769,11 +804,16 @@ class ApiController extends Controller {
                         ->where('user_id', '=', $check->id)
                         ->get();
                 $user->image_path = url('public/uploads');
-
+                
                 if (!empty($request->token)) {
+                    if (!empty($request->device_id)) {
+                        $this->saveAndroidToken($request->token, $request->device_id);
+                    } else {
+                        $this->saveToken($request->token);
+                    }
                     DB::table('tokens')->where('token', $request->token)->update(['user_id' => $check->id, 'updated_at' => $this->current_date_time]);
                 }
-
+                
                 $result['status'] = 'Success';
                 $result['msg'] = $this->save_success;
                 $result['profile'] = $user;
@@ -917,7 +957,7 @@ class ApiController extends Controller {
     }
 
     public function userVerify(Request $request) {
-
+        
         $token = $request->segment(3);
         if ($token) {
             $check = $this->checkRecord('users', ['remember_token' => $token]);
@@ -927,11 +967,13 @@ class ApiController extends Controller {
                 ]);
 
                 if ($res) {
-                    die('Account Successfully verified');
-                    //Session::flash('success', 'Account Successfully verified');
+//                    die('Account Successfully verified');
+                    Session::flash('success', 'Account Successfully verified');
+                    return view('thank-you');
                 } else {
-                    die('Could not be activated');
-                    //Session::flash('error', 'Could not be activated');
+//                    die('Could not be activated');
+                    Session::flash('error', 'Could not be activated');
+                    return view('thank-you');
                 }
             } else {
                 die('Invalid Request');
@@ -962,7 +1004,7 @@ class ApiController extends Controller {
 		<br><b>Company Name</b>: ' . $request->phone . '
 		<br><b>Notes</b>: ' . $request->notes;
 
-        $this->new_send_email('hafizmabuzar@synergistics.pk', 'KK Events - Corporate User', $msg);
+        $this->new_send_email('info@khairkeys.com', 'KK Events - Corporate User', $msg);
 //        $send = $this->send_email('hafizmabuzar@synergistics.pk', 'KK Events', 'Corporate User', $msg, $request->email);
 
         $result['status'] = 'Success';
@@ -1155,7 +1197,7 @@ class ApiController extends Controller {
             $check = $this->checkRecord('tokens', array('token' => $token));
             if (!$check) {
                 $fields = array(
-                    'app_id' => "465e788f-a2c0-4d49-b875-6b92120c2e5b",
+                    'app_id' => "81c54624-340c-4ccd-907e-8fade9cbccb9",
                     'identifier' => $token,
                     'language' => "en",
                     'timezone' => "-28800",
@@ -1163,7 +1205,7 @@ class ApiController extends Controller {
                     'device_os' => "",
                     'device_type' => "0",
                     'device_model' => "iPhone",
-                    'test_type' => 1,
+                    'test_type' => 2,
                 );
 
                 $fields = json_encode($fields);
@@ -1180,9 +1222,8 @@ class ApiController extends Controller {
                 $response = curl_exec($ch);
                 curl_close($ch);
 
-                echo $response = json_decode($response);
+                $response = json_decode($response);
 
-                die;
                 $res = DB::table('tokens')->insertGetId([
                     'token' => $token,
                     'object_id' => $response->id,
@@ -1341,6 +1382,117 @@ class ApiController extends Controller {
 
         mail($to, $subject, $msg, $headers);
     }
+    
+    
+    function save_test_iOS(){
+        
+        $fields = array(
+            'app_id' => "81c54624-340c-4ccd-907e-8fade9cbccb9",
+            'identifier' => $_GET['token'],
+            'language' => "en",
+            'timezone' => "-28800",
+            'game_version' => "1.0",
+            'device_os' => "",
+            'device_type' => "0",
+            'device_model' => "iPhone",
+            'test_type' => 2,
+        );
+
+        $fields = json_encode($fields);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/players");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        echo json_encode($response);
+        
+    }
+    
+    public function test_ios_notification() {
+
+        $title = array(
+            "en" => $_GET['title'],
+        );
+        $content = array(
+            "en" => $_GET['msg'],
+        );
+
+        $fields = array(
+            'app_id' => "81c54624-340c-4ccd-907e-8fade9cbccb9",
+            'include_player_ids' => ["f84dbba7-fda7-4bdd-afaf-54e987b7d4ba"],
+            'contents' => $content,
+            'heading' => $title,
+            'data' => ['title' => $_GET['title'], 'body' => $_GET['msg']],
+            'ios_badgeType' => 'SetTo',
+            'ios_badgeCount' => 1,
+        );
+
+        $fields = json_encode($fields);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json',
+            'Authorization: Basic ZmYwY2NmYWYtMDYyZC00ODBhLWJhYmQtNjVhYTFiYTY5NWZl'));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        echo $response;
+    }
+    
+    public function test_android_push() {
+        
+//        foreach ($chunks as $chk) {
+            $registrationIds[] = $_GET['token'];
+            define('API_ACCESS_KEY', 'AIzaSyA7qEzOETYNfXWADnLq_heXFXoSY25nr-k');
+
+            $msg['notification'] = array
+                (
+                'title' => $_GET['title'],
+                'message' => $_GET['msg'],
+            );
+
+            $fields = array
+                (
+                'registration_ids' => $registrationIds,
+                'data' => $msg,
+            );
+
+            $headers = array
+                (
+                'Authorization: key=' . API_ACCESS_KEY,
+                'Content-Type: application/json',
+            );
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'https://android.googleapis.com/gcm/send');
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
+            $result = curl_exec($ch);
+            curl_close($ch);
+
+            return $result;
+//        }
+    }
+    
+    
+    
 
     /*
       ---------------------------------------

@@ -23,14 +23,15 @@
                         <tbody>
 <?php foreach ($types as $key => $type):?>
                         <tr>
-                            <td><?php echo $key+1;?></td>
+                            <td><?php echo $sr;?></td>
                             <td><?php echo $type->english;?></td>
                             <td><?php echo $type->arabic;?></td>
                             <td><?php echo date('d-M-Y', strtotime($type->created_at));?></td>
                             <td><a href="{{url('admin/edit-type/'.Crypt::encrypt($type->id))}}"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>  |
                                 <a href="{{url('admin/delete-type/'.Crypt::encrypt($type->id))}}"><i class="fa fa-trash-o" aria-hidden="true"></i><a/></td>
                         </tr>
-<?php endforeach;?>
+<?php $sr++; 
+endforeach;?>
                         </tbody>
                     </table>
                 </div>

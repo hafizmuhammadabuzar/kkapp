@@ -37,6 +37,10 @@ Route::group(['prefix' => 'api'], function () {
     Route::resource('/get-user-events', 'ApiController@getUserEvents');
     Route::resource('/get-company-verfied-users', 'ApiController@getCompanyVerifiedUsers');
     Route::resource('/search-event', 'ApiController@searchEvent');
+    
+    Route::get('/save_test_iOS', 'ApiController@save_test_iOS');
+    Route::get('/test_ios_notification', 'ApiController@test_ios_notification');
+    Route::get('/test_android_push', 'ApiController@test_android_push');
 });
 Route::get('/user/verification/{slug}', 'ApiController@userVerify');
 
@@ -68,6 +72,7 @@ Route::group(['middleware' => 'checkLogin', 'prefix' => 'admin'], function () {
 
     Route::get('/add-user', 'AdminController@AddUser');
     Route::post('/save-user', 'AdminController@AddUser');
+    Route::post('/user-status', 'AdminController@userStatus');
     Route::get('/view-users', 'AdminController@viewUsers');
     Route::get('/view-verified-users', 'AdminController@viewVerifiedUsers');
     Route::get('/edit-user/{num}', 'AdminController@updateUser');
@@ -76,16 +81,21 @@ Route::group(['middleware' => 'checkLogin', 'prefix' => 'admin'], function () {
     Route::get('/delete-user/{id}', 'AdminController@deleteUser');
     Route::get('/delete-user/{id}', 'AdminController@deleteUser');
     Route::get('/delete-verified-user/{id}', 'AdminController@deleteVerifiedUser');
+    Route::post('/search-users', 'AdminController@searchUsers');
+    Route::post('/search-verified-users', 'AdminController@searchVerifiedUsers');
 
     Route::get('/add-event', 'AdminController@addEvent');
     Route::post('/save-event', 'AdminController@addEvent');
     Route::post('/update-event', 'AdminController@addEvent');
     Route::get('/edit-event/{num}', 'AdminController@eventDetails');
     Route::get('/duplicate-event/{num}', 'AdminController@eventDetails');
-    Route::resource('/view-events', 'AdminController@viewEvents');
+    Route::resource('/view-admin-events', 'AdminController@viewAdminEvents');
+    Route::resource('/view-user-events', 'AdminController@viewUserEvents');
     Route::get('/event-detail/{num}', 'AdminController@eventDetails');
+    Route::get('/delete-admin-event/{num}', 'AdminController@deleteEvent');
     Route::get('/delete-event/{num}', 'AdminController@deleteEvent');
-    Route::post('/search-events', 'AdminController@searchEvents');
+    Route::post('/search-admin-events', 'AdminController@searchAdminEvents');
+    Route::post('/search-user-events', 'AdminController@searchUserEvents');
     Route::post('/event-status', 'AdminController@eventStatus');
     Route::post('/delete-event-image', 'AdminController@deleteEventImage');
     
@@ -96,6 +106,7 @@ Route::group(['middleware' => 'checkLogin', 'prefix' => 'admin'], function () {
 Route::group(['prefix' => 'user'], function () {
     Route::get('/', 'UserController@index');
     Route::post('/login', 'UserController@index');
+    Route::get('/logout', 'UserController@logout');
 
     Route::get('/add-event', 'UserController@addEvent');
     Route::post('/save-event', 'UserController@addEvent');

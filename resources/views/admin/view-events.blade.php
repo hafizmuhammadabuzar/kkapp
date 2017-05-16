@@ -4,22 +4,22 @@
     <div class="container">
         <div class="row">
             <div class="head head-on">
-                <h4>Events</h4>
+                <h4>Admin Events</h4>
             </div>
             @include('partials.flash_messages')
             <div class="add-event-wrap clearfix">
                 <a href="{{url('admin/add-event')}}" class="btn btn-primary col-xs-2 text-center">Add Event</a>
-                <form action="{{url('admin/search-events')}}" method="post" class="search-form col-xs-5 no-pad push-xs-1">
-                    <input type="text" placeholder="Search" class="col-xs-9" name="search">
+                <form action="{{url('admin/search-admin-events')}}" method="post" class="search-form col-xs-5 no-pad push-xs-1">
+                    <input type="text" placeholder="Search" class="col-xs-9" name="search" required="required">
                     <input type="submit" value="Search" class="btn btn-primary col-xs-2 offset-xs-1">
                 </form>
                 <?php
                 if (isset($search)) {
                     $search_sort = $search;
-                    $action = 'admin/search-events';
+                    $action = 'admin/search-admin-events';
                 } else {
                     $search_sort = '';
-                    $action = 'admin/view-events';
+                    $action = 'admin/view-admin-events';
                 }
                 ?>
                 <form id="sorting-form" action="{{url($action)}}" method="post">
@@ -57,7 +57,7 @@
                     <tbody>
                         @foreach($events as $key => $event)
                         <tr>
-                            <td>{{$key + 1}}</td>
+                            <td>{{$sr}}</td>
                             <td>{{$event->reference_no}}</td>
                             <td>{!!$event->eng_name.'<br/>'.$event->ar_name!!}</td>
                             <td>
@@ -110,12 +110,13 @@
                                 <a href="{{url('admin/duplicate-event/'.Crypt::encrypt($event->id))}}" title="duplicate">
                                     <i class="fa fa-copy"></i>
                                 </a> |
-                                <a href="{{url('admin/delete-event/'.Crypt::encrypt($event->id))}}" title="delete">
+                                <a href="{{url('admin/delete-admin-event/'.Crypt::encrypt($event->id))}}" title="delete">
                                     <i class="fa fa-remove" style="color: #880000"></i>
                                 </a>
                                 
                             </td>
                         </tr>
+                        <?php $sr++; ?>
                         @endforeach
                     </tbody>
                 </table>

@@ -44,7 +44,7 @@
 }
 .main-nav ul {
     float: right;
-    width: 80%;
+    width: 90%;
     padding: 20px 0 0;
     margin: 10px 0 0;
     list-style: none;
@@ -277,7 +277,7 @@
 .field-wrap label {display: block;}
 .push-form .field-wrap .radio-wrap {width: 30%;}
 .add-event .all-day.right {width: 100%;}
-.field-wrap input[type=text], .field-wrap textarea, .field-wrap input[type=time] {
+.field-wrap input[type=text], .field-wrap textarea, .field-wrap input[type=time], input[type=number] {
     display: block;
     width: 100%;
     height: 40px;

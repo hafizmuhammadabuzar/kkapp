@@ -10,6 +10,7 @@
     padding: 0;
     box-sizing: border-box;
 }
+html, body {height: 100%;}
 body {
     font: 20px/25px 'cooper_hewittlight';
     background: #f3f1ef;
@@ -123,7 +124,7 @@ a {text-decoration: none;}
 .search .text-area {
     max-width: 50%;
     margin: 0 auto;
-    padding: 158px 0 0 33px;
+    padding: 110px 0 0 33px;
 }
 .search .img-wrap {
     padding: 26px 0 17px 135px;
@@ -174,6 +175,42 @@ a {text-decoration: none;}
     padding: 0 120px 0 0;
 }
 .stores .arrow-wrap .arrow {margin: 40px 0 0}
+.thanks-wrap {
+    display: table;
+    height: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    background: url("../images/bg-thanks.jpg") no-repeat;
+}
+.thanks-wrap .w1 {
+    display: table-row;
+    vertical-align: middle;
+    height: 100%;
+}
+.thanks-wrap .w2 {
+    display: table-cell;
+    vertical-align: middle;
+    height: 100%;
+    text-align: center;
+}
+.thanks-wrap .header {
+    background: none;
+    padding: 20px;
+}
+.thanks-wrap .inner-wrap { padding: 0 25px;}
+.thanks-wrap h2 {
+    margin: 0 0 20px;
+    font-size: 35px;
+    line-height: 40px;
+    color: #111344;
+}
+.thanks-wrap .url {
+    width: 100%;
+    text-align: center;
+    display: inline-block;
+    margin: 15px 0;
+    background: url("../images/bg-url.png") no-repeat 27% 5px;
+}
 .footer {
     background: #52154e;
     padding: 60px 0 85px;

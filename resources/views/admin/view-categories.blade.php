@@ -22,10 +22,10 @@
                             <th>Action</th>
                         </tr>
                         </thead>
-                        <tbody>
+                        <tbody style="background-color:#c5c5c5;">
                         <?php foreach($categories as $key => $cat): ?>
                         <tr>
-                            <td><?php echo $key+1; ?></td>
+                            <td><?php echo $sr; ?></td>
                             <td><?php echo $cat->english; ?></td>
                             <td><?php echo $cat->arabic; ?></td>
                             <td><img src="{{url('public/admin/icons/'.$cat->non_selected_icon)}}" width="50" height="50" /></td>
@@ -34,7 +34,8 @@
                             <td><a href="{{url('admin/edit-category/'.Crypt::encrypt($cat->id))}}"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>  |
                                 <a href="{{url('admin/delete-category/'.Crypt::encrypt($cat->id))}}"><i class="fa fa-trash-o" aria-hidden="true"></i><a/></td>
                         </tr>
-                        <?php endforeach; ?>
+                        <?php $sr++; 
+                        endforeach; ?>
                         </tbody>
                     </table>
                 </div>

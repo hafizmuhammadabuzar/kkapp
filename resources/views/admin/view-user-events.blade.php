@@ -1,28 +1,25 @@
-@extends('user.layout.master')
+@extends('admin.layout.master')
 @section('content')
 <div class="main">
     <div class="container">
         <div class="row">
             <div class="head head-on">
-                <h4>Events</h4>
+                <h4>User's Events</h4>
             </div>
             @include('partials.flash_messages')
             <div class="add-event-wrap clearfix">
-                <a href="{{url('user/add-event')}}" class="btn btn-primary col-xs-2 text-center">Add Event</a>
-                <form action="{{url('user/search-events')}}" method="post" class="search-form col-xs-5 no-pad push-xs-1">
-                    <input type="text" placeholder="Search" class="col-xs-9" name="search">
+                <form action="{{url('admin/search-user-events')}}" method="post" class="search-form col-xs-5 no-pad push-xs-1">
+                    <input type="text" placeholder="Search" class="col-xs-9" name="search" required="required">
                     <input type="submit" value="Search" class="btn btn-primary col-xs-2 offset-xs-1">
                 </form>
                 <?php
                 if (isset($search)) {
                     $search_sort = $search;
-                    $action = 'user/search-events';
+                    $action = 'admin/search-user-events';
                 } else {
                     $search_sort = '';
-                    $action = 'user/view-events';
+                    $action = 'admin/view-user-events';
                 }
-                
-                $sr = (count($events) * $page) - 14;
                 ?>
                 <form id="sorting-form" action="{{url($action)}}" method="post">
                     <div class="col-xs-3 no-pad push-xs-2">
@@ -78,6 +75,7 @@
                             </td>
                             <td>{!!$event->eng_company_name.'<br/>'.$event->ar_company_name!!}</td>
                             <?php
+//                            $all_day = ($event->all_day == 1) ? 'All Day' : date('d-M-Y h:i A', strtotime($event->start_date));
                             $all_day = date('d-M-Y h:i A', strtotime($event->start_date));
                             $username = ($event->username == '') ? 'Admin' : $event->username;
                             $featured = ($event->is_featured == 1) ? 'Yes' : 'No';
@@ -102,16 +100,16 @@
                                 @endif
                             </td>
                             <td>
-                                <a href="{{url('user/event-detail/'.Crypt::encrypt($event->id))}}" title="view">
+                                <a href="{{url('admin/event-detail/'.Crypt::encrypt($event->id))}}" title="view">
                                     <i class="fa fa-eye"></i>
                                 </a> |
-                                <a href="{{url('user/edit-event/'.Crypt::encrypt($event->id))}}" title="edit">
+                                <a href="{{url('admin/edit-event/'.Crypt::encrypt($event->id))}}" title="edit">
                                     <i class="fa fa-edit"></i>
                                 </a> |
-                                <a href="{{url('user/duplicate-event/'.Crypt::encrypt($event->id))}}" title="duplicate">
+                                <a href="{{url('admin/duplicate-event/'.Crypt::encrypt($event->id))}}" title="duplicate">
                                     <i class="fa fa-copy"></i>
                                 </a> |
-                                <a href="{{url('user/delete-event/'.Crypt::encrypt($event->id))}}" title="delete">
+                                <a href="{{url('admin/delete-event/'.Crypt::encrypt($event->id))}}" title="delete">
                                     <i class="fa fa-remove" style="color: #880000"></i>
                                 </a>
                                 
@@ -150,7 +148,7 @@
             $.ajax({
                 method: "POST",
                 data: {status: status[0], id: status[2]},
-                url: "<?php echo url('user/event-status'); ?>",
+                url: "<?php echo url('admin/event-status'); ?>",
                 success: function (response) {
                     if (response == 1) {
                         $('.status-' + status[1]).text(status[0]+' |');

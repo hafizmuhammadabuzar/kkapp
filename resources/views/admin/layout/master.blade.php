@@ -93,7 +93,8 @@ $(document).ready(function () {
                     <nav class="main-nav">
                         <a href="{{ URL('/admin') }}" class="logo"><img src="{{ URL::asset('public/admin/images/logo.png')}}"></a>
                         <ul class="main-menu">
-                            <li><a href="{{url('admin/view-events')}}">Events</a></li>
+                            <li><a href="{{url('admin/view-admin-events')}}">Admin Events</a></li>
+                            <li><a href="{{url('admin/view-user-events')}}">User Events</a></li>
                             <li><a href="{{url('admin/view-users')}}">Users</a></li>
                             <li><a href="{{url('admin/view-verified-users')}}"">Verified Users</a></li>
                             <li><a href="{{url('admin/view-categories')}}">Categories</a></li>
