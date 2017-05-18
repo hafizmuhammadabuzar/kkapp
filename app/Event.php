@@ -22,12 +22,12 @@ class Event extends Model {
         return $this->hasMany('App\Location');
     }
 
-    public static function getEvents($city = '', $type = '', $offset = '', $is_featured = false) {
+    public static function getEvents($city = '', $type = '', $offset = '', $is_featured = false, $categories='', $languages='', $kids='', $disable='') {
         
         $cur_date = date('Y-m-d');
 
         $query = Event::with('pictures', 'attachments', 'locations');
-        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    --    %h:%i %p') as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    --    %h:%i %p') as end_date"));
+        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    --    %h:%i %p') as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    --    %h:%i %p') as end_date, DAYNAME(events.start_date) as start_day"));
         $query->join('locations', 'locations.event_id', '=', 'events.id', 'left');
         $query->where('events.status', '=', 'Active');
         $query->where('end_date', '>=', $cur_date);
@@ -39,18 +39,60 @@ class Event extends Model {
         if (!empty($city)) {
             $query->where('city', '=', $city);
         }
+        if (!empty($kids)) {
+            $query->where('is_kids', '=', $kids);
+        }
+        if (!empty($disable)) {
+            $query->where('is_disabled', '=', $disable);
+        }
         if (!empty($type)) {
-            $query->whereIn('type_id', explode(',', $type));
+            $types = explode(',', $type);
+            $query->where(function ($query) use ($types) {
+                foreach($types as $key => $type){
+                    if($key == 0){
+                        $query->whereRaw('FIND_IN_SET('.$type.',type_id)');
+                    }
+                    else{
+                        $query->orWhereRaw('FIND_IN_SET('.$type.',type_id)');
+                    }
+                }
+            });            
+        }
+        if($categories){
+            $categories = explode(',', $categories);            
+            $query->where(function ($query) use ($categories) {
+                foreach($categories as $key => $cat){
+                    if($key == 0){
+                        $query->whereRaw('FIND_IN_SET('.$cat.',category_id)');
+                    }
+                    else{
+                        $query->orWhereRaw('FIND_IN_SET('.$cat.',category_id)');
+                    }
+                }
+            });            
+        }
+        if($languages){
+            $languages = explode(',', $languages);            
+            $query->where(function ($query) use ($languages) {
+                foreach($languages as $key => $lang){
+                    if($key == 0){
+                        $query->whereRaw('FIND_IN_SET('.$lang.',event_language)');
+                    }
+                    else{
+                        $query->orWhereRaw('FIND_IN_SET('.$lang.',event_language)');
+                    }
+                }
+            });            
         }
         $query->take(5)->skip($offset);
-        $query->orderBy('start_date');
+        $query->orderBy('events.start_date', 'ASC');
         $query->groupBy('id');
         $result = $query->get();
 
         return $result;
     }
 
-    public static function getEventsByRadius($latLng, $radius, $type = '') {
+    public static function getEventsByRadius($latLng, $radius, $type = '', $categories='', $languages='', $kids='', $disable='') {
 
         $cur_date = date('Y-m-d');
         $split_latLng = explode(',', $latLng);
@@ -59,12 +101,54 @@ class Event extends Model {
         $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    --    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    --    %h:%i %p') as end_date, ( 3959 * acos( cos( radians(" . $split_latLng[0] . ") ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(" . $split_latLng[1] . ") ) + sin( radians(" . $split_latLng[0] . ") ) * sin( radians( latitude ) ) ) ) `distance`"));
         $query->join('locations', 'locations.event_id', '=', 'events.id');
         $query->where('events.status', '=', 'Active');
-        $query->where('end_date', '>=', $cur_date);
+        $query->where('end_date', '>=', $cur_date);        
+        if (!empty($kids)) {
+            $query->where('is_kids', '=', $kids);
+        }
+        if (!empty($disable)) {
+            $query->where('is_disabled', '=', $disable);
+        }
         if (!empty($type)) {
-            $query->whereIn('type_id', explode(',', $type));
+            $types = explode(',', $type);
+            $query->where(function ($query) use ($types) {
+                foreach($types as $key => $type){
+                    if($key == 0){
+                        $query->whereRaw('FIND_IN_SET('.$type.',type_id)');
+                    }
+                    else{
+                        $query->orWhereRaw('FIND_IN_SET('.$type.',type_id)');
+                    }
+                }
+            });            
+        }
+        if($categories){
+            $categories = explode(',', $categories);            
+            $query->where(function ($query) use ($categories) {
+                foreach($categories as $key => $cat){
+                    if($key == 0){
+                        $query->whereRaw('FIND_IN_SET('.$cat.',category_id)');
+                    }
+                    else{
+                        $query->orWhereRaw('FIND_IN_SET('.$cat.',category_id)');
+                    }
+                }
+            });            
+        }
+        if($languages){
+            $languages = explode(',', $languages);            
+            $query->where(function ($query) use ($languages) {
+                foreach($languages as $key => $lang){
+                    if($key == 0){
+                        $query->whereRaw('FIND_IN_SET('.$lang.',event_language)');
+                    }
+                    else{
+                        $query->orWhereRaw('FIND_IN_SET('.$lang.',event_language)');
+                    }
+                }
+            });            
         }
         $query->havingRaw("distance < $radius");
-        $query->orderBy("start_date");
+        $query->orderBy('events.start_date', 'ASC');
         $query->groupBy("id");
         $result = $query->get();
 
@@ -134,8 +218,7 @@ class Event extends Model {
         if($categories[0]->interested_in_disabled == 1){
             $query->where('is_disabled', '=', 1);
         }
-        if($categories[0]->category_id){
-            
+        if($categories[0]->category_id){            
             $query->where(function ($query) use ($categories) {
                 foreach($categories as $key => $cat){
                     if($key == 0){
@@ -146,15 +229,6 @@ class Event extends Model {
                     }
                 }
             });            
-            
-//            foreach($categories as $key => $cat){
-//                if($key == 0){
-//                    $query->whereRaw('FIND_IN_SET('.$cat->category_id.',category_id)');
-//                }
-//                else{
-//                    $query->orWhereRaw('FIND_IN_SET('.$cat->category_id.',category_id)');
-//                }
-//            }   
         }
         $query->groupBy("id");
         $result = $query->get();
@@ -243,15 +317,6 @@ class Event extends Model {
         }
         
         if(!empty($search_data['category'])){
-            /*$categories = explode(',', $search_data['category']);
-            foreach($categories as $key => $cat){
-                if($key == 0){
-                    $query->whereRaw('FIND_IN_SET('.$cat.',category_id)');
-                }
-                else{
-                    $query->orWhereRaw('FIND_IN_SET('.$cat.',category_id)');
-                }
-            }*/
             $categories = explode(',', $search_data['category']);
             
             $query->where(function ($query) use ($categories, $search_data) {
@@ -263,8 +328,7 @@ class Event extends Model {
                         $query->orWhereRaw('FIND_IN_SET('.$cat.',category_id)');
                     }
                 }
-            });
-            
+            });            
         }
         if(!empty($search_data['type'])){
             $types = explode(',', $search_data['type']);
@@ -308,7 +372,7 @@ class Event extends Model {
                 }
             });
         }
-        $query->orderBy("start_date");
+        $query->orderBy('events.start_date', 'ASC');
         $query->groupBy("id");
         $result = $query->get();
 

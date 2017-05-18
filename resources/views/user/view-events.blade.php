@@ -21,8 +21,6 @@
                     $search_sort = '';
                     $action = 'user/view-events';
                 }
-                
-                $sr = (count($events) * $page) - 14;
                 ?>
                 <form id="sorting-form" action="{{url($action)}}" method="post">
                     <div class="col-xs-3 no-pad push-xs-2">

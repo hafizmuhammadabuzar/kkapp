@@ -34,8 +34,8 @@ class AdminController extends Controller {
             return view('admin.login');
         }
 
-//        if ($request->email == 'admin' && $request->password == 'KhairKeys321@123') {
-        if ($request->email == 'admin' && $request->password == 'admin') {
+        if ($request->email == 'admin' && $request->password == 'KhairKeys321@123') {
+//        if ($request->email == 'admin' && $request->password == 'admin') {
             Session::put('admin_data', 'loggedIn');
             return redirect('admin/view-admin-events');
         }
@@ -605,6 +605,7 @@ class AdminController extends Controller {
             and is_verified = 0
             ");
                
+        $result['sr'] = 1;
         $result['uri_segment'] = 'search';
 
         return view('admin.view-users', $result);
@@ -627,7 +628,8 @@ class AdminController extends Controller {
             where (username like '%$search%' or email like '%$search%' or gender like '%$search%')
             and is_verified = 1
             ");
-               
+        
+        $result['sr'] = 1;
         $result['uri_segment'] = 'search';
 
         return view('admin.view-verified-users', $result);
@@ -658,6 +660,7 @@ class AdminController extends Controller {
         }
 
         $result['events'] = Event::getSearchEvent($search, $order, 'admin');
+        $result['sr'] = 1;
         $result['uri_segment'] = 'search';
         $result['search'] = $search;
 
@@ -696,6 +699,7 @@ class AdminController extends Controller {
         }
 
         $result['events'] = Event::getSearchEvent($search, $order, 'user');
+        $result['sr'] = 1;
         $result['uri_segment'] = 'search';
         $result['search'] = $search;
 
@@ -790,7 +794,7 @@ class AdminController extends Controller {
     }
 
     public function addEvent(Request $request) {
-
+        
         if ($request->isMethod('get')) {
             $keywords = DB::table('events')->select('keyword')->take(5)->orderBy('id', 'DESC')->get();
 
@@ -846,7 +850,7 @@ class AdminController extends Controller {
         }
 
         $all_day = !empty($request->all_day) ? $request->all_day : 0;
-        if($all_date == 1){
+        if($all_day == 1){
             $start_date = date('Y-m-d', strtotime($request->start_date));
             $end_date = date('Y-m-d', strtotime($request->end_date));
         } 
@@ -948,6 +952,7 @@ class AdminController extends Controller {
                     $file->move($destinationPath, $picture[$pic]);
 
                     $this->create_watermark($destinationPath . '/' . $picture[$pic], $destinationPath . '/' . $picture[$pic]);
+                    $this->compressImage($destinationPath.'/'.$picture[$pic], base_path() . '/public/thumbnail/'.$picture[$pic], 30);
                     $pic_data[] = ['event_id' => $id, 'picture' => $picture[$pic]];
                 }
             }
@@ -965,6 +970,7 @@ class AdminController extends Controller {
                     $file->move($destinationPath, $attachment[$attch]);
 
                     $this->create_watermark($destinationPath . '/' . $attachment[$attch], $destinationPath . '/' . $attachment[$attch]);
+                    $this->compressImage($destinationPath.'/'.$attachment[$attch], base_path() . '/public/thumbnail/'.$attachment[$attch], 30);
                     $attch_data[] = ['event_id' => $id, 'picture' => $attachment[$attch]];
                 }
             }
@@ -1040,11 +1046,13 @@ class AdminController extends Controller {
         if(count($attachments) > 0){
             foreach ($attachments as $attch) {
                 unlink(base_path() . '/public/uploads/' . $attch->picture);
+                unlink(base_path() . '/public/thumbnail/' . $attch->picture);
             }
         }
         if(count($attachments) > 0){
             foreach ($pictures as $pic) {
                 unlink(base_path() . '/public/uploads/' . $pic->picture);
+                unlink(base_path() . '/public/thumbnail/' . $pic->picture);
             }
         }
 
@@ -1126,39 +1134,81 @@ class AdminController extends Controller {
             return redirect()->back()->withInput()->withErrors($validator);
         }
         
-        $data = [
-            'category' => $request->category,
-            'type' => $request->type,
-            'language' => $request->language,
-            'city' => $request->city,
-        ];
+        if($request->chk_all != 'all'){
+            $data = [
+                'category' => $request->category,
+                'type' => $request->type,
+                'language' => $request->language,
+                'city' => $request->city,
+            ];
 
-        $events = Event::getNotificationEvent($data);
+            $events = Event::getNotificationEvent($data);
 
-        if(count($events) > 0){
-            foreach($events as $row){
-                $user_ids[] = $row['user_id'];
+            if(count($events) > 0){
+                foreach($events as $row){
+                    $user_ids[] = $row['user_id'];
+                }
+
+                $this->android_push($request->title, $request->message, $user_ids);
+                $this->ios_notification($request->title, $request->message, $user_ids);
+
+                Session::put('success', 'Request Sent!');
             }
-
-            $this->android_push($request->title, $request->message, $user_ids);
-            $this->ios_notification($request->title, $request->message, $user_ids);
-            
-            Session::put('success', 'Request Sent!');
+            else{
+                Session::put('error', 'No record found');
+            }
         }
         else{
-            Session::put('error', 'No record found');
-        }
+            $this->android_push($request->title, $request->message);
+            $this->ios_notification($request->title, $request->message);            
+        }        
 
         return redirect()->back();
     }
 
     public function ios_notification($noti_title, $msg, $user_ids = '') {
 
-        if (count($user_ids) > 0) {
+        if(empty($user_ids)){            
+            $title = array(
+                "en" => $noti_title,
+            );
+            $content = array(
+                "en" => $msg,
+            );
+
+            $fields = array(
+                'app_id' => "81c54624-340c-4ccd-907e-8fade9cbccb9",
+                'included_segments' => array("All"),
+                'contents' => $content,
+                'heading' => $title,
+                'data' => ['title' => $noti_title, 'body' => $msg],
+                'ios_badgeType' => 'SetTo',
+                'ios_badgeCount' => 1,
+            );
+
+            $fields = json_encode($fields);
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json',
+                'Authorization: Basic ZmYwY2NmYWYtMDYyZC00ODBhLWJhYmQtNjVhYTFiYTY5NWZl'));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HEADER, false);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+            $response = curl_exec($ch);
+            curl_close($ch);
+
+            return $response;
+        }
+        else{
             $user_ids = implode(',', $user_ids);
             $tokens = DB::select("select object_id from tokens where object_id IS NOT NULL and user_id in ($user_ids)");
+            
             if(count($tokens) > 0){
-                
+
                 foreach ($tokens as $tk) {
                     $ids[] = $tk->object_id;
                 }
@@ -1197,14 +1247,13 @@ class AdminController extends Controller {
 
                     $response = curl_exec($ch);
                     curl_close($ch);
+                    
+                    return $response;
                 }
             }
             else{
                 return 'no token found';
             }
-        }
-        else{
-            die('user ids required');
         }
         
         return $response;
@@ -1212,8 +1261,13 @@ class AdminController extends Controller {
 
     public function android_push($title, $body, $user_ids = '') {
         
-        $tokens = DB::table('tokens')->select('token')->whereIn('user_id', $user_ids)->whereNull('object_id')->get();
-        
+        if(!empty($user_ids)){
+            $tokens = DB::table('tokens')->select('token')->whereIn('user_id', $user_ids)->whereNull('object_id')->get();
+        }
+        else{
+            $tokens = DB::table('tokens')->select('token')->whereNull('object_id')->get();
+        }      
+                
         if(count($tokens) > 0){
             foreach ($tokens as $tk) {
                 $ids[] = $tk->token;
@@ -1288,6 +1342,38 @@ class AdminController extends Controller {
         imagejpeg($source_gd_image, $output_file_path, 90);
         imagedestroy($source_gd_image);
         imagedestroy($overlay_gd_image);
+    }
+    
+    function compressImage($source, $destination, $quality){
+                
+        $info = getimagesize($source);
+        if ($info['mime'] == 'image/jpeg')
+            $image = imagecreatefromjpeg($source);
+
+        elseif ($info['mime'] == 'image/jpg')
+            $image = imagecreatefromjpg($source);
+        
+        elseif ($info['mime'] == 'image/gif')
+            $image = imagecreatefromgif($source);
+        
+
+        elseif ($info['mime'] == 'image/png')
+            $image = imagecreatefrompng($source);
+
+        imagejpeg($image, $destination, $quality);
+        
+        return $destination;
+    }
+    
+    
+    function compressOldImages(){
+        
+        echo $res = $this->compressImage(base_path() . '/public/uploads/'.$_GET['file'], base_path() . '/public/thumbnail/'.$_GET['file'], 20);
+//        foreach (glob(base_path().'/public/uploads/*.*') as $filename) {
+//            $image = explode('/', $filename);
+//            echo $res.'<br/>';
+//        }
+        
     }
 
 }

@@ -11,7 +11,7 @@ class User extends Model {
 	public static function getUserDetails($id = null, $email = null, $password = null) {
 
 		$query = DB::table('users');
-		$query = $query->select(DB::raw('id, username, email, gender, dob, interested_in_kids as kids, interested_in_disabled as disability, image, is_social, status'));
+		$query = $query->select(DB::raw('id, username, email, gender, dob, interested_in_kids as kids, interested_in_disabled as disability, image, is_social, status, is_verified'));
 
 		if ($id) {
 			$query = $query->where('id', '=', $id);

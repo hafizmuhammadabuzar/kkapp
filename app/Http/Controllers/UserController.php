@@ -118,6 +118,7 @@ class UserController extends Controller {
                 ->orderByRaw($order)
                 ->groupBy('events.id')
                 ->paginate(15);
+        $result['sr'] = ($result['events']->currentPage() > 1) ? ($result['events']->currentPage()-1)*($result['events']->perPage())+1 : 1;
 
         if (count($result['events']) > 0) {
             foreach ($result['events'] as $event) {

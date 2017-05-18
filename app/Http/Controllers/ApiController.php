@@ -41,7 +41,7 @@ class ApiController extends Controller {
 
     public function getCategories() {
 
-        $cities = DB::table('cities')->select('city_name', 'latitude', 'longitude')->where('country_id', '=', 11)->orderBy('city_name', 'ASC')->get();
+        $cities = DB::table('cities')->select('city_name', 'arabic_city_name', 'latitude', 'longitude')->where('country_id', '=', 11)->orderBy('city_name', 'ASC')->get();
         $arabic_categories = DB::table('categories')->select('id', 'arabic', 'selected_icon', 'non_selected_icon')->orderBy('arabic')->get();
         $english_categories = DB::table('categories')->select('id', 'english', 'selected_icon', 'non_selected_icon')->orderBy('english')->get();
         $languages = DB::table('languages')->select('id', 'title')->orderBy('title')->get();
@@ -53,7 +53,7 @@ class ApiController extends Controller {
             $categories['arabic'][$key]['selected_icon'] = $cat->selected_icon;
 
             $categories['english'][$key]['id'] = $english_categories[$key]->id;
-            $categories['english'][$key]['title'] = $english_categories[$key]->english;
+            $categories['english'][$key]['title'] = ucwords($english_categories[$key]->english);
             $categories['english'][$key]['non_selected_icon'] = $english_categories[$key]->non_selected_icon;
             $categories['english'][$key]['selected_icon'] = $english_categories[$key]->selected_icon;
         }
@@ -66,7 +66,7 @@ class ApiController extends Controller {
             $types['arabic'][$key]['title'] = $type->arabic;
 
             $types['english'][$key]['id'] = $english_types[$key]->id;
-            $types['english'][$key]['title'] = $english_types[$key]->english;
+            $types['english'][$key]['title'] = ucwords($english_types[$key]->english);
         }
 
         $result['status'] = 'Success';
@@ -227,12 +227,31 @@ class ApiController extends Controller {
     public function getEvents(Request $request) {
 
         $offset = ($request->offset > 0) ? $request->offset : 0;
-
+        
+        if (!empty($request->user_id)) {
+            $user_language = DB::table('user_languages')->select(DB::raw('group_concat(language_id) as language'))->where('user_id', $request->user_id)->first();
+            $user_category = DB::table('user_categories')->select(DB::raw('group_concat(category_id) as category'))->where('user_id', $request->user_id)->first();
+            $user_kids_disabled = DB::table('users')->select('interested_in_kids','interested_in_disabled')->where('id', $request->user_id)->first();
+                       
+            $user_language = $user_language->language;
+            $user_category = $user_category->category;
+            $kids = $user_kids_disabled->interested_in_kids;
+            $disabled = $user_kids_disabled->interested_in_disabled;
+        }
+        else{
+            $user_language = '';
+            $user_category = '';
+            $kids = '';
+            $disabled = '';
+        }
+        
+//        echo '<pre>'; print_r($user_language); die;
+        
         if (!empty($request->radius)) {
-            $events = Event::getEventsByRadius($request->latLng, $request->radius, $request->type);
+            $events = Event::getEventsByRadius($request->latLng, $request->radius, $request->type, $user_category, $user_language, $kids, $disabled);
             $offset = -1;
         } else {
-            $events = Event::getEvents($request->city, $request->type, $offset, false);
+            $events = Event::getEvents($request->city, $request->type, $offset, false, $user_category, $user_language, $kids, $disabled);
         }
 
         if (count($events) == 0 && $offset > 0 || !empty($request->radius)) {
@@ -241,7 +260,7 @@ class ApiController extends Controller {
             $offset = $offset + 5;
         }
 
-        $featured_events = Event::getEvents($request->city, $request->type, 0, true);
+        $featured_events = Event::getEvents($request->city, '', 0, true);
         $likes = Event::getMostLike();
         $shared = Event::getMostShared();
 
@@ -1376,7 +1395,7 @@ class ApiController extends Controller {
     protected function new_send_email($to, $subject, $msg) {
 
         $headers = 'From: do-not-reply@khiarkeys.com' . "\r\n" .
-                'Reply-To: ' . $to . "\r\n" .
+                'Reply-To: do-not-reply@khiarkeys.com'."\r\n" .
                 'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
                 'X-Mailer: PHP/' . phpversion();
 
