@@ -251,7 +251,7 @@ class Event extends Model {
         else{
             $query->whereRaw('user_id > 0');
         }
-        $query->whereRaw("(reference_no like '%$search%' or keyword like '%$search%' or eng_name like '%$search%' or ar_name like '%$search%' or eng_company_name like '%$search%' or ar_company_name like '%$search%' or events.phone like '%$search%' or events.email like '%$search%' or events.start_date like '%$search%' or events.end_date like '%$search%' or city like '%$search%' or english like '%$search%' or arabic like '%$search%')");
+        $query->whereRaw('(reference_no like "%'.$search.'%" or keyword like "%'.$search.'%" or eng_name like "%'.$search.'%" or ar_name like "%'.$search.'%" or eng_company_name like "%'.$search.'%" or ar_company_name like "%'.$search.'%" or events.phone like "%'.$search.'%" or events.email like "%'.$search.'%" or events.start_date like "%'.$search.'%" or events.end_date like "%'.$search.'%" or city like "%'.$search.'%" or english like "%'.$search.'%" or arabic like "%'.$search.'%")');
         $query->orderByRaw($sort);
         $result = $query->get();
 
@@ -290,7 +290,18 @@ class Event extends Model {
             $query->where('is_disabled', '=', 1);
         }
         
-        if(!empty($search_data['venue'])){
+        if(!empty($search_data['venue'])){            
+//            $venue = explode(',', $search_data['venue']);
+//            $query->where(function ($query) use ($venue) {
+//                foreach($venue as $key => $v){
+//                    if($key == 0){
+//                        $query->whereRaw('FIND_IN_SET("'.$v.'",venue)');
+//                    }
+//                    else{
+//                        $query->orWhereRaw('FIND_IN_SET("'.$v.'",venue)');
+//                    }
+//                }
+//            });
             $query->whereIn('venue', explode(',', $search_data['venue']));
         }
         
@@ -302,7 +313,6 @@ class Event extends Model {
         }        
         
         if(!empty($search_data['city'])){
-            $cities = explode(',', $search_data['city']);
             $query->whereIn('city', explode(',', $search_data['city']));
         }
         if(!empty($search_data['verified_user'])){

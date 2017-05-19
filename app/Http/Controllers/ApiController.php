@@ -667,7 +667,7 @@ class ApiController extends Controller {
             'keyword' => $request->keyword,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
-            'vanue' => $request->venue,
+            'venue' => $request->venue,
             'is_kids' => $request->is_kids,
             'is_disabled' => $request->is_disabled,
             'is_free' => $request->is_free,

@@ -354,7 +354,7 @@
                                     </div>
                                     <div class="radio-wrap">
                                         <input type="radio" id="public" name="venue" value="public" <?php if ($venue == 'public' || $venue == '' && $venue != 'men' && $venue != 'women' && $venue != 'separate') echo 'checked="checked"' ?>>
-                                        <label for="public">Public   &nbsp;&nbsp;&nbsp;  جلوس منفصلة</label>
+                                        <label for="public">Public   &nbsp;&nbsp;&nbsp;  عام</label>
                                     </div>
                                 </div>
                             </div>
@@ -427,7 +427,7 @@
             $("#start_date").val('');
             $("#end_time").val('');
             $("#end_date").val('');
-            $("#start_time").focus();
+            $("#start_time").attr('type', 'time').focus();
         }
         
         $('#start_time').focus(function(){
@@ -502,11 +502,6 @@
             }
 
             var locs = $('.location-data').length;
-//            if (locs == 0) {
-//                alert('Please add Event Location');
-//                return false;
-//            } else {
-//                if ($('#city').val() == '') {
             if (locs > 0) {
                 var count = 1;
                 $('.location-data').each(function () {
@@ -524,8 +519,6 @@
                 });
             }
             return true;
-//            $(this).submit();
-//            }
         });
 
         $('.form-location').submit(function () {
@@ -534,7 +527,6 @@
             $('.location-list').append('<li><a href="#" class="add-location location-data">' + $('#event-location').val() + ' | ' + city[0] + ' | ' + $('#event-latlngs').val() + '</a><a href="javascript:" class="link-remove fa fa-remove location-remove"></a></li>');
             $('.form-location')[0].reset();
             initMap(24.4539, 54.3773);
-            // $('.jquery-modal').css('display','none');
         });
         $('#event-city').change(function () {
             $('#event-location').val('');

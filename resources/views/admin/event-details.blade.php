@@ -354,7 +354,7 @@
                                     </div>
                                     <div class="radio-wrap">
                                         <input type="radio" id="public" name="venue" value="public" <?php if ($venue == 'public' || $venue == '' && $venue != 'men' && $venue != 'women' && $venue != 'separate') echo 'checked="checked"' ?>>
-                                        <label for="public">Public   &nbsp;&nbsp;&nbsp;  جلوس منفصلة</label>
+                                        <label for="public">Public   &nbsp;&nbsp;&nbsp;  عام</label>
                                     </div>
                                 </div>
                             </div>
@@ -427,7 +427,7 @@
             $("#start_date").val('');
             $("#end_time").val('');
             $("#end_date").val('');
-            $("#start_time").focus();
+            $("#start_time").attr('type', 'time').focus();
         }
         
         $('#start_time').focus(function(){

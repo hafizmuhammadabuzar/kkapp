@@ -74,6 +74,7 @@ class UserController extends Controller {
         }
 
         $result['events'] = Event::getSearchEvent($search, $order);
+        $result['sr'] = 1;
         $result['uri_segment'] = 'search';
         $result['search'] = $search;
 
@@ -89,13 +90,13 @@ class UserController extends Controller {
 
         return view('user.view-events', $result);
     }
-    
+
     public function viewEvents(Request $request) {
-        
+
         if (!Session::has('user_id')) {
             return redirect('user');
         }
-            
+
         if (!empty($request->sort)) {
             $sort = [
                 'paid' => 'free_event ASC, start_date DESC',
@@ -118,6 +119,7 @@ class UserController extends Controller {
                 ->orderByRaw($order)
                 ->groupBy('events.id')
                 ->paginate(15);
+        
         $result['sr'] = ($result['events']->currentPage() > 1) ? ($result['events']->currentPage()-1)*($result['events']->perPage())+1 : 1;
 
         if (count($result['events']) > 0) {
@@ -249,12 +251,15 @@ class UserController extends Controller {
                 if ($pic_res) {
                     foreach ($pic_res as $old) {
                         $img1 = $destinationPath . '/' . $old->picture;
+                        $thumbnail1 = base_path() . '/public/thumbnail/' . $old->picture;
 
                         $extension = explode('.', $old->picture);
                         $img2_name = uniqid() . '.' . $extension[1];
                         $img2 = $destinationPath . '/' . $img2_name;
+                        $thumbnail2 = base_path() . '/public/thumbnail/'.$img2_name;
 
                         copy($img1, $img2);
+                        copy($thumbnail1, $thumbnail2);
                         $pic_data[] = ['event_id' => $id, 'picture' => $img2_name];
                     }
                 }
@@ -282,6 +287,7 @@ class UserController extends Controller {
                     $file->move($destinationPath, $picture[$pic]);
 
                     $this->create_watermark($destinationPath . '/' . $picture[$pic], $destinationPath . '/' . $picture[$pic]);
+                    $this->compressImage($destinationPath.'/'.$picture[$pic], base_path() . '/public/thumbnail/'.$picture[$pic], 20);
                     $pic_data[] = ['event_id' => $id, 'picture' => $picture[$pic]];
                 }
             }
@@ -298,6 +304,7 @@ class UserController extends Controller {
                     $file->move($destinationPath, $attachment[$attch]);
 
                     $this->create_watermark($destinationPath . '/' . $attachment[$attch], $destinationPath . '/' . $attachment[$attch]);
+                    $this->compressImage($destinationPath.'/'.$attachment[$attch], base_path() . '/public/thumbnail/'.$attachment[$attch], 20);
                     $attch_data[] = ['event_id' => $id, 'picture' => $attachment[$attch]];
                 }
             }
@@ -414,6 +421,27 @@ class UserController extends Controller {
         imagejpeg($source_gd_image, $output_file_path, 90);
         imagedestroy($source_gd_image);
         imagedestroy($overlay_gd_image);
+    }
+    
+    function compressImage($source, $destination, $quality){
+                
+        $info = getimagesize($source);
+        if ($info['mime'] == 'image/jpeg')
+            $image = imagecreatefromjpeg($source);
+
+        elseif ($info['mime'] == 'image/jpg')
+            $image = imagecreatefromjpg($source);
+        
+        elseif ($info['mime'] == 'image/gif')
+            $image = imagecreatefromgif($source);
+        
+
+        elseif ($info['mime'] == 'image/png')
+            $image = imagecreatefrompng($source);
+
+        imagejpeg($image, $destination, $quality);
+        
+        return $destination;
     }
 
 }

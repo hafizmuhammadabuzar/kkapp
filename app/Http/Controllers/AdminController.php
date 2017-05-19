@@ -919,12 +919,15 @@ class AdminController extends Controller {
                 if ($pic_res) {
                     foreach ($pic_res as $old) {
                         $img1 = $destinationPath . '/' . $old->picture;
+                        $thumbnail1 = base_path() . '/public/thumbnail/' . $old->picture;
 
                         $extension = explode('.', $old->picture);
                         $img2_name = uniqid() . '.' . $extension[1];
                         $img2 = $destinationPath . '/' . $img2_name;
+                        $thumbnail2 = base_path() . '/public/thumbnail/'.$img2_name;
 
                         copy($img1, $img2);
+                        copy($thumbnail1, $thumbnail2);
                         $pic_data[] = ['event_id' => $id, 'picture' => $img2_name];
                     }
                 }
@@ -952,7 +955,7 @@ class AdminController extends Controller {
                     $file->move($destinationPath, $picture[$pic]);
 
                     $this->create_watermark($destinationPath . '/' . $picture[$pic], $destinationPath . '/' . $picture[$pic]);
-                    $this->compressImage($destinationPath.'/'.$picture[$pic], base_path() . '/public/thumbnail/'.$picture[$pic], 30);
+                    $this->compressImage($destinationPath.'/'.$picture[$pic], base_path() . '/public/thumbnail/'.$picture[$pic], 20);
                     $pic_data[] = ['event_id' => $id, 'picture' => $picture[$pic]];
                 }
             }
@@ -970,7 +973,7 @@ class AdminController extends Controller {
                     $file->move($destinationPath, $attachment[$attch]);
 
                     $this->create_watermark($destinationPath . '/' . $attachment[$attch], $destinationPath . '/' . $attachment[$attch]);
-                    $this->compressImage($destinationPath.'/'.$attachment[$attch], base_path() . '/public/thumbnail/'.$attachment[$attch], 30);
+                    $this->compressImage($destinationPath.'/'.$attachment[$attch], base_path() . '/public/thumbnail/'.$attachment[$attch], 20);
                     $attch_data[] = ['event_id' => $id, 'picture' => $attachment[$attch]];
                 }
             }
@@ -1368,12 +1371,14 @@ class AdminController extends Controller {
     
     function compressOldImages(){
         
-        echo $res = $this->compressImage(base_path() . '/public/uploads/'.$_GET['file'], base_path() . '/public/thumbnail/'.$_GET['file'], 20);
-//        foreach (glob(base_path().'/public/uploads/*.*') as $filename) {
-//            $image = explode('/', $filename);
-//            echo $res.'<br/>';
-//        }
+        $pictures = DB::table('pictures')->get();
         
+        $path = base_path() . '/public/';
+        
+        foreach ($pictures as $pic) {
+            echo $res = $this->compressImage($path.'uploads/'.$pic->picture, $path.'thumbnail/'.$pic->picture, 20);
+            echo $res.'<br/>';
+        }
     }
 
 }
