@@ -27,12 +27,19 @@ class UserController extends Controller {
 
             return view('user.login');
         }
+        
+        $validation_data = ['email' => 'required', 'password' => 'required'];
+        $validator = Validator::make($request->all(), $validation_data);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withInput()->withErrors($validator);
+        }
 
         $check = DB::table('users')
                 ->where('email', $request->email)
                 ->where('password', $request->password)
                 ->first();
-
+        
         if ($check) {
             Session::put('user_id', $check->id);
             Session::put('user_name', $check->username);

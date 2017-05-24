@@ -19,8 +19,11 @@ class AdminController extends Controller {
     }
 
     public function home() {       
-        
-        return view('index');
+
+        if(isset($_GET['lang']) && $_GET['lang'] == 'EN'){
+            return view('index');
+        }
+        return view('index-ar');
     }
 
     public function index(Request $request) {

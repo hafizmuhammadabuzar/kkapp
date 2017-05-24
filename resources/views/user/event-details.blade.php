@@ -6,7 +6,7 @@
     <div class="container">
         <div class="row">
             <div class="head head-on">
-                <h4>Add Event</h4>
+                <h4>Add Event اضف فعالية</h4>
             </div>
             <div class="add-event">
                 @include('..partials/errors')
@@ -18,7 +18,7 @@
                         @endif
                         <div class="field-wrap type clearfix">
                             <div class="left">
-                                <h4>Type*  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    لغة الحدث</h4>
+                                <h4>Type*  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    نوع</h4>
                                 <?php $type_id = (isset($event)) ? explode(',', $event->type_id) : explode(',', old('type')); ?>
                                 @foreach($types as $key => $tp)
                                 <div class="radio-wrap">
@@ -40,7 +40,7 @@
                         </div>
                         <div class="field-wrap clearfix">
                             <div class="left">
-                                <label for="keyword">Keyword</label>
+                                <label for="keyword">Keyword  الكلمات المفتاحية</label>
                                 <?php $keyword = (isset($event)) ? $event->keyword : old('keyword'); ?>
                                 <input type="text" id="keyword" name="keyword" value="{{$keyword}}" data-role="tagsinput">
                             </div>
@@ -109,7 +109,7 @@
                             </div>
                             <div class="right cal event_dates">
                                 <div class="start-date">
-                                    <span>*Start Date</span>
+                                    <span>تاريخ البدء *Start Date</span>
                                     <?php
                                     if (isset($event)) {
                                         if ($event->all_day != 1) {
@@ -152,7 +152,7 @@
 
                                 </div>
                                 <div class="end-date">
-                                    <span>*End Date</span>
+                                    <span>تاريخ الانتهاء *End Date</span>
                                     <input type="text" placeholder="HH:MM AM" id="end_time" name="end_time" value="{{$e_time}}" required="required" pattern="^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$" class="timepicker end-time" <?php
                                     if ($all_day) {
                                         echo 'disabled="disabled"';
@@ -205,9 +205,9 @@
                         <div class="field-wrap clearfix">
                             <div class="left">
                                 <div class="field-wrap pic-clone">
-                                    <h4>Add Pictures - <span class="small">Max 4</span></h4>
+                                    <h4>Add Pictures - اضف صورة <span class="small">Max 4</span></h4>
                                     @if($uri_segment != 'event-detail')
-                                    <a href="#" style="display: block; margin: 0 0 10px;"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add more</a>
+                                    <a href="#" style="display: block; margin: 0 0 10px;"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add more اضف المزيد</a>
                                     <div id="pictures">
                                         <input type="file" name="picture[]" id="picture" />
                                         <i class="fa fa-times pic-remove" aria-hidden="true"></i>
@@ -215,9 +215,9 @@
                                     @endif
                                 </div>
                                 <div class="field-wrap attach-clone">
-                                    <h4>Attachments - <span class="small">Max 3</span></h4>
+                                    <h4>Attachments - المرفقات <span class="small">Max 3</span></h4>
                                     @if($uri_segment != 'event-detail')
-                                    <a href="#" style="display: block; margin: 0 0 10px;"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add more</a>
+                                    <a href="#" style="display: block; margin: 0 0 10px;"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add more اضف المزيد</a>
                                     <div id="attachments">
                                         <input type="file" name="attachment[]" id="attachment" />
                                         <i class="fa fa-times attch-remove" aria-hidden="true"></i>
@@ -226,9 +226,9 @@
                                 </div>
                             </div>
                             <div class="right left-right">
-                                <h4>Event Locations: &nbsp;&nbsp;&nbsp;&nbsp;  مواقع</h4>
+                                <h4>Event Locations: &nbsp;&nbsp;&nbsp;&nbsp; موقع الفعالية</h4>
                                 @if($uri_segment != 'event-detail')
-                                <a href="#add-location" class="add-location"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add Location</a>
+                                <a href="#add-location" class="add-location"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add Location اضف موقع الفعالية</a>
                                 @endif
                                 <?php
                                 if ($uri_segment != 'event-detail') {
@@ -350,7 +350,7 @@
                                     </div>
                                     <div class="radio-wrap">
                                         <input type="radio" id="separate" name="venue" value="separate" <?php if ($venue == 'separate') echo 'checked="checked"' ?>>
-                                        <label for="separate">Separate Sitting   &nbsp;&nbsp;&nbsp;  جلوس منفصلة</label>
+                                        <label for="separate">Separate Sitting   &nbsp;&nbsp;&nbsp;  مقاعد منفصلة</label>
                                     </div>
                                     <div class="radio-wrap">
                                         <input type="radio" id="public" name="venue" value="public" <?php if ($venue == 'public' || $venue == '' && $venue != 'men' && $venue != 'women' && $venue != 'separate') echo 'checked="checked"' ?>>
@@ -359,16 +359,16 @@
                                 </div>
                             </div>
                             <div class="right left-right">
-                                <h4>Paid/Free event* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    دفع / الحدث مجانا</h4>
+                                <h4>Paid/Free event* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    مجاني غير مجاني</h4>
                                 <div class="radio-wrap">
                                     <?php $fee = (isset($event)) ? $event->free_event : old('fee'); ?>
                                     <input type="radio" id="paid" name="fee" value="0" <?php if ($fee == '0') echo 'checked="checked"' ?> requried="required">
-                                    <label for="paid">Paid   &nbsp;&nbsp;&nbsp;  دفع </label>
+                                    <label for="paid">Paid   &nbsp;&nbsp;&nbsp;  غير مجاني</label>
                                 </div>
                                 <div class="radio-wrap">
                                     <?php $fee = (isset($event)) ? $event->free_event : old('fee'); ?>
                                     <input type="radio" id="free" name="fee" value="1" <?php if ($fee == '1' || $fee != '0') echo 'checked="checked"' ?> >
-                                    <label for="free">Free   &nbsp;&nbsp;&nbsp;  حر </label>
+                                    <label for="free">Free   &nbsp;&nbsp;&nbsp;  مجاني</label>
                                 </div>
                             </div>
                         </div>

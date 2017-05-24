@@ -109,8 +109,8 @@ body {
     @include('partials.errors')
     <span class="msg-error">{{ Session::get('login_error') }}</span>
     <form action="{{url('user/login')}}" method="post">
-        <input type="text" value="" placeholder="Username" id="email" name="email" />
-        <input type="password" value="" placeholder="Password" id="password" name="password" />
+        <input type="text" value="" placeholder="Email" id="email" name="email" required="required" />
+        <input type="password" value="" placeholder="Password" id="password" name="password" required="required" />
         <button>Submit</button>
     </form>
 </div>

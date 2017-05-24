@@ -126,10 +126,10 @@ if (strpos($_SERVER['REQUEST_URI'], "categor") > 0) {
           mapTypeId: 'terrain'
         });
 
-        map.addListener('click', function(event) {
-        	deleteMarkers();
-          addMarker(event.latLng);
-        });
+//        map.addListener('click', function(event) {
+//        	deleteMarkers();
+//          addMarker(event.latLng);
+//        });
 
         addMarker(haightAshbury);
         $('#event-latlngs').val(lat.toFixed(4)+','+lng.toFixed(4));
