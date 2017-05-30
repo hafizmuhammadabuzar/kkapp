@@ -27,7 +27,7 @@ class Event extends Model {
         $cur_date = date('Y-m-d');
 
         $query = Event::with('pictures', 'attachments', 'locations');
-        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    --    %h:%i %p') as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    --    %h:%i %p') as end_date, DAYNAME(events.start_date) as start_day"));
+        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    -    %h:%i %p') as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    -    %h:%i %p') as end_date, DAYNAME(events.start_date) as start_day"));
         $query->join('locations', 'locations.event_id', '=', 'events.id', 'left');
         $query->where('events.status', '=', 'Active');
         $query->where('end_date', '>=', $cur_date);
@@ -38,12 +38,6 @@ class Event extends Model {
         }
         if (!empty($city)) {
             $query->where('city', '=', $city);
-        }
-        if (!empty($kids)) {
-            $query->where('is_kids', '=', $kids);
-        }
-        if (!empty($disable)) {
-            $query->where('is_disabled', '=', $disable);
         }
         if (!empty($type)) {
             $types = explode(',', $type);
@@ -92,22 +86,16 @@ class Event extends Model {
         return $result;
     }
 
-    public static function getEventsByRadius($latLng, $radius, $type = '', $categories='', $languages='', $kids='', $disable='') {
+    public static function getEventsByRadius($latLng, $radius, $type = '', $categories='', $languages='') {
 
         $cur_date = date('Y-m-d');
         $split_latLng = explode(',', $latLng);
 
         $query = Event::with('pictures', 'attachments', 'locations');
-        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    --    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    --    %h:%i %p') as end_date, ( 3959 * acos( cos( radians(" . $split_latLng[0] . ") ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(" . $split_latLng[1] . ") ) + sin( radians(" . $split_latLng[0] . ") ) * sin( radians( latitude ) ) ) ) `distance`"));
+        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    -    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    -    %h:%i %p') as end_date, ( 3959 * acos( cos( radians(" . $split_latLng[0] . ") ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(" . $split_latLng[1] . ") ) + sin( radians(" . $split_latLng[0] . ") ) * sin( radians( latitude ) ) ) ) `distance`"));
         $query->join('locations', 'locations.event_id', '=', 'events.id');
         $query->where('events.status', '=', 'Active');
-        $query->where('end_date', '>=', $cur_date);        
-        if (!empty($kids)) {
-            $query->where('is_kids', '=', $kids);
-        }
-        if (!empty($disable)) {
-            $query->where('is_disabled', '=', $disable);
-        }
+        $query->where('end_date', '>=', $cur_date); 
         if (!empty($type)) {
             $types = explode(',', $type);
             $query->where(function ($query) use ($types) {
@@ -160,7 +148,7 @@ class Event extends Model {
         $cur_date = date('Y-m-d');
         
         $query = Event::with('pictures', 'attachments', 'locations');
-        $query->select(DB::raw("events.*, count(user_favourite_events.event_id) as likes, DATE_FORMAT(events.start_date,'%d-%m-%Y    --    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    --    %h:%i %p') as end_date"));
+        $query->select(DB::raw("events.*, count(user_favourite_events.event_id) as likes, DATE_FORMAT(events.start_date,'%d-%m-%Y    -    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    -    %h:%i %p') as end_date"));
         $query->join('user_favourite_events', 'user_favourite_events.event_id', '=', 'events.id');
         $query->where('events.status', '=', 'Active');
         $query->where('end_date', '>=', $cur_date);
@@ -177,7 +165,7 @@ class Event extends Model {
         $cur_date = date('Y-m-d');
         
         $query = Event::with('pictures', 'attachments', 'locations');
-        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    --    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    --    %h:%i %p') as end_date"));
+        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    -    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    -    %h:%i %p') as end_date"));
         $query->where('events.status', '=', 'Active');
         $query->where('share_count', '!=', 0);
         $query->where('end_date', '>=', $cur_date);
@@ -191,7 +179,7 @@ class Event extends Model {
     public static function getFavouriteEvents($user_id) {
 
         $query = Event::with('pictures', 'attachments', 'locations');
-        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    --    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    --    %h:%i %p') as end_date"));
+        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    -    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    -    %h:%i %p') as end_date"));
         $query->join('user_favourite_events', 'user_favourite_events.event_id', '=', 'events.id');
         $query->where('user_favourite_events.user_id', '=', $user_id);
         $query->where('events.status', '=', 'Active');
@@ -210,7 +198,7 @@ class Event extends Model {
                 ->get();
                 
         $query = Event::with('pictures', 'attachments', 'locations');
-        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    --    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    --    %h:%i %p') as end_date"));
+        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    -    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    -    %h:%i %p') as end_date"));
         $query->where('user_id', '=', $user_id);
         if($categories[0]->interested_in_kids == 1){
             $query->where('is_kids', '=', 1);
@@ -263,7 +251,7 @@ class Event extends Model {
         $cur_date = date('Y-m-d');
 
         $query = Event::with('pictures', 'attachments', 'locations');
-        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    --    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    --    %h:%i %p') as end_date"));
+        $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    -    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    -    %h:%i %p') as end_date"));
         if(!empty($search_data['verified_user'])){
             $query->join('users', 'users.id', '=', 'events.user_id');
         }
@@ -280,14 +268,6 @@ class Event extends Model {
         
         if(!empty($search_data['ar_company'])){
             $query->where('ar_company_name', '=', $search_data['ar_company']);
-        }
-        
-        if($search_data['is_kids'] == 1){
-            $query->where('is_kids', '=', 1);
-        }
-        
-        if($search_data['is_disabled'] == 1){
-            $query->where('is_disabled', '=', 1);
         }
         
         if(!empty($search_data['venue'])){            

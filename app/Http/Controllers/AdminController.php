@@ -1048,17 +1048,25 @@ class AdminController extends Controller {
         $id = Crypt::decrypt($request->segment(3));        
         $attachments = DB::table('attachments')->where('event_id', '=', $id)->get();
         $pictures = DB::table('pictures')->where('event_id', '=', $id)->get();
-
+        
         if(count($attachments) > 0){
             foreach ($attachments as $attch) {
-                unlink(base_path() . '/public/uploads/' . $attch->picture);
-                unlink(base_path() . '/public/thumbnail/' . $attch->picture);
+                if (file_exists('public/uploads/'.$attch->picture)) {
+                    unlink('public/uploads/' . $attch->picture);
+                }
+                if (file_exists('public/thumbnail/'.$attch->picture)) {
+                    unlink('public/thumbnail/' . $attch->picture);
+                }
             }
         }
-        if(count($attachments) > 0){
+        if(count($pictures) > 0){
             foreach ($pictures as $pic) {
-                unlink(base_path() . '/public/uploads/' . $pic->picture);
-                unlink(base_path() . '/public/thumbnail/' . $pic->picture);
+                if (file_exists('public/uploads/'.$pic->picture)) {
+                    unlink('public/uploads/' . $pic->picture);
+                }
+                if (file_exists('public/thumbnail'.$pic->picture)) {
+                    unlink('public/thumbnail/' . $pic->picture);
+                }
             }
         }
 
@@ -1106,7 +1114,12 @@ class AdminController extends Controller {
         $event_id = Crypt::decrypt($request->eventId);
         $image_id = Crypt::decrypt($request->imageId);
         $pictures = DB::table($request->type)->where('id', '=', $image_id)->where('event_id', '=', $event_id)->first();
-        unlink(base_path() . '/public/uploads/' . $pictures->picture);
+        if (file_exists('public/uploads/'.$pictures->picture)) {
+            unlink('public/uploads/' . $pictures->picture);
+        }
+        if (file_exists('public/thumbnail/'.$pictures->picture)) {
+            unlink('public/thumbnail/' . $pictures->picture);
+        }
 
         $res = DB::table($request->type)->where('id', '=', $image_id)->where('event_id', '=', $event_id)->delete();
         $this->digitalOcean->table($request->type)->where('id', '=', $image_id)->where('event_id', '=', $event_id)->delete();
@@ -1374,14 +1387,17 @@ class AdminController extends Controller {
     
     function compressOldImages(){
         
-        $pictures = DB::table('pictures')->get();
+        $pic = $_GET['pic'];
+        $res = $this->compressImage($path.'uploads/'.$pic, $path.'thumbnail/'.$pic, 20);
+        echo $res.'<br/>';
         
-        $path = base_path() . '/public/';
-        
-        foreach ($pictures as $pic) {
-            echo $res = $this->compressImage($path.'uploads/'.$pic->picture, $path.'thumbnail/'.$pic->picture, 20);
-            echo $res.'<br/>';
-        }
+//        $pictures = DB::table('pictures')->get();
+//        
+//        $path = base_path() . '/public/';
+//        
+//        foreach ($pictures as $pic) {
+//            echo $res.'<br/>';
+//        }
     }
 
 }

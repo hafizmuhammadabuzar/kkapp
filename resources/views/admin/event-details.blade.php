@@ -271,7 +271,7 @@
                                     ?>
                                     <li>
                                         <a href="#" class="add-location location-data">{{$loc->location.' | '.$loc->city.' | '.$loc->latitude.', '.$loc->longitude}}</a>
-                                        <?php if ($uri_segment != 'event-detail') { ?>
+                                        <?php if ($uri_segment == 'edit-event') { ?>
                                             <a href="#" class="link-remove fa fa-remove location-remove"></a>
                                         <?php } ?>
                                     </li>
@@ -288,7 +288,7 @@
                                 @foreach($event->pictures as $pic)
                                 <li>
                                     <img src="{{URL::asset('public/uploads/'.$pic->picture)}}" alt="image" id="pic">
-                                    <?php if ($uri_segment != 'event-detail') { ?>
+                                    <?php if ($uri_segment == 'edit-event') { ?>
                                         <span class="remove-img"><i class="fa fa-remove picture-delete" data-event="{{'pictures,'.Crypt::encrypt($event->id).','.Crypt::encrypt($pic->id)}}"></i></span>
                                     <?php } ?>
                                 </li>
@@ -307,7 +307,7 @@
                                 @endforeach
                             </div>
                             <div class="right left-right">
-                                <h4>Kids/Disabled  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    الاطفال / تعطيل</h4>
+                                <h4>Kids/Disabled  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    أصحاب الهمم / أطفال</h4>
                                 <?php $kids = (isset($event)) ? $event->is_kids : old('kids'); ?>
                                 <div class="radio-wrap">
                                     <input type="checkbox" id="kids" name="kids" value="1" <?php if ($kids == '1') echo 'checked="checked"' ?>>
@@ -316,7 +316,7 @@
                                 <?php $disable = (isset($event)) ? $event->is_disabled : old('disable'); ?>
                                 <div class="radio-wrap">
                                     <input type="checkbox" id="disable" name="disable" value="1" <?php if ($disable == '1') echo 'checked="checked"' ?>>
-                                    <label for="disable">Disable تعطيل</label>
+                                    <label for="disable">Disable أصحاب الهمم</label>
                                 </div>
                             </div>
                         </div>

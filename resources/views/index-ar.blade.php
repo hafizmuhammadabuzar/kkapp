@@ -27,7 +27,7 @@
 				<div class="header-right">
 					<ul>
 						<li><a href="{{url('/?lang=EN')}}">English</a></li>
-						<li class="arabic active"><a href="{{url('/AR')}}">العربية</a></li>
+						<li class="arabic active"><a href="{{url('/')}}">العربية</a></li>
 					</ul>
 				</div>
 				<div class="clear"></div>

@@ -132,7 +132,7 @@ a {text-decoration: none;}
 .head-inner .head-img {
     position: absolute;
     right: 10px;
-    bottom: 0px;
+    bottom: -43px;
     height: auto;
 }
 .store-links {
@@ -371,28 +371,6 @@ body.arb {
     direction: rtl;
     font-family: 'JF Flat regular';
 }
-/*body.arb .header,
-body.arb .home .left,
-body.arb .search .right,
-body.arb .footer {
-    -moz-transform: scaleX(-1);
-    -o-transform: scaleX(-1);
-    -webkit-transform: scaleX(-1);
-    transform: scaleX(-1);
-    filter: FlipH;
-    -ms-filter: "FlipH";
-}
-body.arb .header .holder,
-body.arb .home .left .img-wrap,
-body.arb .search .right .img-wrap,
-body.arb .footer .holder {
-    -moz-transform: scaleX(-1);
-    -o-transform: scaleX(-1);
-    -webkit-transform: scaleX(-1);
-    transform: scaleX(-1);
-    filter: FlipH;
-    -ms-filter: "FlipH";
-}*/
 body.arb .header {
     background: url("../images/bg1-arb.jpg") no-repeat center top;
 }
@@ -501,7 +479,6 @@ body.arb .footer .contact-area {
 @media screen and (max-width:1023px){
     .sect-head, body.arb .sect-head {margin: 0 0 30px;}
     .head-inner .text-area {width: 43%;}
-    .head-inner .head-img {bottom: 40px;}
     .head-inner .text-area h3 {font-size: 40px; line-height: 45px; }
     .head-inner .text-area p {font-size: 20px; line-height: 25px;}
     .home .right .text-area, .search .text-area, body.arb .home .right .text-area, body.arb .search .text-area {padding: 40px 0 0 30px; font-size:16px;}
@@ -515,6 +492,15 @@ body.arb .footer .contact-area {
     .footer .right {display: none;}
 }
 @media screen and (max-width:767px){
+	body.arb .header {
+    	background: url("../images/bg1-arb-mob.jpg") no-repeat center top;
+	}
+	.header {
+		background: url("../images/bg1-mob.jpg") no-repeat center top;
+	}
+	.head-inner .text-area p {
+		color:#fff;
+	}
     .head-inner .head-img, .home .left, .search .right, .arrow, .stores .arrow, .stores .left .arrow {display: none;}
     .head-inner .text-area, .home .right, .search .left, .stores .left, .stores .right, .footer .about, .footer .contact-area { width: 100%;}
     .footer .about,

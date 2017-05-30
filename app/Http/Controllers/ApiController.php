@@ -130,15 +130,13 @@ class ApiController extends Controller {
 
         $all_day = !empty($request->all_day) ? $request->all_day : 0;
         $free_event = !empty($request->free_event) ? $request->free_event : 0;
-        $kids_event = !empty($request->kids_event) ? $request->kids_event : 0;
-        $disable_event = !empty($request->disable_event) ? $request->disable_event : 0;
+//        $kids_event = !empty($request->kids_event) ? $request->kids_event : 0;
+//        $disable_event = !empty($request->disable_event) ? $request->disable_event : 0;
         $event_data = [
             'reference_no' => $reference_no,
             'type_id' => implode(',', $request->types),
             'category_id' => implode(',', $request->categories),
             'keyword' => $request->keywords,
-            'eng_name' => $request->event_name,
-            'eng_company_name' => trim($request->company_name),
             'phone' => $request->phone,
             'email' => $request->email,
             'weblink' => $request->website,
@@ -150,15 +148,29 @@ class ApiController extends Controller {
             'twitter' => $request->twitter,
             'instagram' => $request->instagram,
             'event_language' => implode(',', $request->languages),
-            'eng_description' => $request->description,
             'venue' => $request->venue,
-            'is_kids' => $kids_event,
-            'is_disabled' => $disable_event,
             'share_count' => 0,
             'user_id' => $check->id,
             'created_at' => $this->current_date_time,
             'updated_at' => $this->current_date_time,
         ];
+        
+        if($request->lang == 'en'){
+            $lang_fields = [
+                'eng_name' => $request->event_name,
+                'eng_company_name' => trim($request->company_name),
+                'eng_description' => $request->description
+            ];
+        }
+        else{
+            $lang_fields = [
+                'ar_name' => $request->event_name,
+                'ar_company_name' => trim($request->company_name),
+                'ar_description' => $request->description
+            ];
+        }
+        
+        $event_data = array_merge($event_data, $lang_fields);
 
         $id = DB::table('events')->insertGetId($event_data);
         if ($id) {
@@ -175,6 +187,7 @@ class ApiController extends Controller {
                     $file->move($destinationPath, $picture[$i - 1]);
 
                     $this->create_watermark($destinationPath . '/' . $picture[$i - 1], $destinationPath . '/' . $picture[$i - 1]);
+                    $this->compressImage($destinationPath.'/'.$picture[$i - 1], base_path() . '/public/thumbnail/'.$picture[$i - 1], 20);
                     $pic_data[] = ['event_id' => $id, 'picture' => $picture[$i - 1]];
                 }
 
@@ -185,6 +198,7 @@ class ApiController extends Controller {
                     $file->move($destinationPath, $attachment[$i - 1]);
 
                     $this->create_watermark($destinationPath . '/' . $attachment[$i - 1], $destinationPath . '/' . $attachment[$i - 1]);
+                    $this->compressImage($destinationPath.'/'.$attachment[$i - 1], base_path() . '/public/thumbnail/'.$attachment[$i - 1], 20);
                     $attch_data[] = ['event_id' => $id, 'picture' => $attachment[$i - 1]];
                 }
             }
@@ -248,10 +262,10 @@ class ApiController extends Controller {
 //        echo '<pre>'; print_r($user_language); die;
         
         if (!empty($request->radius)) {
-            $events = Event::getEventsByRadius($request->latLng, $request->radius, $request->type, $user_category, $user_language, $kids, $disabled);
+            $events = Event::getEventsByRadius($request->latLng, $request->radius, $request->type, $user_category, $user_language);
             $offset = -1;
         } else {
-            $events = Event::getEvents($request->city, $request->type, $offset, false, $user_category, $user_language, $kids, $disabled);
+            $events = Event::getEvents($request->city, $request->type, $offset, false, $user_category, $user_language);
         }
 
         if (count($events) == 0 && $offset > 0 || !empty($request->radius)) {
@@ -1508,6 +1522,28 @@ class ApiController extends Controller {
 
             return $result;
 //        }
+    }
+       
+    
+    function compressImage($source, $destination, $quality){
+                
+        $info = getimagesize($source);
+        if ($info['mime'] == 'image/jpeg')
+            $image = imagecreatefromjpeg($source);
+
+        elseif ($info['mime'] == 'image/jpg')
+            $image = imagecreatefromjpg($source);
+        
+        elseif ($info['mime'] == 'image/gif')
+            $image = imagecreatefromgif($source);
+        
+
+        elseif ($info['mime'] == 'image/png')
+            $image = imagecreatefrompng($source);
+
+        imagejpeg($image, $destination, $quality);
+        
+        return $destination;
     }
     
     

@@ -81,7 +81,7 @@
                     <div class="text-area">
                         <h2 class="sect-head">appstore</h2>
                         <p>Download now and start adding events now on iPhone</p>
-                        <a href="#" class="btn-appstore">appstore</a>
+                        <a href="https://appsto.re/pk/iawZib.i" class="btn-appstore">appstore</a>
                         <a href="#footer" class="arrow"></a>
                     </div>
                 </div>
