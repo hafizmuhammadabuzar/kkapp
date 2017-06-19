@@ -22,7 +22,7 @@ class Event extends Model {
         return $this->hasMany('App\Location');
     }
 
-    public static function getEvents($city = '', $type = '', $offset = '', $is_featured = false, $categories='', $languages='', $kids='', $disable='') {
+    public static function getEvents($city = '', $type = '', $offset = '', $is_featured = false, $categories='', $languages='', $limit = '') {
         
         $cur_date = date('Y-m-d');
 
@@ -78,7 +78,7 @@ class Event extends Model {
                 }
             });            
         }
-        $query->take(5)->skip($offset);
+        $query->take($limit)->skip($offset);
         $query->orderBy('events.start_date', 'ASC');
         $query->groupBy('id');
         $result = $query->get();
@@ -200,12 +200,7 @@ class Event extends Model {
         $query = Event::with('pictures', 'attachments', 'locations');
         $query->select(DB::raw("events.*, DATE_FORMAT(events.start_date,'%d-%m-%Y    -    %h:%i %p')as start_date, DATE_FORMAT(events.end_date,'%d-%m-%Y    -    %h:%i %p') as end_date"));
         $query->where('user_id', '=', $user_id);
-        if($categories[0]->interested_in_kids == 1){
-            $query->where('is_kids', '=', 1);
-        }
-        if($categories[0]->interested_in_disabled == 1){
-            $query->where('is_disabled', '=', 1);
-        }
+        $query->where('status', '=', 'Active');
         if($categories[0]->category_id){            
             $query->where(function ($query) use ($categories) {
                 foreach($categories as $key => $cat){
@@ -233,7 +228,7 @@ class Event extends Model {
         if(Session::has('user_id')){
             $query->where('user_id', Session::get('user_id'));
         }
-        if($type == 'admin'){
+        else if($type == 'admin'){
             $query->whereRaw('user_id = 0');
         }
         else{
@@ -255,6 +250,11 @@ class Event extends Model {
         if(!empty($search_data['verified_user'])){
             $query->join('users', 'users.id', '=', 'events.user_id');
         }
+        
+        if(!empty($search_data['verified_user'])){
+            $query->where('username', '=', $search_data['verified_user']);
+        }
+        
         if(!empty($search_data['city'])){
             $query->join('locations', 'locations.event_id', '=', 'events.id');     
         }
@@ -270,18 +270,7 @@ class Event extends Model {
             $query->where('ar_company_name', '=', $search_data['ar_company']);
         }
         
-        if(!empty($search_data['venue'])){            
-//            $venue = explode(',', $search_data['venue']);
-//            $query->where(function ($query) use ($venue) {
-//                foreach($venue as $key => $v){
-//                    if($key == 0){
-//                        $query->whereRaw('FIND_IN_SET("'.$v.'",venue)');
-//                    }
-//                    else{
-//                        $query->orWhereRaw('FIND_IN_SET("'.$v.'",venue)');
-//                    }
-//                }
-//            });
+        if(!empty($search_data['venue'])){     
             $query->whereIn('venue', explode(',', $search_data['venue']));
         }
         
@@ -295,15 +284,13 @@ class Event extends Model {
         if(!empty($search_data['city'])){
             $query->whereIn('city', explode(',', $search_data['city']));
         }
-        if(!empty($search_data['verified_user'])){
-            $query->where('user_id', '=', $search_data['verified_user']);
-        }
+        
         if(!empty($search_data['start_date']) && !empty($search_data['end_date'])){
-            $query->where('start_date','>=',date('Y-m-d', strtotime($search_data['start_date'])));
-            $query->where('end_date','<=',date('Y-m-d', strtotime($search_data['end_date'])));
+            $query->whereDate('start_date','>=',date('Y-m-d', strtotime($search_data['start_date'])));
+            $query->whereDate('end_date','<=',date('Y-m-d', strtotime($search_data['end_date'])));
         }
         else if(!empty($search_data['start_date']) && empty($search_data['end_date'])){
-            $query->where('start_date','=',date('Y-m-d', strtotime($search_data['start_date'])));
+            $query->whereDate('start_date','=',date('Y-m-d', strtotime($search_data['start_date'])));
         }
         
         if(!empty($search_data['category'])){
@@ -365,7 +352,7 @@ class Event extends Model {
         $query->orderBy('events.start_date', 'ASC');
         $query->groupBy("id");
         $result = $query->get();
-
+        
         return $result;
     }
 

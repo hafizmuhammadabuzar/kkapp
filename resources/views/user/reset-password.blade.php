@@ -6,8 +6,6 @@
 <title>KK APP- User Login</title>
 <style>
 body {
-    /*background: url('http://i.imgur.com/Eor57Ae.jpg') no-repeat fixed center center;*/
-    /*background-size: cover;*/
     background: #59423c;
     font-family: Montserrat;
 }
@@ -15,7 +13,6 @@ body {
 .logo {
     width: 213px;
     height: 36px;
-    /*background: url('../public/admin/images/logo.png') no-repeat;*/
     margin: 30px auto;
 }
 
@@ -97,13 +94,6 @@ body {
 .msg-error{
     color: red;
 }
-.reset{
-    float: right;
-    margin-top: -15px;
-    margin-bottom: 15px;
-    font-size: 12px;
-    color: black;
-}
 
 </style>
 </head>
@@ -112,13 +102,12 @@ body {
 
 <div class="logo"></div>
 <div class="login-block">
-    <h1>User Login</h1>
+    <h1>Reset Password</h1>
     @include('partials.errors')
-    <span class="msg-error">{{ Session::get('login_error') }} <?php Session::forget('error'); ?></span>
-    <form action="{{url('user/login')}}" method="post">
-        <input type="text" value="" placeholder="Email" id="email" name="email" required="required" />
-        <input type="password" value="" placeholder="Password" id="password" name="password" required="required" />
-        <a href="{{url('user/forgot/password')}}" class="reset">Reset Password</a>
+    <span class="msg-error">{{ Session::get('error') }} <?php Session::forget('error'); ?></span>
+    <form action="{{url('user/reset/password')}}" method="post">
+        <input type="password" placeholder="New Password" id="password" name="password" required="required" />
+        <input type="password" placeholder="Confirm Password" id="password" name="password_confirmation" required="required" />
         <button>Submit</button>
     </form>
 </div>

@@ -107,6 +107,9 @@ Route::group(['prefix' => 'user'], function () {
     Route::get('/', 'UserController@index');
     Route::post('/login', 'UserController@index');
     Route::get('/logout', 'UserController@logout');
+    Route::resource('/forgot/password', 'UserController@forgotPassword');
+    Route::resource('/reset/password', 'UserController@resetPassword');
+    Route::get('/reset/password/{num}', 'UserController@resetPassword');
 
     Route::get('/add-event', 'UserController@addEvent');
     Route::post('/save-event', 'UserController@addEvent');

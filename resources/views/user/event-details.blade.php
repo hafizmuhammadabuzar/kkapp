@@ -337,16 +337,16 @@
                         @endif 
                         <div class="field-wrap clearfix">
                             <div class="left">
-                                <h4>Venue*  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    مكان</h4>
+                                <h4>Venue*  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    المكان مخصص</h4>
                                 <?php $venue = (isset($event)) ? $event->venue : old('venue'); ?>
                                 <div class="inner-row">
                                     <div class="radio-wrap">
                                         <input type="radio" id="men" name="venue" value="men" <?php if ($venue == 'men') echo 'checked="checked"' ?> required="required">
-                                        <label for="men">Men   &nbsp;&nbsp;&nbsp;  الذكر</label>
+                                        <label for="men">Men   &nbsp;&nbsp;&nbsp;  للذكور فقط</label>
                                     </div>
                                     <div class="radio-wrap">
                                         <input type="radio" id="women" name="venue" value="women" <?php if ($venue == 'women') echo 'checked="checked"' ?>>
-                                        <label for="women">Women   &nbsp;&nbsp;&nbsp;  إناثا</label>
+                                        <label for="women">Women   &nbsp;&nbsp;&nbsp;  للنساء فقط</label>
                                     </div>
                                     <div class="radio-wrap">
                                         <input type="radio" id="separate" name="venue" value="separate" <?php if ($venue == 'separate') echo 'checked="checked"' ?>>
@@ -354,7 +354,7 @@
                                     </div>
                                     <div class="radio-wrap">
                                         <input type="radio" id="public" name="venue" value="public" <?php if ($venue == 'public' || $venue == '' && $venue != 'men' && $venue != 'women' && $venue != 'separate') echo 'checked="checked"' ?>>
-                                        <label for="public">Public   &nbsp;&nbsp;&nbsp;  عام</label>
+                                        <label for="public">Public   &nbsp;&nbsp;&nbsp;  الدعوة عامة</label>
                                     </div>
                                 </div>
                             </div>
@@ -417,6 +417,10 @@
 
         if ($('#uri').val() == 'event-detail') {
             $(":input").attr("disabled", true);
+        }
+
+        if ($('#uri').val() == 'edit-event') {
+            $("#start_time, #end_time").removeAttr('pattern');
         }
 
         if ($('#uri').val() == 'duplicate-event') {
@@ -483,7 +487,11 @@
                 $('#start_time').focus();
                 return false;
             }
-            if (start_date > end_date) {
+            start_date = start_date.split('-');
+            end_date = end_date.split('-');
+            var dateOne = new Date(start_date[2], start_date[1], start_date[0]);
+            var dateTwo = new Date(end_date[2], end_date[1], end_date[0]);
+            if (dateOne > dateTwo) {                
                 alert('Start date can not be greater than End date');
                 $('#start_date').focus();
                 return false;
@@ -519,6 +527,8 @@
                 });
             }
             return true;
+//            $(this).submit();
+//            }
         });
 
         $('.form-location').submit(function () {

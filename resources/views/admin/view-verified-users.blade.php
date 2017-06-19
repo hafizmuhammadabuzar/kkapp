@@ -22,8 +22,6 @@
                             <th>#</th>
                             <th>Username</th>
                             <th>Email</th>
-                            <th>Gender</th>
-                            <th>Age</th>
                             <th>Picture</th>
                             <th>Status</th>
                             <th>Created At</th>
@@ -36,8 +34,6 @@
                             <td><?php echo $sr; ?></td>
                             <td><?php echo $user->username;?></td>
                             <td><?php echo $user->email;?></td>
-                            <td><?php echo $user->gender;?></td>
-                            <td><?php echo $user->age;?></td>
                             <td><img src="{{url('public/uploads/'.$user->image)}}" width="50" height="50" /></td>
                             <td id="user-status-<?php echo $key;?>"><?php echo $user->status;?></td>
                             <td><?php echo date('d-M-Y', strtotime($user->created_at));?></td>

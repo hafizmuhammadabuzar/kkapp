@@ -62,15 +62,17 @@
                             <td>
                                 @foreach($categories[$key] as $cat_key => $cat)
                                 @if($cat_key < 3)
-                                {{$cat->english.','}}
+                                {{$cat->english}}
                                 @endif
+                                <?php if(isset($categories[$key][$cat_key+1]->english)) echo ','; ?>
                                 @endforeach
                             </td>
                             <td>
                                 @foreach($locations[$key] as $loc_key => $loc)
                                 @if($loc_key < 3)
-                                {{$loc->city.','}}
+                                {{$loc->city}}
                                 @endif
+                                <?php if(isset($locations[$key][$loc_key+1]->city)) echo ','; ?>
                                 @endforeach
                             </td>
                             <td>{!!$event->eng_company_name.'<br/>'.$event->ar_company_name!!}</td>

@@ -241,6 +241,7 @@ class ApiController extends Controller {
     public function getEvents(Request $request) {
 
         $offset = ($request->offset > 0) ? $request->offset : 0;
+        $limit = empty($request->user_id) ? 10 : 5;
         
         if (!empty($request->user_id)) {
             $user_language = DB::table('user_languages')->select(DB::raw('group_concat(language_id) as language'))->where('user_id', $request->user_id)->first();
@@ -259,13 +260,11 @@ class ApiController extends Controller {
             $disabled = '';
         }
         
-//        echo '<pre>'; print_r($user_language); die;
-        
         if (!empty($request->radius)) {
             $events = Event::getEventsByRadius($request->latLng, $request->radius, $request->type, $user_category, $user_language);
             $offset = -1;
         } else {
-            $events = Event::getEvents($request->city, $request->type, $offset, false, $user_category, $user_language);
+            $events = Event::getEvents($request->city, $request->type, $offset, false, $user_category, $user_language, $limit);
         }
 
         if (count($events) == 0 && $offset > 0 || !empty($request->radius)) {
@@ -274,7 +273,8 @@ class ApiController extends Controller {
             $offset = $offset + 5;
         }
 
-        $featured_events = Event::getEvents($request->city, '', 0, true);
+        $city = ($request->city == 'Al Ain') ? 'Al-Ain' : $request->city;
+        $featured_events = Event::getEvents($city, '', 0, true, '', '', 5);
         $likes = Event::getMostLike();
         $shared = Event::getMostShared();
 
@@ -828,7 +828,7 @@ class ApiController extends Controller {
             else{
                 $check = DB::table('users')->where('email', '=', $email)->first();
             }
-            if ($check) {
+            if ($check) {                
                 $user = User::getUserDetails($check->id);
                 $user->categories = User::getUserCategories($user->id);
                 $user->languages = DB::table('user_languages')
@@ -946,11 +946,15 @@ class ApiController extends Controller {
 
         $user_data = [
             'username' => $username,
-            'password' => $password,
             'gender' => $gender,
             'dob' => $dob,
             'updated_at' => $this->current_date_time,
         ];
+        
+        if(!empty($password)){
+            $password = ['password' => $password];
+            $user_data = array_merge($password, $user_data);
+        }
 
         if ($request->hasFile('picture')) {
             $file = $request->file('picture');

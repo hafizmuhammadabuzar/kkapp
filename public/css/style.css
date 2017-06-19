@@ -115,7 +115,7 @@ a {text-decoration: none;}
     width: 45%;
     text-align: center;
     padding: 70px 0 0;
-    margin: 0 0 93px;
+    margin: 0 0 87px;
 }
 .head-inner .text-area h3 {
     font-size: 73px;
@@ -143,6 +143,11 @@ a {text-decoration: none;}
     display: inline-block;
     vertical-align: top;
     margin: 0 5px;
+	width:180px;
+}
+
+.store-links li a {
+	display:block;
 }
 .home {
     overflow: hidden;

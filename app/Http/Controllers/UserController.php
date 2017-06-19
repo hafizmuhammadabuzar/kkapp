@@ -57,6 +57,71 @@ class UserController extends Controller {
         return view('user.login');
     }
 
+    public function forgotPassword(Request $request) {
+
+        if($request->isMethod('get')){
+            return view('user.forgot-password');
+        }
+        
+        $validation_data = ['email' => 'required'];
+        $validator = Validator::make($request->all(), $validation_data);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator);
+        }
+
+        $check = DB::table('users')->select('remember_token','is_social')->where('email', '=', $request->email)->where('is_verified', '=', 1)->first();
+        if ($check) {
+            if ($check->is_social == 1) {
+                Session::put('error', "It's social account, Password can not be reset");
+            } else {
+                $msg = "Please click the link below to reset password<br/><a href='".url('user/reset/password/'.$check->remember_token)."'>Reset Password</a>";
+                $this->new_send_email($request->email, 'KK Events - Corporate User (Reset Password)', $msg);
+                Session::put('error', 'Please check your email');
+            }
+        } else {
+            Session::put('error', 'Email not found');
+        }
+
+        return redirect()->back();
+    }
+
+    public function resetPassword(Request $request) {
+
+        if($request->isMethod('get')){
+            Session::put('remember_token', $request->segment(4));
+            return view('user.reset-password');
+        }
+        
+        $token = Session::get('remember_token');
+        if(!empty($token)){
+            $validation_data = ['password' => 'required|min:3', 'password_confirmation' => 'required|min:3|same:password'];
+            $validator = Validator::make($request->all(), $validation_data);
+
+            if ($validator->fails()) {
+                return redirect()->back()->withErrors($validator);
+            }
+
+            $remember_token = uniqid();
+            $res = DB::table('users')
+                    ->where('remember_token', '=', $token)
+                    ->where('is_verified', '=', 1)
+                    ->update(['password' => $request->password, 'remember_token' => $remember_token]);
+            if ($res == 1) {
+                Session::flush();
+                Session::put('login_error', 'Password successfully reset, Please login');
+                return redirect('user');
+            } else {
+                Session::put('error', 'Password could not be reset');
+            }
+        }
+        else{
+            Session::put('error', 'Invalid request');
+        }
+
+        return redirect()->back();
+    }
+
     /* Event module start */
 
     public function searchEvents(Request $request) {
@@ -398,6 +463,17 @@ class UserController extends Controller {
 
         Session::flash('success', 'Event successfully deleted');
         return redirect('admin/view-events');
+    }
+    
+    // Email
+    protected function new_send_email($to, $subject, $msg) {
+
+        $headers = 'From: do-not-reply@khiarkeys.com' . "\r\n" .
+                'Reply-To: do-not-reply@khiarkeys.com'."\r\n" .
+                'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
+                'X-Mailer: PHP/' . phpversion();
+
+        mail($to, $subject, $msg, $headers);
     }
 
     // Water mark logo on image

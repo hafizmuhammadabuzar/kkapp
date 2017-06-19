@@ -21,17 +21,19 @@
                     $search_sort = '';
                     $action = 'user/view-events';
                 }
+                
+                $url = strstr($_SERVER['REQUEST_URI'], 'user');
                 ?>
-                <form id="sorting-form" action="{{url($action)}}" method="post">
+                <form id="sorting-form" action="{{url($url)}}" method="post">
                     <div class="col-xs-3 no-pad push-xs-2">
                         <input type="hidden" value="{{$search_sort}}" name="search">
                         <select class="form-control" id="sort" name="sort">
                             <option value="">Sort By:</option>
-                            <option value="paid">Paid</option>
-                            <option value="free">Free</option>
-                            <option value="date">Date/Time</option>
-                            <option value="name">Name</option>
-                            <option value="company">Company/Organizer</option>
+                            <option value="paid" <?php if(Session::get('sorted') == 'paid') echo 'selected="selected"' ?>>Paid</option>
+                            <option value="free" <?php if(Session::get('sorted') == 'free') echo 'selected="selected"' ?>>Free</option>
+                            <option value="date" <?php if(Session::get('sorted') == 'date') echo 'selected="selected"' ?>>Date/Time</option>
+                            <option value="name" <?php if(Session::get('sorted') == 'name') echo 'selected="selected"' ?>>Name</option>
+                            <option value="company" <?php if(Session::get('sorted') == 'company') echo 'selected="selected"' ?>>Company/Organizer</option>
                         </select>
                     </div>
                 </form>
@@ -63,15 +65,17 @@
                             <td>
                                 @foreach($categories[$key] as $cat_key => $cat)
                                 @if($cat_key < 3)
-                                {{$cat->english.','}}
+                                {{$cat->english}}
                                 @endif
+                                <?php if(isset($categories[$key][$cat_key+1]->english)) echo ','; ?>
                                 @endforeach
                             </td>
                             <td>
                                 @foreach($locations[$key] as $loc_key => $loc)
                                 @if($loc_key < 3)
-                                {{$loc->city.','}}
+                                {{$loc->city}}
                                 @endif
+                                <?php if(isset($locations[$key][$loc_key+1]->city)) echo ','; ?>
                                 @endforeach
                             </td>
                             <td>{!!$event->eng_company_name.'<br/>'.$event->ar_company_name!!}</td>

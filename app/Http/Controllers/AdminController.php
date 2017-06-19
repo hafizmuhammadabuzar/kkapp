@@ -37,8 +37,8 @@ class AdminController extends Controller {
             return view('admin.login');
         }
 
-        if ($request->email == 'admin' && $request->password == 'KhairKeys321@123') {
-//        if ($request->email == 'admin' && $request->password == 'admin') {
+//        if ($request->email == 'admin' && $request->password == 'KhairKeys321@123') {
+        if ($request->email == 'admin' && $request->password == 'admin') {
             Session::put('admin_data', 'loggedIn');
             return redirect('admin/view-admin-events');
         }
@@ -553,7 +553,7 @@ class AdminController extends Controller {
             WHEN status = 0 THEN "Pending"
             WHEN status = 1 THEN "Active"
             ELSE "Deleted" END) AS status, TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS age')
-                )->where('is_verified', '=', 0)->orderBy('username', 'asc')->paginate(15);
+                )->where('is_verified', '=', 0)->orderBy('id', 'DESC')->paginate(15);
                 
         $result['sr'] = ($result['users']->currentPage() > 1) ? ($result['users']->currentPage()-1)*($result['users']->perPage())+1 : 1;
         $result['uri_segment'] = 'view';
@@ -731,7 +731,13 @@ class AdminController extends Controller {
             ];
 
             $order = $sort[$request->sort];
-        } else {
+            Session::put('sort', $sort[$request->sort]);
+            Session::put('sorted', $request->sort);
+        }
+        else if(Session::get('sort')){
+            $order = Session::get('sort');
+        }
+        else {
             $order = 'id DESC';
         }
         
@@ -770,6 +776,11 @@ class AdminController extends Controller {
             ];
 
             $order = $sort[$request->sort];
+            Session::put('sort', $sort[$request->sort]);
+            Session::put('sorted', $request->sort);
+        }
+        else if(Session::get('sort')){
+            $order = Session::get('sort');
         } else {
             $order = 'id DESC';
         }
