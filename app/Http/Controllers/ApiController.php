@@ -1412,16 +1412,46 @@ class ApiController extends Controller {
 
     protected function new_send_email($to, $subject, $msg) {
 
-        $headers = 'From: do-not-reply@khiarkeys.com' . "\r\n" .
+        /*curl 
+        --Header "authuser:_username" 
+        --Header "authpass:_password" 
+        --data "to=john.smith@domain.com&subject=email subject string&from=john.smith@domain.com&bcc=mark.davies@domain.com&cc=mary.davies@domain.com&content=content email&html_content=html content of email" https://api.turbo-smtp.com/api/mail/send
+         */
+
+        $fields = array(
+            'to' => $to,
+            'bcc' => 'info@khairkeys.com,pk@synergistics.ae',
+            'subject' => $subject,
+            'from' => 'do-not-reply@khairkeys.com',
+            'html_content' => $msg,
+        );
+
+        $headers = array(
+            'authuser:info@khairkeys.com',
+            'authpass:NVeQtQCR',
+        );
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://api.turbo-smtp.com/api/mail/send');
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        return $result;
+
+        /*$headers = 'From: do-not-reply@khairkeys.com' . "\r\n" .
+                'Bcc: info@khairkeys.com'."\r\n" .
                 'Reply-To: do-not-reply@khiarkeys.com'."\r\n" .
                 'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
                 'X-Mailer: PHP/' . phpversion();
 
-        mail($to, $subject, $msg, $headers);
+        mail($to, $subject, $msg, $headers);*/
     }
     
-    
-    function save_test_iOS(){
+    /*function save_test_iOS(){
         
         $fields = array(
             'app_id' => "81c54624-340c-4ccd-907e-8fade9cbccb9",
@@ -1488,9 +1518,9 @@ class ApiController extends Controller {
         curl_close($ch);
 
         echo $response;
-    }
+    }*/
     
-    public function test_android_push() {
+    /*public function test_android_push() {
         
 //        foreach ($chunks as $chk) {
             $registrationIds[] = $_GET['token'];
@@ -1526,7 +1556,7 @@ class ApiController extends Controller {
 
             return $result;
 //        }
-    }
+    }*/
        
     
     function compressImage($source, $destination, $quality){

@@ -84,7 +84,7 @@
                                     <?php $phone = (isset($event)) ? $event->phone : old('phone'); ?>
                                     <label for="phone">هاتف</label>
                                 </div>
-                                <input type="number" id="phone" name="phone" value="{{$phone}}">
+                                <input type="text" id="phone" name="phone" value="{{$phone}}">
                             </div>
                             <div class="right left-right">
                                 <div class="label-wrap">
@@ -211,7 +211,7 @@
                                     <div id="pictures">
                                         <input type="file" name="picture[]" id="picture" />
                                         <i class="fa fa-times pic-remove" aria-hidden="true"></i>
-                                    </div>										
+                                    </div>
                                     @endif
                                 </div>
                                 <div class="field-wrap attach-clone">
@@ -221,7 +221,7 @@
                                     <div id="attachments">
                                         <input type="file" name="attachment[]" id="attachment" />
                                         <i class="fa fa-times attch-remove" aria-hidden="true"></i>
-                                    </div>										
+                                    </div>
                                     @endif
                                 </div>
                             </div>
@@ -334,7 +334,7 @@
                                 @endforeach
                             </ul>
                         </div>
-                        @endif 
+                        @endif
                         <div class="field-wrap clearfix">
                             <div class="left">
                                 <h4>Venue*  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    المكان مخصص</h4>
@@ -433,13 +433,18 @@
             $("#end_date").val('');
             $("#start_time").attr('type', 'time').focus();
         }
-        
+
         $('#start_time').focus(function(){
-            $(this).attr('type', 'time');            
+            $(this).attr('type', 'time');
         });
-        
+
         $('#end_time').focus(function(){
-            $(this).attr('type', 'time');            
+            $(this).attr('type', 'time');
+        });
+
+        $('#phone').keyup(function() {
+            var $th = $(this);
+            $th.val( $th.val().replace(/[^0-9]/g, function(str) { return ''; } ) );
         });
 
         $('.pic-clone a').click(function (e) {
@@ -482,6 +487,8 @@
             start_time = $('#start_time').val();
             end_date = $('#end_date').val();
             end_time = $('#end_time').val();
+            start_time = start_time.substr(0, 5);
+            end_time = end_time.substr(0, 5);
             if (start_time > end_time && start_date == end_date) {
                 alert('Start time can not be greater than End time');
                 $('#start_time').focus();
@@ -491,7 +498,7 @@
             end_date = end_date.split('-');
             var dateOne = new Date(start_date[2], start_date[1], start_date[0]);
             var dateTwo = new Date(end_date[2], end_date[1], end_date[0]);
-            if (dateOne > dateTwo) {                
+            if (dateOne > dateTwo) {
                 alert('Start date can not be greater than End date');
                 $('#start_date').focus();
                 return false;
